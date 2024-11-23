@@ -5477,22 +5477,34 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
-        // WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_LSYNTH_PARTS
+        // WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_SEARCH_PATHS
         {
             QObject::tr(
-            "  Configure LSynth settings.<br>"
-            "  - Archive LSynth Parts: Check if LSynth parts exist in<br>"
-            "    LDraw folder but not included in LDaw Content Search<br>"
-            "    Directories paths and add these parts to the %1<br>"
-            "    LDraw unofficial archive library.<br><br>"
-            "  - Add LSynth Library Path To LDraw Search Directories: <br>"
-            "    add library path to LDraw Content Search Directories<br>"
-            "    if not already included in search paths.<br><br>"
-            "    This option is enabled only whe Archive LSynth Parts<br>"
-            "    is enabled.%1<br>")
+            "  Configure what to do with the LDraw MODELS, LSynth<br>"
+            "  and Helper parts paths in reference to including<br>"
+            "  these paths in the LDraw Content Search Directories.<br>"
+            "  Note that, by default, both helper and LSynth parts<br>"
+            "  are included in the %1 unofficial parts zip archive.<br><br>"
+            "  - Exclude MODELS Path: Exclude MODELS folder path<br>"
+            "    from the LDraw search parths list. This path is<br>"
+            "    hard-coded to the root of the LDraw folder<br>"
+            "    e.g. ./LDraw/models.<br>"
+            "    It could be helpful performance-wise to uncheck<br>"
+            "    this if you are not using the LDraw MODELS folder.<br><br>"
+            "  - Add LSynth Path: Add LSynth folder path to LDraw search<br>"
+            "    paths if not already included in search paths.<br>"
+            "    This path is hard-coded the root of the unofficial folder<br>"
+            "    e.g. ./LDraw/unofficial/LSynth.<br><br>"
+            "  - Add Helper Path: Add Helper folder path to LDraw search<br>"
+            "    paths. This path is hard-coded to the root of the<br>"
+            "    unofficial folder e.g. ./LDraw/unofficial/helper.<br>"
+            "    If you wish to export your custom helper parts with<br>"
+            "    the renderers and/or Blender addon, then<br><br>"
+            "    check this setting.%2<br>")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
-                 QLatin1String("<br><br>  WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_LSYNTH_PARTS")
+                 QLatin1String("<br><br>  WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_SEARCH_PATHS")
 #else
                  ""
 #endif

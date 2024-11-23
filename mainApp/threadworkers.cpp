@@ -48,7 +48,6 @@ PartWorker::PartWorker(bool onDemand, QObject *parent) : QObject(parent)
 
   if (! onDemand) {
     _ldSearchDirsKey = Preferences::ldrawSearchDirsKey;
-    _lsynthPartsDir  = QDir::toNativeSeparators(QString("%1/LSynthParts").arg(Preferences::lpubDataPath));
     _customPartDir   = QDir::toNativeSeparators(QString("%1/%2custom/parts").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
     _customPrimDir   = QDir::toNativeSeparators(QString("%1/%2custom/p").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
 
@@ -58,10 +57,26 @@ PartWorker::PartWorker(bool onDemand, QObject *parent) : QObject(parent)
     if (Preferences::usingDefaultLibrary) {
       _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial/parts"));
       _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial/p"));
-    }
 
+      QString const modelsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("MODELS"));
+      if (Preferences::excludeModelsSearchDir)
+          _excludedSearchDirs << modelsDir;
+      else
+          _ldrawModelsDir = modelsDir;
+      QString const lsynthPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial/LSynth"));
+      if (Preferences::addLSynthSearchDir)
+          _lsynthPartsDir = lsynthPartsDir;
+      else
+          _excludedSearchDirs << lsynthPartsDir;
+
+      QString const helperPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial/helper"));
+      if (Preferences::addHelperSearchDir)
+          _helperPartsDir = helperPartsDir;
+      else
+          _excludedSearchDirs << helperPartsDir;
+    }
     setDoFadeStep(Preferences::enableFadeSteps);
-	setDoHighlightStep(Preferences::enableHighlightStep && !Gui::suppressColourMeta());
+    setDoHighlightStep(Preferences::enableHighlightStep && !Gui::suppressColourMeta());
   }
 }
 
@@ -113,8 +128,8 @@ void PartWorker::ldsearchDirPreferences() {
     }
 
   if (!doFadeStep() && !doHighlightStep()) {
-      _excludedSearchDirs << _customPartDir;
-      _excludedSearchDirs << _customPrimDir;
+      _excludedSearchDirs << QDir::toNativeSeparators(_customPartDir);
+      _excludedSearchDirs << QDir::toNativeSeparators(_customPrimDir);
   } else {
       Paths::mkCustomDirs();
   }
@@ -131,9 +146,12 @@ void PartWorker::ldsearchDirPreferences() {
       // Process directories...
       for (QString const &searchDir : searchDirs) {
           if (QDir(searchDir).entryInfoList(QDir::Dirs|QDir::Files|QDir::NoSymLinks).count() > 0) {
-              // Skip custom directory if not doFadeStep or not doHighlightStep
+              // Skip fade/highlight custom directory if not doFadeStep or not doHighlightStep
               QString const customDir = QDir::toNativeSeparators(searchDir.toLower());
               if ((!doFadeStep() && !doHighlightStep()) && (customDir == _customPartDir.toLower() || customDir == _customPrimDir.toLower()))
+                  continue;
+
+              if (_excludedSearchDirs.contains(QDir::toNativeSeparators(searchDir),Qt::CaseInsensitive))
                   continue;
 
               // If doFadeStep or doHighlightStep, check if custom directories included
@@ -185,23 +203,36 @@ void PartWorker::ldsearchDirPreferences() {
       emit gui->messageSig(LOG_ERROR, tr("Unable to load search directories."));
     }
 
-    // Add LSynth path to search directory list
-    bool dirInSearchList = false;
-    bool addLSynthSearchDir = Preferences::addLSynthSearchDir;
-    QStringList saveSearchDirs;
-    for (QString const &ldSearchDir : Preferences::ldSearchDirs) {
-        if (addLSynthSearchDir) {
-            if (QDir::toNativeSeparators(ldSearchDir.toLower()) == _lsynthPartsDir.toLower()) {
-                dirInSearchList = true;
-                break;
-            }
-        } else if (QDir::toNativeSeparators(ldSearchDir.toLower()) != _lsynthPartsDir.toLower())
-            saveSearchDirs << ldSearchDir;
+    // Add selected paths to search directory list
+    bool lsynthDirFound = false;
+    bool helperDirFound = false;
+    QString ldSearchDir;
+    QStringList ldSearchDirs = Preferences::ldSearchDirs;
+    for (int i = ldSearchDirs.size() - 1; i >= 0; i--) {
+        ldSearchDir = QDir::toNativeSeparators(ldSearchDirs.at(i).toLower());
+        if (ldSearchDir == _lsynthPartsDir.toLower()) {
+            if (Preferences::addLSynthSearchDir)
+                lsynthDirFound = true;
+            else
+                ldSearchDirs.removeAt(i);
+        } else
+        if (ldSearchDir == _helperPartsDir.toLower()) {
+            if (Preferences::addHelperSearchDir)
+                helperDirFound = true;
+            else
+                ldSearchDirs.removeAt(i);
+        }
     }
-    if (addLSynthSearchDir && !dirInSearchList)
-        Preferences::ldSearchDirs << getLSynthDir();
-    if (!addLSynthSearchDir && Preferences::ldSearchDirs.size() > saveSearchDirs.size())
-        Preferences::ldSearchDirs = saveSearchDirs;
+    Preferences::ldSearchDirs = ldSearchDirs;
+    if (Preferences::addLSynthSearchDir)
+        if (!lsynthDirFound)
+            Preferences::ldSearchDirs << _lsynthPartsDir;
+    if (Preferences::addHelperSearchDir)
+        if (!helperDirFound)
+            Preferences::ldSearchDirs << _helperPartsDir;
+    if (!Preferences::excludeModelsSearchDir)
+        if (!Preferences::ldSearchDirs.contains(_ldrawModelsDir,Qt::CaseInsensitive))
+            Preferences::ldSearchDirs << _ldrawModelsDir;
 
     updateLDSearchDirs();
 }
@@ -544,56 +575,11 @@ void PartWorker::updateLDSearchDirsParts()
 }
 
 /*
- * Get LSynth directory path
- */
-
-QString PartWorker::getLSynthDir() {
-
-    if (Preferences::archiveLSynthParts) {
-        QFileInfo outFile;
-        QDir dir(_lsynthPartsDir);
-        if (!dir.exists())
-            dir.mkdir(_lsynthPartsDir);
-        enum numLSynthFiles { lsynthFiles = 34 };
-        if (dir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() == lsynthFiles)
-            return dir.absolutePath();
-        const QString lsynthFilePaths[lsynthFiles] =
-        {
-            ":/lsynth/572a.dat",":/lsynth/757.dat"  ,":/lsynth/LS00.dat" ,":/lsynth/LS01.dat",
-            ":/lsynth/LS02.dat",":/lsynth/LS03.dat" ,":/lsynth/LS04.dat" ,":/lsynth/LS05.dat",
-            ":/lsynth/LS06.dat",":/lsynth/LS07.dat" ,":/lsynth/LS08.dat" ,":/lsynth/LS09.dat",
-            ":/lsynth/LS10.dat",":/lsynth/LS100.dat",":/lsynth/LS101.dat",":/lsynth/LS102.dat",
-            ":/lsynth/LS11.dat",":/lsynth/LS12.dat" ,":/lsynth/LS20.dat" ,":/lsynth/LS21.dat",
-            ":/lsynth/LS22.dat",":/lsynth/LS23.dat" ,":/lsynth/LS30.dat" ,":/lsynth/LS40.dat",
-            ":/lsynth/LS41.dat",":/lsynth/LS50.dat" ,":/lsynth/LS51.dat" ,":/lsynth/LS60.dat",
-            ":/lsynth/LS61.dat",":/lsynth/LS70.dat" ,":/lsynth/LS71.dat" ,":/lsynth/LS80.dat",
-            ":/lsynth/LS90.dat",":/lsynth/LS91.dat"
-        };
-        for (int i = 0; i < lsynthFiles; i++) {
-            qDebug() << "\nLSynth filePath: [" << i << "] " << lsynthFilePaths[i];
-            QFileInfo inFile(lsynthFilePaths[i]);
-            outFile.setFile(QString("%1/%2").arg(dir.absolutePath(), inFile.fileName()));
-            if (!outFile.exists())
-                QFile::copy(inFile.absoluteFilePath(), outFile.absoluteFilePath());
-        }
-        return dir.absolutePath();
-    }
-    return QString();
-}
-
-/*
  * Process LDraw search directories part files.
  */
 void PartWorker::processLDSearchDirParts() {
 
     QStringList dirs;
-
-    // Automatically load default LSynth when add to search directory is disabled
-    if (!Preferences::addLSynthSearchDir) {
-        QString dir = getLSynthDir();
-        if (!dir.isEmpty())
-            dirs.append(dir);
-    }
 
     if (_resetSearchDirSettings) {
         for (QString const &searchDir : Preferences::ldSearchDirs) {

@@ -127,8 +127,6 @@ public:
 
     void removeCustomDirs();
 
-    QString getLSynthDir();
-
     QStringList                _partList;
 
 public slots:
@@ -226,6 +224,8 @@ private:
    QString                   _customPartDir;
    QString                   _customPrimDir;
    QString                   _lsynthPartsDir;
+   QString                   _helperPartsDir;
+   QString                   _ldrawModelsDir;
    QString                   _ldrawCustomArchive;
    QString                   _ldSearchDirsKey;
    QString                   _ldrawArchiveFile;

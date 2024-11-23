@@ -2400,7 +2400,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="lsynthPartsGrpBox">
+        <widget class="QGroupBox" name="ldrawSearchPathsGrpBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -2408,30 +2408,39 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>Add LSynth parts to the parts archive and define search path entry as needed.</string>
+          <string>Add or exclude default paths to LDraw search directories.</string>
          </property>
          <property name="title">
-          <string>LSynth</string>
+          <string>LDraw Search Directories</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_30">
           <item>
-           <widget class="QCheckBox" name="archiveLSynthPartsBox">
+           <widget class="QCheckBox" name="excludeModelsSearchDirBox">
             <property name="toolTip">
-             <string>Archive bundled LSynth parts.
-Check if LSynth parts exist in LDraw folder but not included in search paths -e.g. if parts are in LDraw 'parts' folder.</string>
+             <string>Check to exclude the LDraw MODELS folder path from the extra LDraw search directories</string>
             </property>
             <property name="text">
-             <string>Archive LSynth Parts</string>
+             <string>Exclude MODELS Path</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="addLSynthSearchDirBox">
             <property name="toolTip">
-             <string>Check to add LSynth parts path to LDraw search paths if not already included in search paths.</string>
+             <string>Check to add LSynth parts path to LDraw search directories if not already included in search paths.</string>
             </property>
             <property name="text">
-             <string>Add LSynth Library Path To LDraw Search Directories</string>
+             <string>Add LSynth Path</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="addHelperSearchDirBox">
+            <property name="toolTip">
+             <string>Check to add Helper parts path to LDraw search directories if not already included in search paths.</string>
+            </property>
+            <property name="text">
+             <string>Add Helper Path</string>
             </property>
            </widget>
           </item>
@@ -3872,8 +3881,9 @@ p, li { white-space: pre-wrap; }
   <tabstop>cameraDefaultPosition</tabstop>
   <tabstop>resetDefaultPosition</tabstop>
   <tabstop>cameraDistanceFactor</tabstop>
-  <tabstop>archiveLSynthPartsBox</tabstop>
+  <tabstop>excludeModelsSearchDirBox</tabstop>
   <tabstop>addLSynthSearchDirBox</tabstop>
+  <tabstop>addHelperSearchDirBox</tabstop>
   <tabstop>ldviewSingleCall_Chk</tabstop>
   <tabstop>ldviewSnaphsotsList_Chk</tabstop>
   <tabstop>ldvPreferencesBtn</tabstop>

@@ -1,4 +1,4 @@
-LPub3D 2.4.8.166.3889 (23 11 2024 06:04:27)
+LPub3D 2.4.8.167.3890 (23 11 2024 06:05:19)
 
 Features, enhancements, fixes and changes
 ------------
@@ -21,6 +21,7 @@ Revisions:
 - Change - Add minizip unzOpen to quazip to avoid violating ODR #787
 - Change - AppImage build Qt Network SSL limitation #784
 - Change - Errors loading files with MODEL_PIECES meta-command #779
+- Change - Optionally add Models, LSynth and Helper paths to LDraw search list #791
 - Fix - Abnormal end on app close after view preference dialogue #773
 - Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774
 - Fix - False Fade Steps, Highlight Step message #777

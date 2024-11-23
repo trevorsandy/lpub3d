@@ -315,8 +315,9 @@ class Preferences
     static bool    portableDistribution;
     static bool    lpub3dLoaded;
     static bool    lgeoStlLib;
+    static bool    addHelperSearchDir;
     static bool    addLSynthSearchDir;
-    static bool    archiveLSynthParts;
+    static bool    excludeModelsSearchDir;
     static bool    skipPartsArchive;
     static bool    loadLastOpenedFile;
     static bool    extendedSubfileSearch;

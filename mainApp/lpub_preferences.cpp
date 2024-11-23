@@ -471,8 +471,9 @@ bool    Preferences::doNotShowPageProcessDlg    = false;
 bool    Preferences::autoUpdateChangeLog        = false;
 bool    Preferences::displayPageProcessingErrors= false;
 
+bool    Preferences::addHelperSearchDir         = false;
 bool    Preferences::addLSynthSearchDir         = false;
-bool    Preferences::archiveLSynthParts         = false;
+bool    Preferences::excludeModelsSearchDir     = false;
 bool    Preferences::skipPartsArchive           = false;
 bool    Preferences::loadLastOpenedFile         = false;
 bool    Preferences::extendedSubfileSearch      = false;
@@ -2247,12 +2248,21 @@ void Preferences::ldrawPreferences(bool browse)
         addLSynthSearchDir = Settings.value(QString("%1/%2").arg(SETTINGS,addLSynthSearchDirKey)).toBool();
     }
 
-    QString const archiveLSynthPartsKey("ArchiveLSynthParts");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,archiveLSynthPartsKey))) {
-        QVariant uValue(archiveLSynthParts);
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,archiveLSynthPartsKey),uValue);
+    // Helper settings
+    QString const addHelperSearchDirKey("AddHelperSearchDir");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,addHelperSearchDirKey))) {
+        QVariant uValue(addHelperSearchDir);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,addHelperSearchDirKey),uValue);
     } else {
-        archiveLSynthParts = Settings.value(QString("%1/%2").arg(SETTINGS,archiveLSynthPartsKey)).toBool();
+        addHelperSearchDir = Settings.value(QString("%1/%2").arg(SETTINGS,addHelperSearchDirKey)).toBool();
+    }
+
+    QString const excludeModelsSearchDirKey("ExcludeModelsSearchDir");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,excludeModelsSearchDirKey))) {
+        QVariant uValue(excludeModelsSearchDir);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,excludeModelsSearchDirKey),uValue);
+    } else {
+        excludeModelsSearchDir = Settings.value(QString("%1/%2").arg(SETTINGS,excludeModelsSearchDirKey)).toBool();
     }
 
 #ifdef Q_OS_MAC
@@ -5652,17 +5662,27 @@ bool Preferences::getPreferences()
                                   .arg(addLSynthSearchDir? On : Off));
         }
 
-        bool archiveLSynthPartsChanged = false;
-        if ((archiveLSynthPartsChanged = archiveLSynthParts != dialog->archiveLSynthParts()))
+        bool addHelperSearchDirChanged = false;
+        if ((addHelperSearchDirChanged = addHelperSearchDir != dialog->addHelperSearchDir()))
         {
-            archiveLSynthParts = dialog->archiveLSynthParts();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ArchiveLSynthParts"),archiveLSynthParts);
+            addHelperSearchDir = dialog->addHelperSearchDir();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"AddHelperSearchDir"),addHelperSearchDir);
 
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Archive LSynth Parts is %1")
-                                  .arg(archiveLSynthParts? On : Off));
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Add LDraw Helper parts path to search directories list is %1")
+                                  .arg(addHelperSearchDir? On : Off));
         }
 
-        if ((addLSynthSearchDirChanged || archiveLSynthPartsChanged) && archiveLSynthParts)
+        bool excludeModelsSearchDirChanged = false;
+        if ((excludeModelsSearchDirChanged = excludeModelsSearchDir != dialog->excludeModelsSearchDir()))
+        {
+            excludeModelsSearchDir = dialog->excludeModelsSearchDir();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ExcludeModelsSearchDir"),excludeModelsSearchDir);
+
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Exclude LDraw MODELS from search directories list is %1")
+                                  .arg(excludeModelsSearchDir? On : Off));
+        }
+
+        if (addHelperSearchDirChanged || excludeModelsSearchDirChanged || addLSynthSearchDirChanged)
             lpub->mi.loadLDSearchDirParts();
 
         if (applyCALocally != dialog->applyCALocally())

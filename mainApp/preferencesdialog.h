@@ -148,8 +148,9 @@ class PreferencesDialog : public QDialog
     bool          showConfigurationErrors();
     bool          showSaveOnRedraw();
     bool          showSaveOnUpdate();
+    bool          addHelperSearchDir();
     bool          addLSynthSearchDir();
-    bool          archiveLSynthParts();
+    bool          excludeModelsSearchDir();
     bool          perspectiveProjection();
     bool          resetSceneColors();
     bool          saveOnRedraw();
@@ -213,7 +214,6 @@ class PreferencesDialog : public QDialog
     void on_allLogLevelsBox_clicked(bool checked);
     void on_logLevelsGrpBox_clicked(bool checked);
     void on_logLevelGrpBox_clicked(bool checked);
-    void on_archiveLSynthPartsBox_clicked(bool checked);
 
     void on_ldviewGrpBox_clicked(bool checked);
     void on_ldgliteGrpBox_clicked(bool checked);

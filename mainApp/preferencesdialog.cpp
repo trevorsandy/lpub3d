@@ -155,7 +155,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.logLevelsGrpBox->setWhatsThis(lpubWT(           WT_CONTROL_LPUB3D_PREFERENCES_LOG_LEVEL_MESSAGES, ui.logLevelsGrpBox->title()));
   ui.logPathGrpBox->setWhatsThis(lpubWT(             WT_CONTROL_LPUB3D_PREFERENCES_LOG_PATH, tr("Log Path")));
   ui.printStandardOutGrpBox->setWhatsThis(lpubWT(    WT_CONTROL_LPUB3D_PREFERENCES_PRINT_STANDARD_OUT, ui.printStandardOutGrpBox->title()));
-  ui.lsynthPartsGrpBox->setWhatsThis(lpubWT(         WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_LSYNTH_PARTS, ui.lsynthPartsGrpBox->title()));
+  ui.ldrawSearchPathsGrpBox->setWhatsThis(lpubWT(    WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_SEARCH_PATHS, ui.ldrawSearchPathsGrpBox->title()));
   ui.renderMessageLbl->setWhatsThis(lpubWT(          WT_CONTROL_LPUB3D_PREFERENCES_RENDERERS_MESSAGE, tr("Renderer Message")));
   ui.messagesGrpBox->setWhatsThis(lpubWT(            WT_CONTROL_LPUB3D_PREFERENCES_MESSAGES, ui.messagesGrpBox->title()));
   ui.pageProcessingContinuousGrpBox->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_PAGE_PROCESSING_CONTINUOUS, ui.pageProcessingContinuousGrpBox->title()));
@@ -416,9 +416,9 @@ void PreferencesDialog::setPreferences()
   ui.doNotShowPageProcessDlgChk->setChecked(     Preferences::doNotShowPageProcessDlg);
   ui.enableDownloader_Chk->setChecked(           Preferences::enableDownloader);
   ui.showDownloadRedirects_Chk->setChecked(      Preferences::showDownloadRedirects);
-  ui.addLSynthSearchDirBox->setEnabled(          Preferences::archiveLSynthParts);
   ui.addLSynthSearchDirBox->setChecked(          Preferences::addLSynthSearchDir);
-  ui.archiveLSynthPartsBox->setChecked(          Preferences::archiveLSynthParts);
+  ui.addHelperSearchDirBox->setChecked(          Preferences::addHelperSearchDir);
+  ui.excludeModelsSearchDirBox->setChecked(      Preferences::excludeModelsSearchDir);
   ui.showUpdateNotifications_Chk->setChecked(    Preferences::showUpdateNotifications);
   ui.showAllNotificstions_Chk->setChecked(       Preferences::showAllNotifications);
   ui.checkUpdateFrequency_Combo->setCurrentIndex(Preferences::checkUpdateFrequency);
@@ -1164,11 +1164,6 @@ void PreferencesDialog::on_altLDConfigGrpBox_clicked(bool checked)
       ui.altLDConfigGrpBox->setChecked(false);
     }
   }
-}
-
-void PreferencesDialog::on_archiveLSynthPartsBox_clicked(bool checked)
-{
-    ui.addLSynthSearchDirBox->setEnabled(checked);
 }
 
 void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
@@ -2154,9 +2149,14 @@ bool PreferencesDialog::addLSynthSearchDir()
   return ui.addLSynthSearchDirBox->isChecked();
 }
 
-bool PreferencesDialog::archiveLSynthParts()
+bool PreferencesDialog::addHelperSearchDir()
 {
-  return ui.archiveLSynthPartsBox->isChecked();
+  return ui.addHelperSearchDirBox->isChecked();
+}
+
+bool PreferencesDialog::excludeModelsSearchDir()
+{
+  return ui.excludeModelsSearchDirBox->isChecked();
 }
 
 bool PreferencesDialog::showUpdateNotifications()
@@ -3151,7 +3151,7 @@ void PreferencesDialog::on_shortcutsExport_clicked()
 
 void PreferencesDialog::on_shortcutsReset_clicked()
 {
-    if (QMessageBox::question(this, QLatin1Literal(VER_PRODUCTNAME_STR), tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+    if (QMessageBox::question(this, QLatin1String(VER_PRODUCTNAME_STR), tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
         return;
 
     updateCommandList(true/*Default shortucts*/);
@@ -3175,7 +3175,7 @@ void PreferencesDialog::on_KeyboardFilterEdit_textEdited(const QString& Text)
     } else {
         std::function<bool(QTreeWidgetItem*,bool)> ShowItems = [&ShowItems, &Text](QTreeWidgetItem* ParentItem, bool ForceVisible)
         {
-            ForceVisible |= (bool)ParentItem->text(0).contains(Text, Qt::CaseInsensitive) | (bool)ParentItem->text(1).contains(Text, Qt::CaseInsensitive);
+            ForceVisible |= (bool)ParentItem->text(0).contains(Text, Qt::CaseInsensitive) || (bool)ParentItem->text(1).contains(Text, Qt::CaseInsensitive);
             bool Visible = ForceVisible;
 
             for (int ChildIdx = 0; ChildIdx < ParentItem->childCount(); ChildIdx++)
