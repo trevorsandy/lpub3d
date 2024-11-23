@@ -1630,7 +1630,7 @@ int Gui::drawPage(
                     curMeta.LPub.assem.showStepNumber.setValue(false);
                     opts.displayModel = true;
                     if (Gui::stepContains(top,partTypeLineRx)) {
-                        displayType = DT_MODEL_CUSTOM; // Is this here to distinguish parts added ?
+                        displayType = DT_MODEL_CUSTOM; // Is this here to distinguish parts added ? No - it's here to distinguish an inserted submodel
                         opts.csiParts.clear();
                         opts.lineTypeIndexes.clear();
                     }
@@ -1756,40 +1756,62 @@ int Gui::drawPage(
                     if (currRp == RightInside)
                         position = PP_RIGHT;
 
-                    pagePointer = pagePointers.value(position);
-                    if (pagePointer) {
-                        pad.id     = pagePointer->pointerList.size() + 1;
-                        pad.parent = PositionNames[position];
-                        pam.setValueInches(pad);
-                        pagePointer->appendPointer(opts.current,ppm,pam);
-                        pagePointers.remove(position);
-                        pagePointers.insert(position,pagePointer);
-                    } else {
-                        pagePointer = new PagePointer(&curMeta,view);
-                        pagePointer->parentStep = step;
-                        pagePointer->setTopOfPagePointer(opts.current);
-                        pagePointer->setBottomOfPagePointer(opts.current);
-                        if (multiStep) {
-                            pagePointer->parentRelativeType = StepGroupType;
-                        } else if (opts.calledOut) {
-                            pagePointer->parentRelativeType = CalloutType;
-                        } else {
-                            if (step)
-                                pagePointer->parentRelativeType = step->relativeType;
-                            else
-                                pagePointer->parentRelativeType = SingleStepType;
+                    if (!partsAdded) {
+                        Where top = opts.current;
+                        if (Gui::stepContains(top,partTypeLineRx)) {
+                            if (step == nullptr) {
+                                if (range == nullptr) {
+                                    range = Gui::newRange(steps,opts.calledOut);
+                                    steps->append(range);
+                                }
+                                step = new Step(topOfStep,
+                                                range,
+                                                opts.stepNum,
+                                                curMeta,
+                                                opts.calledOut,
+                                                multiStep);
+                                range->append(step);
+                            }
                         }
-                        PlacementMeta placementMeta;
-                        placementMeta.setValue(currRp, PageType);
-                        pagePointer->placement = placementMeta;
-
-                        pad.id     = 1;
-                        pad.parent = PositionNames[position];
-                        pam.setValueInches(pad);
-                        pagePointer->appendPointer(opts.current,ppm,pam);
-                        pagePointers.insert(position,pagePointer);
                     }
-                    pagePointer = nullptr;
+
+                    if (step) {
+                        pagePointer = pagePointers.value(position);
+                        if (pagePointer) {
+                            pad.id     = pagePointer->pointerList.size() + 1;
+                            pad.parent = PositionNames[position];
+                            pagePointer->parentStep = step;
+                            pam.setValueInches(pad);
+                            pagePointer->appendPointer(opts.current,ppm,pam);
+                            pagePointers.remove(position);
+                            pagePointers.insert(position,pagePointer);
+                        } else {
+                            pagePointer = new PagePointer(&curMeta,view);
+                            pagePointer->parentStep = step;
+                            pagePointer->setTopOfPagePointer(opts.current);
+                            pagePointer->setBottomOfPagePointer(opts.current);
+                            if (multiStep) {
+                                pagePointer->parentRelativeType = StepGroupType;
+                            } else if (opts.calledOut) {
+                                pagePointer->parentRelativeType = CalloutType;
+                            } else {
+                                pagePointer->parentRelativeType = step->relativeType;
+                            }
+                            PlacementMeta placementMeta;
+                            placementMeta.setValue(currRp, PageType);
+                            pagePointer->placement = placementMeta;
+
+                            pad.id     = 1;
+                            pad.parent = PositionNames[position];
+                            pam.setValueInches(pad);
+                            pagePointer->appendPointer(opts.current,ppm,pam);
+                            pagePointers.insert(position,pagePointer);
+                        }
+                        pagePointer = nullptr;
+                    } else {
+                        emit gui->parseErrorSig(tr("You cannot insert a page pointer on this page.<br>"
+                                                   "A valid item to point to was not detected."),opts.current);
+                    }
                 }
             }
                 break;
@@ -1833,7 +1855,7 @@ int Gui::drawPage(
                         pagePointers.insert(position,pp);
                     }
                 } else {
-                    emit gui->messageSig(LOG_ERROR, tr("Page Position %1 does not exist.").arg(PositionNames[position]));
+                    emit gui->parseErrorSig(tr("Page Position %1 does not exist.").arg(PositionNames[position]),opts.current);
                 }
             }
                 break;

@@ -138,13 +138,13 @@ void PagePointer::addGraphicsItems(
 void PagePointer::addGraphicsPointerItem(
   Pointer *pointer)
 {
-  PagePointerItem *t =
+  PagePointerItem *ppi =
     new PagePointerItem(
           this,
           pointer,
           background,
           view);
-  graphicsPagePointerList.append(t);
+  graphicsPagePointerList.append(ppi);
 }
 
 void PagePointer::updatePointers(QPoint &delta, QGraphicsItem *target)

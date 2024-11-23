@@ -924,6 +924,7 @@ int Gui::addGraphicsPageItems(
 
                     for (auto i : page->pagePointers.keys()) {
                         PagePointer *pp = page->pagePointers[i];
+                        pp->parentStep = step;
 
                         // override the default location
                         if (pp->placement.value().placement == Left ||
@@ -943,7 +944,8 @@ int Gui::addGraphicsPageItems(
                         //   add the pagePointer pointers to the graphics scene
                         for (int i = 0; i < pp->pointerList.size(); i++) {
                             Pointer *pointer = pp->pointerList[i];
-                            pp->addGraphicsPointerItem(pointer);
+                            if (pp->parentStep)
+                                pp->addGraphicsPointerItem(pointer);
                         }
                     }
 
@@ -1050,7 +1052,8 @@ int Gui::addGraphicsPageItems(
             //   add the pagePointer pointers to the graphics scene
             for (int i = 0; i < pp->pointerList.size(); i++) {
                 Pointer *pointer = pp->pointerList[i];
-                pp->addGraphicsPointerItem(pointer);
+                if (pp->parentStep)
+                    pp->addGraphicsPointerItem(pointer);
             }
         }
 

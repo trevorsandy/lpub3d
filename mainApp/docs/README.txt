@@ -1,4 +1,4 @@
-LPub3D 2.4.8.169.3892 (23 11 2024 06:07:24)
+LPub3D 2.4.8.170.3893 (23 11 2024 06:08:22)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,6 +18,7 @@ Revisions:
 - Enhamcement - Automatic restart #790
 - Enhancement - Expanded part filter options #786
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
+- Change - AbEnd on insert a page pointer at the top of a STEP #789
 - Change - Add minizip unzOpen to quazip to avoid violating ODR #787
 - Change - AppImage build Qt Network SSL limitation #784
 - Change - Errors loading files with MODEL_PIECES meta-command #779
