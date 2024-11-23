@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 20, 2024
+# Last Update November 22, 2024
 # Copyright (C) 2018 - 2024 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -120,6 +120,7 @@ if [ "${LP3D_OS_NAME}" != "Darwin" ]; then
         runtime_dir="/tmp/runtime-user-$UID"
         if [ ! -d "$runtime_dir" ]; then
            mkdir -p $runtime_dir
+           chmod 700 $runtime_dir
         fi
         export XDG_RUNTIME_DIR="$runtime_dir"
     fi
