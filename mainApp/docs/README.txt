@@ -1,4 +1,4 @@
-LPub3D 2.4.8.165.3888 (23 11 2024 06:03:33)
+LPub3D 2.4.8.166.3889 (23 11 2024 06:04:27)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Feature - Increase the capability to change Edge Lines size #772
 - Enhancement - Add renderer arguments and environment vars to global settings #775
+- Enhamcement - Automatic restart #790
 - Enhancement - Expanded part filter options #786
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
 - Change - Add minizip unzOpen to quazip to avoid violating ODR #787

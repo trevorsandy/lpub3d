@@ -33,12 +33,22 @@
 
 #define RUN_APPLICATION 2
 
+#ifndef AUTO_RESTART
+#define AUTO_RESTART 1
+#include <QtWidgets>
+#include <cstdlib>
+#endif // AUTO_RESTART
+
 #ifdef Q_OS_WIN
 
   #include <stdio.h>
   #include <fcntl.h>
   #include <io.h>
-  #include <fstream>
+
+  #if defined AUTO_RESTART && AUTO_RESTART == 1
+  #include <windows.h>
+  #endif // AUTO_RESTART
+
   #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
   #include <QtPlatformHeaders\QWindowsWindowFunctions>
   #endif
@@ -242,7 +252,7 @@
           WCHAR message[_MAX_PATH + 256];
           lstrcpy(message, TEXT(VER_PRODUCTNAME_STR " crashed. Crash information was saved to '"));
           lstrcat(message, gMinidumpPath);
-          lstrcat(message, TEXT("', please send it along with files " VER_PRODUCTNAME_STR ".exe, " VER_PRODUCTNAME_STR ".pdb located at '"));
+          lstrcat(message, TEXT("', please send it along with files " VER_PRODUCTNAME_STR ".exe, and " VER_PRODUCTNAME_STR ".pdb located at '"));
           lstrcat(message, gApplicationPath);
           lstrcat(message, TEXT("' to the developer for debugging."));
 
@@ -1393,7 +1403,11 @@ static void initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions
     }
 }
 
+#if defined AUTO_RESTART && AUTO_RESTART == 1
+static int lpub3dMain(int &argc, char **argv)
+#else
 int main(int argc, char** argv)
+#endif // AUTO_RESTART
 {
     QCoreApplication::setOrganizationDomain(QLatin1String(VER_COMPANYDOMAIN_STR));
     QCoreApplication::setOrganizationName(  QLatin1String(VER_COMPANYNAME_STR));
@@ -1437,3 +1451,92 @@ int main(int argc, char** argv)
        return rc;
     }
 }
+
+// https://github.com/KubaO/stackoverflown/tree/master/questions/appmonitor-37524491
+#if defined AUTO_RESTART && AUTO_RESTART == 1
+
+static char const kRunLPub3D[] = "run__lpub3d";
+static char const kRunLPub3DValue[] = "lpub3d__running";
+
+#if defined(Q_OS_WIN32)
+static QString getWindowsCommandLineArguments()
+{
+   const wchar_t *args = GetCommandLine();
+   bool oddBackslash = false, quoted = false, whitespace = false;
+   // skip the executable name according to Windows command line parsing rules
+   while (auto c = *args) {
+      if (c == L'\\')
+         oddBackslash ^= 1;
+      else if (c == L'"')
+         quoted ^= !oddBackslash;
+      else if (c == L' ' || c == L'\t')
+         whitespace = !quoted;
+      else if (whitespace)
+         break;
+      else
+         oddBackslash = false;
+      args++;
+   }
+
+   return QString::fromRawData(reinterpret_cast<const QChar*>(args), lstrlen(args));
+}
+#endif
+
+static int lpub3dMonitorMain(int &argc, char **argv)
+{
+#if !defined(Q_OS_WIN32)
+   QStringList args;
+   args.reserve(argc-1);
+   for (int i = 1; i < argc; ++i)
+      args << QString::fromLocal8Bit(argv[i]);
+#endif
+
+   QCoreApplication app { argc, argv };
+   QProcess proc;
+   auto onFinished = [&](int retcode, QProcess::ExitStatus status) {
+      bool abend = status == QProcess::CrashExit;
+      QString const message = QObject::tr("%1 ExitStatus: %2(%3)")
+                                          .arg(VER_PRODUCTNAME_STR)
+                                          .arg(abend ? "Abnormal" : "Normal")
+                                          .arg(status);
+#ifdef QT_DEBUG_MODE
+      qDebug() << qUtf8Printable(message);
+#else
+      fprintf(stdout, "%s\n", qUtf8Printable(message));
+#endif
+      if (abend)
+         proc.start();                               // restart the app if the app crashed
+      else
+         app.exit(retcode);                          // no restart required
+   };
+   QObject::connect(&proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), onFinished);
+
+   auto env = QProcessEnvironment::systemEnvironment();
+   env.insert(kRunLPub3D, kRunLPub3DValue);
+   proc.setProgram(app.applicationFilePath());       // lpub3d and lpub3dMonitor are the same executable
+#if defined(Q_OS_WIN32)
+   SetErrorMode(SEM_NOGPFAULTERRORBOX);              // disable Windows error reporting
+   proc.setNativeArguments(getWindowsCommandLineArguments()); // pass command line arguments natively
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+   env.insert("QT_ASSUME_STDERR_HAS_CONSOLE ", "1"); // ensure that the debug output gets passed along
+#else
+   env.insert("QT_LOGGING_TO_CONSOLE", "1");
+#endif
+#else
+   proc.setArguments(args);
+#endif
+   proc.setProcessEnvironment(env);
+   proc.setProcessChannelMode(QProcess::ForwardedChannels);
+   proc.start();
+
+   return app.exec();
+}
+
+int main(int argc, char **argv)
+{
+   if (qgetenv(kRunLPub3D) != kRunLPub3DValue)
+      return lpub3dMonitorMain(argc, argv);
+   else
+      return qunsetenv(kRunLPub3D), lpub3dMain(argc, argv);
+}
+#endif // AUTO_RESTART

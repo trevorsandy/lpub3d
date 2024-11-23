@@ -429,6 +429,21 @@ if(deb|rpm|pkg|dmg|exe|api|snp|flp|con|contains(build_package, yes)) {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+AUTO_RESTART = 0
+AUTO_RESTART_STR = NOT DEFINED
+AUTO_RESTART_ENABLED = $$(LPUB3D_AUTO_RESTART_ENABLED)
+!isEmpty(AUTO_RESTART_ENABLED) {
+    AUTO_RESTART_STR = SET TO DISABLED
+    equals(AUTO_RESTART_ENABLED, 1) {
+        AUTO_RESTART = 1
+        AUTO_RESTART_STR = SET TO ENABLED
+    }
+    DEFINES += AUTO_RESTART=$$AUTO_RESTART
+}
+message("~~~ $${LPUB3D} AUTO_RESTART ENVIRONMENT VARIABLE $${AUTO_RESTART_STR} ~~~ ")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # build path component
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
