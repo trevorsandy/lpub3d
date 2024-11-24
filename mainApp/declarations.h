@@ -813,6 +813,8 @@ enum ThemeColorType {
 
 #define FADE_SFX                                "-fade"
 #define HIGHLIGHT_SFX                           "-highlight"
+#define RESTART_PAGE_NUM_KEY                    "RestartPageNum"
+#define RESTART_EXPORTING_KEY                   "RestartExporting"
 #define SAVE_DISPLAY_PAGE_NUM_KEY               "SaveDisplayPageNum"
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY             "SaveSkipPartsArchive"
 #define VIEW_IMPORT_TOOLBAR_KEY                 "ViewImportToolbar"
@@ -823,6 +825,7 @@ enum ThemeColorType {
 #define VIEW_EDIT_TOOLBAR_KEY                   "ViewEditToolbar"
 #define VIEW_REMOVE_LPUB_FORMAT_TOOLBAR_KEY     "ViewRemoveLPubFormatToolBar"
 #define VIEW_EDITPARAMS_TOOLBAR_KEY             "ViewEditParamsToolbar"
+#define RESTART_TRIGGER                         "@@ReStArT@@"
 
 #define CASE_CHECK                              "CaseCheck"
 #define WORD_CHECK                              "WordCheck"

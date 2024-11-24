@@ -655,6 +655,7 @@ int Application::initialize(lcCommandLineOptions &Options)
 #ifdef Q_OS_MAC
     m_application.setStyle(QStyleFactory::create("macintosh"));
 #endif
+    m_auto_restart = false;
     m_console_mode = false;
     m_print_output = false;
 #ifdef Q_OS_WIN
@@ -698,8 +699,12 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
         {
 
             if (Param[0] != '+') {
-                if (m_commandline_file.isEmpty() && QFileInfo(Param).isReadable() && !m_console_mode)
-                    m_commandline_file = Param;
+                if (Param[0] == '@' && Param == RESTART_TRIGGER) {
+                    m_auto_restart = true;
+                    continue;
+                } else
+                    if (m_commandline_file.isEmpty() && QFileInfo(Param).isReadable() && !m_console_mode)
+                        m_commandline_file = Param;
             }
 
             if (Param == QLatin1String("+cr") || Param == QLatin1String("++console-redirect"))
@@ -1319,11 +1324,12 @@ void Application::mainApp()
         QWindowsWindowFunctions::setHasBorderInFullScreen(gui->windowHandle(), true);
 #endif
 #endif
+        Gui::setAutoRestart(m_auto_restart);
+
         if (!m_commandline_file.isEmpty())
             emit gui->loadFileSig(m_commandline_file);
-        else if (Preferences::loadLastOpenedFile) {
-            gui->loadLastOpenedFile();
-        }
+        else if (Preferences::loadLastOpenedFile || m_auto_restart)
+            emit gui->loadLastOpenedFileSig();
 
 #ifndef DISABLE_UPDATE_CHECK
         if (m_enable_update_check)
@@ -1495,6 +1501,8 @@ static int lpub3dMonitorMain(int &argc, char **argv)
    args.reserve(argc-1);
    for (int i = 1; i < argc; ++i)
       args << QString::fromLocal8Bit(argv[i]);
+#else
+   QString args = getWindowsCommandLineArguments();  // pass command line arguments natively
 #endif
 
    QCoreApplication app { argc, argv };
@@ -1510,9 +1518,14 @@ static int lpub3dMonitorMain(int &argc, char **argv)
 #else
       fprintf(stdout, "%s\n", qUtf8Printable(message));
 #endif
-      if (abend)
+      if (abend) {
+#if defined(Q_OS_WIN32)
+         proc.setNativeArguments(args + " " + RESTART_TRIGGER);
+#else
+         proc.setArguments(QStringList(args) << RESTART_TRIGGER);
+#endif
          proc.start();                               // restart the app if the app crashed
-      else
+      } else
          app.exit(retcode);                          // no restart required
    };
    QObject::connect(&proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), onFinished);
@@ -1522,7 +1535,7 @@ static int lpub3dMonitorMain(int &argc, char **argv)
    proc.setProgram(app.applicationFilePath());       // lpub3d and lpub3dMonitor are the same executable
 #if defined(Q_OS_WIN32)
    SetErrorMode(SEM_NOGPFAULTERRORBOX);              // disable Windows error reporting
-   proc.setNativeArguments(getWindowsCommandLineArguments()); // pass command line arguments natively
+   proc.setNativeArguments(args);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
    env.insert("QT_ASSUME_STDERR_HAS_CONSOLE ", "1"); // ensure that the debug output gets passed along
 #else

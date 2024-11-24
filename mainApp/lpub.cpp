@@ -157,6 +157,7 @@ bool         Gui::m_contPageProcessing;   // indicate continuous page processing
 bool         Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
 bool         Gui::m_partListCSIFile;      // processing part list CSI file
 bool         Gui::m_abort;                // set to true when response to critcal error is abort
+bool         Gui::m_autoRestart;          // flag to check last display page number
 bool         Gui::m_previewDialog;
 
 bool         Gui::doFadeStep;
@@ -401,6 +402,7 @@ void Gui::displayPage()
     dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
     Gui::drawPage(dpFlags);
     Gui::pageProcessRunning = PROC_NONE;
+    gui->restartAutoSave();
     if (Gui::abortProcess()) {
       QApplication::restoreOverrideCursor();
       if (Preferences::modeGUI) {
@@ -421,8 +423,23 @@ void Gui::displayPage()
 
 void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fileReload/*false*/)
 {
-  int move = 0;
   int goToPageNum = inputPageNum;
+
+  // check if possible to load page number
+  if (Preferences::modeGUI) {
+    QSettings Settings;
+    const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : SAVE_DISPLAY_PAGE_NUM_KEY;
+    if (Settings.contains(QString("%1/%2").arg(DEFAULTS, pageNumKey))) {
+      bool wasExporting = false;
+      if (Gui::m_autoRestart)
+        wasExporting = Settings.value(QString("%1/%2").arg(DEFAULTS, RESTART_EXPORTING_KEY)).toBool();
+      if (!wasExporting)
+        goToPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS, pageNumKey)).toInt();
+    }
+  }
+
+  int move = 0;
+  int notAtStartOfPages = (Gui::displayPageNum > 1 + Gui::pa || goToPageNum > 1 + Gui::pa);
 
   auto setDirection = [&] (int &move)
   {
@@ -457,10 +474,10 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   bool saveCycleEachPage = Preferences::cycleEachPage;
   PageDirection operation = FILE_DEFAULT;
 
-  if (!silent || fileReload) {
+  if (!silent || fileReload || Gui::m_autoRestart) {
     // if dialog or fileReload is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0) do not cycle
-    int cycleEachPage = Preferences::cycleEachPage || fileReload;
-    if (!cycleEachPage && (Gui::displayPageNum > 1 + Gui::pa || inputPageNum > 1 + Gui::pa)) {
+    int cycleEachPage = Preferences::cycleEachPage || fileReload || Gui::m_autoRestart;
+    if (!cycleEachPage && notAtStartOfPages) {
       const QString directionName[] = {
         tr("Next"),
         tr("Jump Forward"),
@@ -572,6 +589,17 @@ void Gui::enableNavigationActions(bool enable)
 
   gui->getAct("nextPageContinuousAct.1")->setEnabled(!atEnd && nextEnabled);
   gui->getAct("previousPageContinuousAct.1")->setEnabled(!atStart && previousEnabled);
+}
+
+void Gui::restartAutoSave()
+{
+    QSettings Settings;
+
+    QVariant displayPageNum(Gui::displayPageNum);
+    Settings.setValue(QString("%1/%2").arg(DEFAULTS,RESTART_PAGE_NUM_KEY), displayPageNum);
+
+    QVariant exporting(Gui::exporting());
+    Settings.setValue(QString("%1/%2").arg(DEFAULTS,RESTART_EXPORTING_KEY), exporting);
 }
 
 void Gui::pageProcessUpdate()
@@ -814,12 +842,16 @@ bool Gui::continuousPageDialog(PageDirection d)
   Gui::pageDirection = d;
   int pageCount = 0;
   int _maxPages = 0;
+  int goToPageNum = Gui::displayPageNum;
+  int displayPause  = Preferences::pageDisplayPause;
   Gui::prevMaxPages  = Gui::maxPages;
   bool terminateProcess = false;
   emit gui->setContinuousPageSig(true);
+  bool saveDoNotShowPageProcessDlg = Preferences::doNotShowPageProcessDlg;
   QElapsedTimer continuousTimer;
+  QString pageLineEditText = gui->setPageLineEdit->displayText();
   const QString direction = d == PAGE_NEXT ? tr("Next") : tr("Previous");
-  QString const pageRangeDisplayText = QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
+  const QString pageRangeDisplayText = QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
 
   Gui::m_exportMode = PAGE_PROCESS;
 
@@ -828,8 +860,26 @@ bool Gui::continuousPageDialog(PageDirection d)
   QString message = tr("%1 Page Processing...").arg(direction);
 
   if (Preferences::modeGUI) {
+      // check if necessary to load page number
+      QSettings Settings;
+      const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : SAVE_DISPLAY_PAGE_NUM_KEY;
+      if (Settings.contains(QString("%1/%2").arg(DEFAULTS, pageNumKey))) {
+          bool wasExporting = false;
+          if (Gui::m_autoRestart)
+              wasExporting = Settings.value(QString("%1/%2").arg(DEFAULTS, RESTART_EXPORTING_KEY)).toBool();
+          if (!wasExporting) {
+              goToPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS, pageNumKey)).toInt();
+              pageLineEditText = QString("%1-%2").arg(Gui::displayPageNum).arg(goToPageNum);
+              displayPause = PAGE_CYCLE_DISPLAY_DEFAULT;
+              Preferences::doNotShowPageProcessDlg = true;
+              if (!Gui::m_autoRestart)
+                  Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY));
+          }
+      }
+
       if (Preferences::doNotShowPageProcessDlg) {
-          if (!gui->processPageRange(gui->setPageLineEdit->displayText())) {
+          Preferences::doNotShowPageProcessDlg = saveDoNotShowPageProcessDlg;
+          if (!gui->processPageRange(pageLineEditText)) {
               emit gui->messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
               Gui::setPageContinuousIsRunning(false);
               emit gui->setContinuousPageSig(false);
@@ -884,6 +934,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               if (Preferences::pageDisplayPause != dialog->pageDisplayPause()) {
                   Preferences::pageDisplayPause = dialog->pageDisplayPause();
                   Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PageDisplayPause"),Preferences::pageDisplayPause);
+                  displayPause = Preferences::pageDisplayPause;
               }
           } else {
               emit gui->messageSig(LOG_STATUS,tr("Continuous %1 page processing terminated.").arg(direction));
@@ -987,7 +1038,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               gui->m_progressDialog->setLabelText(message);
               gui->m_progressDialog->setValue(d == PAGE_NEXT ? Gui::displayPageNum : ++progress);
               if (d == PAGE_NEXT ? Gui::displayPageNum < Gui::maxPages : Gui::displayPageNum > 1 + Gui::pa) {
-                  QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
+                  QTime waiting = QTime::currentTime().addSecs(displayPause);
                   while (QTime::currentTime() < waiting)
                       QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
               }
@@ -1100,7 +1151,7 @@ bool Gui::continuousPageDialog(PageDirection d)
               gui->m_progressDialog->setLabelText(message);
               gui->m_progressDialog->setValue(pageCount);
               if (Gui::displayPageNum < _maxPages) {
-                  QTime waiting = QTime::currentTime().addSecs(Preferences::pageDisplayPause);
+                  QTime waiting = QTime::currentTime().addSecs(displayPause);
                   while (QTime::currentTime() < waiting)
                       QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
               }
@@ -1164,7 +1215,7 @@ bool Gui::processPageRange(const QString &range)
       bool multiRange = range.contains(',');
       bool ofPages = range.contains("of",Qt::CaseInsensitive);
       QRegExp startRx("^(\\d+)(?:[\\w\\-\\,\\s]*)$", Qt::CaseInsensitive);
-      QRegExp endRx("([^\\s|^,|^\\-|^a-zA-Z]\\d+)$");
+      QRegExp endRx("(?:[^\\w\\-\\,\\s]*)(\\d+)$", Qt::CaseInsensitive);
       QString cleanRange = range.trimmed().replace(QRegExp("of|to",Qt::CaseInsensitive),"-").replace(" ", "");
       if (cleanRange.contains(startRx)) {
           rangeMin = startRx.cap(1).toInt(&ok[0]);
@@ -1721,6 +1772,9 @@ void Gui::mpdComboChanged(int index)
 }
 
 void  Gui::restartApplication(bool changeLibrary, bool prompt) {
+    if (!Preferences::modeGUI)
+        return;
+
     if (prompt && QMessageBox::question(gui, tr(VER_PRODUCTNAME_STR),
                                         tr("%1 must restart. Do you want to continue ?")
                                         .arg(VER_PRODUCTNAME_STR),
@@ -3572,9 +3626,9 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     changeAccepted = true;
 #endif
 
-    gui = this;
-
     KpageView->fitMode = FitVisible;
+
+    gui = this;
 }
 
 Gui::~Gui()
@@ -3635,6 +3689,8 @@ void Gui::initialize()
 
   connect(this, SIGNAL(loadFileSig(QString)),
           this, SLOT(  loadFile(QString)));
+  connect(this, SIGNAL(loadLastOpenedFileSig()),
+          this, SLOT(  loadLastOpenedFile()));
   connect(lpub, SIGNAL(loadFileSig(QString, bool)),
           this, SLOT(  loadFile(QString, bool)));
   connect(lpub, SIGNAL(consoleCommandSig(int, int*)),
@@ -3642,22 +3698,31 @@ void Gui::initialize()
   connect(this, SIGNAL(consoleCommandFromOtherThreadSig(int, int*)),
           this, SLOT(  consoleCommand(int, int*)), Qt::BlockingQueuedConnection);
   connect(this, SIGNAL(countPagesSig()),
-          this, SLOT(countPages()));
+          this, SLOT(  countPages()));
   connect(this, SIGNAL(setGeneratingBomSig(bool)),
           this, SLOT(  deployBanner(bool)));
   connect(this, SIGNAL(setExportingSig(bool)),
           this, SLOT(  deployBanner(bool)));
   connect(this, SIGNAL(setExportingSig(bool)),
-          this, SLOT(halt3DViewer(bool)));
+          this, SLOT(  halt3DViewer(bool)));
   connect(this, SIGNAL(updateAllViewsSig()),
-          this, SLOT(UpdateAllViews()));
+          this, SLOT(  UpdateAllViews()));
   connect(this, SIGNAL(previewModelSig(QString const &)),
-          this, SLOT(previewModel(QString const &)));
+          this, SLOT(  previewModel(QString const &)));
   connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
           this, SLOT(  setPliIconPath(QString&,QString&)));
   connect(this, SIGNAL(parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)),
           this, SLOT(  parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)));
 
+#if defined AUTO_RESTART && AUTO_RESTART == 1
+  if (Preferences::modeGUI) {
+    Gui::m_autoRestart = false;
+    // not yet needed - we can 'autoSave' the current page number from displayPage()
+    //restartTimer.setInterval(30000); // 30 second interval
+    //restartTimer.start();
+    //connect(&restartTimer, &QTimer::timeout, this, &Gui::restartAutoSave);
+  }
+#endif
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
 //      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();

@@ -115,6 +115,9 @@ private:
     /// Enable available versions and available update online queries
     bool m_enable_update_check;
 
+    /// Application restart after abnormal end
+    bool m_auto_restart;
+
     /// File specified on via commandline
     QString m_commandline_file;
 

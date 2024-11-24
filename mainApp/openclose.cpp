@@ -599,36 +599,32 @@ bool Gui::loadFile(const QString &file, bool console)
         gui->resetModelCache(QFileInfo(file).absoluteFilePath(), console);
     }
 
+    bool fileLoaded = false;
     QString fileName = file;
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {
         fileLoadTimer.start();
         if (!openFile(fileName)) {
             emit gui->fileLoadedSig(false);
+            Gui::m_autoRestart = false;
             return false;
         }
-        // check if possible to load page number
-        QSettings Settings;
-        int inputPageNum = Gui::displayPageNum;
-        if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY))) {
-            inputPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY)).toInt();
-            Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY));
-        }
         Paths::mkDirs();
-        gui->cyclePageDisplay(inputPageNum);
+        gui->cyclePageDisplay(Gui::displayPageNum);
         gui->enableActions();
+        fileLoaded = true;
         emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
                                              .arg(fileInfo.fileName())
                                              .arg(Gui::maxPages)
                                              .arg(lpub->ldrawFile.getPartCount())
                                              .arg(Gui::elapsedTime(fileLoadTimer.elapsed())));
-        emit gui->fileLoadedSig(true);
-        return true;
     } else {
         emit gui->messageSig(LOG_ERROR,tr("Unable to load file %1.").arg(fileName));
     }
-    emit gui->fileLoadedSig(false);
-    return false;
+
+    emit gui->fileLoadedSig(fileLoaded);
+    Gui::m_autoRestart = false;
+    return fileLoaded;
 }
 
 void Gui::enableWatcher()
