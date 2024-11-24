@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 25, 2023
+rem  Last Update: November 24, 2023
 rem  Copyright (C) 2018 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -135,6 +135,7 @@ CALL :SET_VALID_7ZIP
 
 SET overall_check_start=%time%
 
+SET LPUB3D_AUTO_RESTART_ENABLED=0
 SET LPUB3D_DISABLE_UPDATE_CHECK=1
 
 ECHO.

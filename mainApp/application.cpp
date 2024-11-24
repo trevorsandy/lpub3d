@@ -1048,7 +1048,13 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
     if (consoleRedirectTreated)
         Preferences::printInfo(tr("Redirect Output To Console...(%1)").arg(consoleRedirect ? enabled : disabled));
 #endif
-    Preferences::printInfo(tr("Check for Updates............(%1)").arg(m_enable_update_check ? enabled : disabled));
+    Preferences::printInfo(tr("Check For Updates............(%1)").arg(m_enable_update_check ? enabled : disabled));
+#if defined AUTO_RESTART && AUTO_RESTART == 1
+    // Automatic restart on abnormal end enabled
+    bool intOk;
+    bool enableAutoRestart = QString(qgetenv("LPUB3D_AUTO_RESTART_ENABLED")).toInt(&intOk);
+    Preferences::printInfo(tr("Auto Restart On Abnormal End.(%1)").arg(enableAutoRestart ? enabled : disabled));
+#endif
 #ifndef QT_NO_SSL
     Preferences::printInfo(tr("Secure Socket Layer..........(%1)").arg(QSslSocket::supportsSsl() ? tr("Supported") : tr("Not Supported %1")
                                                                   .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
@@ -1534,7 +1540,9 @@ static int lpub3dMonitorMain(int &argc, char **argv)
 
 int main(int argc, char **argv)
 {
-   if (qgetenv(kRunLPub3D) != kRunLPub3DValue)
+   bool ok;
+   bool autoRestart = QString(qgetenv("LPUB3D_AUTO_RESTART_ENABLED")).toInt(&ok);
+   if (ok && autoRestart && qgetenv(kRunLPub3D) != kRunLPub3DValue)
       return lpub3dMonitorMain(argc, argv);
    else
       return qunsetenv(kRunLPub3D), lpub3dMain(argc, argv);

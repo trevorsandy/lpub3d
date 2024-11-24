@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 22, 2024
+# Last Update November 24, 2024
 # Copyright (C) 2018 - 2024 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -197,6 +197,9 @@ if [ "${LP3D_QEMU}" != "true" ]; then
     LP3D_BUILD_CHECK_LIST+=( CHECK_06 CHECK_07 )
 fi
 NUM_CHECKS=${#LP3D_BUILD_CHECK_LIST[@]}
+
+# disable automatic restart on abnormal end
+export LPUB3D_AUTO_RESTART_ENABLED=0
 
 # disable available versions and update check
 export LPUB3D_DISABLE_UPDATE_CHECK=1
