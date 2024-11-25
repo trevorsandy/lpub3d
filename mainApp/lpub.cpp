@@ -425,8 +425,8 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
 {
   int goToPageNum = inputPageNum;
 
-  // check if possible to load page number
-  if (Preferences::modeGUI) {
+  // check if possible to load last opened page
+  if (Preferences::restoreLastOpenedPage && Preferences::modeGUI) {
     QSettings Settings;
     const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : SAVE_DISPLAY_PAGE_NUM_KEY;
     if (Settings.contains(QString("%1/%2").arg(DEFAULTS, pageNumKey))) {
@@ -846,9 +846,9 @@ bool Gui::continuousPageDialog(PageDirection d)
   int displayPause  = Preferences::pageDisplayPause;
   Gui::prevMaxPages  = Gui::maxPages;
   bool terminateProcess = false;
+  QElapsedTimer continuousTimer;
   emit gui->setContinuousPageSig(true);
   bool saveDoNotShowPageProcessDlg = Preferences::doNotShowPageProcessDlg;
-  QElapsedTimer continuousTimer;
   QString pageLineEditText = gui->setPageLineEdit->displayText();
   const QString direction = d == PAGE_NEXT ? tr("Next") : tr("Previous");
   const QString pageRangeDisplayText = QString("%1 of %2") .arg(Gui::displayPageNum) .arg(Gui::maxPages);
@@ -860,20 +860,22 @@ bool Gui::continuousPageDialog(PageDirection d)
   QString message = tr("%1 Page Processing...").arg(direction);
 
   if (Preferences::modeGUI) {
-      // check if necessary to load page number
-      QSettings Settings;
-      const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : SAVE_DISPLAY_PAGE_NUM_KEY;
-      if (Settings.contains(QString("%1/%2").arg(DEFAULTS, pageNumKey))) {
-          bool wasExporting = false;
-          if (Gui::m_autoRestart)
-              wasExporting = Settings.value(QString("%1/%2").arg(DEFAULTS, RESTART_EXPORTING_KEY)).toBool();
-          if (!wasExporting) {
-              goToPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS, pageNumKey)).toInt();
-              pageLineEditText = QString("%1-%2").arg(Gui::displayPageNum).arg(goToPageNum);
-              displayPause = PAGE_CYCLE_DISPLAY_DEFAULT;
-              Preferences::doNotShowPageProcessDlg = true;
-              if (!Gui::m_autoRestart)
-                  Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY));
+      // check if possible to load last opened page
+      if (Preferences::restoreLastOpenedPage) {
+          QSettings Settings;
+          const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : SAVE_DISPLAY_PAGE_NUM_KEY;
+          if (Settings.contains(QString("%1/%2").arg(DEFAULTS, pageNumKey))) {
+              bool wasExporting = false;
+              if (Gui::m_autoRestart)
+                  wasExporting = Settings.value(QString("%1/%2").arg(DEFAULTS, RESTART_EXPORTING_KEY)).toBool();
+              if (!wasExporting) {
+                  goToPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS, pageNumKey)).toInt();
+                  pageLineEditText = QString("%1-%2").arg(Gui::displayPageNum).arg(goToPageNum);
+                  displayPause = PAGE_CYCLE_DISPLAY_DEFAULT;
+                  Preferences::doNotShowPageProcessDlg = true;
+                  if (!Gui::m_autoRestart)
+                      Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY));
+              }
           }
       }
 

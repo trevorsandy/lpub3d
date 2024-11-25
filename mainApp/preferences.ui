@@ -263,6 +263,20 @@
              </spacer>
             </item>
             <item>
+             <widget class="QCheckBox" name="restoreLastOpenedPageCheck">
+              <property name="toolTip">
+               <string>On automatic restart, restore last opened file at last page number</string>
+              </property>
+              <property name="text">
+               <string>Restore Last Opened Page On Restart</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_32">
+            <item>
              <widget class="QLabel" name="label_20">
               <property name="toolTip">
                <string>Show the current LDraw file status after file load</string>
@@ -304,17 +318,13 @@
               </item>
              </widget>
             </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_32">
             <item>
              <widget class="QCheckBox" name="extendedSubfileSearchCheck">
               <property name="toolTip">
-               <string>Search current folder, content search directories and LDraw subfolders for subfile references.</string>
+               <string>Search current folder, LDraw search directories and LDraw subfolders for subfile references.</string>
               </property>
               <property name="text">
-               <string>Extended Subfile Reference Search</string>
+               <string>Extended Search Paths</string>
               </property>
              </widget>
             </item>
@@ -3821,6 +3831,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>altLDConfigPath</tabstop>
   <tabstop>browseAltLDConfig</tabstop>
   <tabstop>loadLastOpenedFileCheck</tabstop>
+  <tabstop>restoreLastOpenedPageCheck</tabstop>
   <tabstop>ldrawFilesLoadMsgsCombo</tabstop>
   <tabstop>extendedSubfileSearchCheck</tabstop>
   <tabstop>saveOnUpdateChkBox</tabstop>

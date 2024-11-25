@@ -4859,6 +4859,9 @@ void CommonMenus::setWhatsThis()
             "  - Load the last opened file on startup: as the title<br>"
             "    states, the last file opened in %1 is automatically<br>"
             "    loaded when %1 is launched.<br><br>"
+            "  - Restore the last opened page on restart: this setting<br>"
+            "    will load the last opened page of the last opened file<br>"
+            "    on automatic application restart after an abnormal end.<br><br>"
             "  - Show load status: set %1 to display a load status<br>"
             "    dialog upon completion of LDraw file load.<br>"
             "    The load status dialog can be set to display on the<br>"
@@ -4873,7 +4876,15 @@ void CommonMenus::setWhatsThis()
             "    * On Message: display dialog when either a warning or<br>"
             "      an error condition is encountered.<br><br>"
             "    * Always: display dialog each time an LDraw file is<br>"
-            "      loaded.%2<br>")
+            "      loaded.<br><br>"
+            "  - Extended search paths: search the current folder,<br>"
+            "    LDraw search directories and LDraw disc library<br>"
+            "    subfolders for model subfile references.<br><br>"
+            "  - Save on Update: save the current model file when<br>"
+            "    the command editor update action is triggered.<br>"
+            "  - Save on Redraw: save the current model file when<br>"
+            "    the command editor redraw or application reset<br>"
+            "    cache menu action is triggered.%2<br>")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE

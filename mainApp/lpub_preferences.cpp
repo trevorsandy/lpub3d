@@ -476,6 +476,7 @@ bool    Preferences::addLSynthSearchDir         = false;
 bool    Preferences::excludeModelsSearchDir     = false;
 bool    Preferences::skipPartsArchive           = false;
 bool    Preferences::loadLastOpenedFile         = false;
+bool    Preferences::restoreLastOpenedPage      = false;
 bool    Preferences::extendedSubfileSearch      = false;
 bool    Preferences::cycleEachPage              = false;
 
@@ -4125,6 +4126,14 @@ void Preferences::userInterfacePreferences()
       loadLastOpenedFile = Settings.value(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey)).toBool();
   }
 
+  QString const restoreLastOpenedPageKey("RestoreLastOpenedPage");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,restoreLastOpenedPageKey))) {
+     QVariant uValue(restoreLastOpenedPage);
+     Settings.setValue(QString("%1/%2").arg(SETTINGS,restoreLastOpenedPageKey),uValue);
+  } else {
+     restoreLastOpenedPage = Settings.value(QString("%1/%2").arg(SETTINGS,restoreLastOpenedPageKey)).toBool();
+  }
+
   QString const extendedSubfileSearchKey("ExtendedSubfileSearch");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,extendedSubfileSearchKey))) {
       QVariant uValue(extendedSubfileSearch);
@@ -6080,6 +6089,14 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LoadLastOpenedFile"),loadLastOpenedFile);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Load Last Opened File is %1")
+                                  .arg(loadLastOpenedFile ? On : Off));
+        }
+
+        if (restoreLastOpenedPage != dialog->restoreLastOpenedPage())
+        {
+            restoreLastOpenedPage = dialog->restoreLastOpenedPage();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"RestoreLastOpenedPage"),restoreLastOpenedPage);
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Restore Last Opened Page on Restart is %1")
                                   .arg(loadLastOpenedFile ? On : Off));
         }
 
