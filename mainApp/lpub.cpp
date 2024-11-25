@@ -428,13 +428,13 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   // check if possible to load last opened page
   if (Preferences::restoreLastOpenedPage && Preferences::modeGUI) {
     QSettings Settings;
-    const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : SAVE_DISPLAY_PAGE_NUM_KEY;
-    if (Settings.contains(QString("%1/%2").arg(DEFAULTS, pageNumKey))) {
+    const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : RESTART_DISPLAY_PAGE_NUM_KEY;
+    if (Settings.contains(QString("%1/%2").arg(RESTART, pageNumKey))) {
       bool wasExporting = false;
       if (Gui::m_autoRestart)
-        wasExporting = Settings.value(QString("%1/%2").arg(DEFAULTS, RESTART_EXPORTING_KEY)).toBool();
+        wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
       if (!wasExporting)
-        goToPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS, pageNumKey)).toInt();
+        goToPageNum = Settings.value(QString("%1/%2").arg(RESTART, pageNumKey)).toInt();
     }
   }
 
@@ -596,10 +596,10 @@ void Gui::restartAutoSave()
     QSettings Settings;
 
     QVariant displayPageNum(Gui::displayPageNum);
-    Settings.setValue(QString("%1/%2").arg(DEFAULTS,RESTART_PAGE_NUM_KEY), displayPageNum);
+    Settings.setValue(QString("%1/%2").arg(RESTART,RESTART_PAGE_NUM_KEY), displayPageNum);
 
     QVariant exporting(Gui::exporting());
-    Settings.setValue(QString("%1/%2").arg(DEFAULTS,RESTART_EXPORTING_KEY), exporting);
+    Settings.setValue(QString("%1/%2").arg(RESTART,RESTART_EXPORTING_KEY), exporting);
 }
 
 void Gui::pageProcessUpdate()
@@ -863,18 +863,18 @@ bool Gui::continuousPageDialog(PageDirection d)
       // check if possible to load last opened page
       if (Preferences::restoreLastOpenedPage) {
           QSettings Settings;
-          const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : SAVE_DISPLAY_PAGE_NUM_KEY;
-          if (Settings.contains(QString("%1/%2").arg(DEFAULTS, pageNumKey))) {
+          const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : RESTART_DISPLAY_PAGE_NUM_KEY;
+          if (Settings.contains(QString("%1/%2").arg(RESTART, pageNumKey))) {
               bool wasExporting = false;
               if (Gui::m_autoRestart)
-                  wasExporting = Settings.value(QString("%1/%2").arg(DEFAULTS, RESTART_EXPORTING_KEY)).toBool();
+                  wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
               if (!wasExporting) {
-                  goToPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS, pageNumKey)).toInt();
+                  goToPageNum = Settings.value(QString("%1/%2").arg(RESTART, pageNumKey)).toInt();
                   pageLineEditText = QString("%1-%2").arg(Gui::displayPageNum).arg(goToPageNum);
                   displayPause = PAGE_CYCLE_DISPLAY_DEFAULT;
                   Preferences::doNotShowPageProcessDlg = true;
                   if (!Gui::m_autoRestart)
-                      Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY));
+                      Settings.remove(QString("%1/%2").arg(RESTART, RESTART_DISPLAY_PAGE_NUM_KEY));
               }
           }
       }
@@ -1790,7 +1790,7 @@ void  Gui::restartApplication(bool changeLibrary, bool prompt) {
         if (!args.contains(Gui::getCurFile(),Qt::CaseInsensitive))
             args << Gui::getCurFile();
         QSettings Settings;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY),Gui::displayPageNum);
+        Settings.setValue(QString("%1/%2").arg(RESTART,RESTART_DISPLAY_PAGE_NUM_KEY),Gui::displayPageNum);
     } else {
         args << (Preferences::validLDrawLibraryChange == LEGO_LIBRARY  ? "++liblego" :
                  Preferences::validLDrawLibraryChange == TENTE_LIBRARY ? "++libtente" : "++libvexiq");

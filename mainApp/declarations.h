@@ -806,6 +806,7 @@ enum ThemeColorType {
 #define THEMECOLORS                            "ThemeColors"
 #define KEYBOARDSHORTCUTS                      "KeyboardShortcuts"
 #define TABLAYOUTS                             "TabLayouts"
+#define RESTART                                "Restart"
 
 #define BLENDER_RENDER_ADDON_FOLDER            "io_scene_render_ldraw"
 
@@ -813,9 +814,10 @@ enum ThemeColorType {
 
 #define FADE_SFX                                "-fade"
 #define HIGHLIGHT_SFX                           "-highlight"
+#define RESTART_TRIGGER                         "@@ReStArT@@"
 #define RESTART_PAGE_NUM_KEY                    "RestartPageNum"
 #define RESTART_EXPORTING_KEY                   "RestartExporting"
-#define SAVE_DISPLAY_PAGE_NUM_KEY               "SaveDisplayPageNum"
+#define RESTART_DISPLAY_PAGE_NUM_KEY            "RestartDisplayPageNum"
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY             "SaveSkipPartsArchive"
 #define VIEW_IMPORT_TOOLBAR_KEY                 "ViewImportToolbar"
 #define VIEW_EXPORT_TOOLBAR_KEY                 "ViewExportToolbar"
@@ -825,7 +827,6 @@ enum ThemeColorType {
 #define VIEW_EDIT_TOOLBAR_KEY                   "ViewEditToolbar"
 #define VIEW_REMOVE_LPUB_FORMAT_TOOLBAR_KEY     "ViewRemoveLPubFormatToolBar"
 #define VIEW_EDITPARAMS_TOOLBAR_KEY             "ViewEditParamsToolbar"
-#define RESTART_TRIGGER                         "@@ReStArT@@"
 
 #define CASE_CHECK                              "CaseCheck"
 #define WORD_CHECK                              "WordCheck"
