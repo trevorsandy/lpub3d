@@ -53,6 +53,18 @@ struct lcLibRenderOptions
     bool KeyboardShortcutsDefault;
 };
 
+struct ExtendedSearch
+{
+    bool officialModels;
+    bool officialParts;
+    bool officialPrimitives;
+    bool unofficialParts;
+    bool unofficialPrimitives;
+    bool unofficialTextures;
+    bool projectPath;
+    bool ldrawSearchDirs;
+};
+
 class CommandListColumnStretcher : public QObject
 {
     Q_OBJECT
@@ -198,6 +210,7 @@ class PreferencesDialog : public QDialog
     void on_shortcutsReset_clicked();
     void on_KeyboardFilterEdit_textEdited(const QString& Text);
     void commandChanged(QTreeWidgetItem *current);
+    ExtendedSearch getExtendedSearchOptions();
 
   private slots:
     void on_browseLDraw_clicked();
@@ -241,6 +254,8 @@ class PreferencesDialog : public QDialog
     void on_autoUpdateChangeLogBox_clicked(bool checked);
     void on_updateChangeLogBtn_clicked();
     void on_themeColorsButton_clicked();
+    void on_extendedSearchOptionsBtn_clicked();
+    void on_extendedSubfileSearchCheck_clicked(bool checked);
 
     void installRenderer();
     void setRenderers();
@@ -326,6 +341,8 @@ private:
     QToolButton *clearDetailErrorsTBtn;
     QLabel      *clearDetailErrorsLbl;
     QDialogButtonBox *messageButtonBox;
+
+    ExtendedSearch mExtendedSearch;
 
     QPalette readOnlyPalette;
 

@@ -1845,20 +1845,29 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
     QByteArray dataFile;
     QString subfileName, subFile, smLine, datafileName;
-    QStringList stagedContents, stagedSubfiles, contents, tokens;
-    QStringList searchPaths = Preferences::ldSearchDirs;
+    QStringList stagedContents, stagedSubfiles, contents, tokens, searchPaths;
 
+    if (Preferences::searchLDrawSearchDirs)
+        searchPaths = Preferences::ldSearchDirs;
     QString ldrawPath = QDir::toNativeSeparators(Preferences::ldrawLibPath);
-    if (!searchPaths.contains(ldrawPath + QDir::separator() + "MODELS",Qt::CaseInsensitive))
-        searchPaths.append(ldrawPath + QDir::separator() + "MODELS");
-    if (!searchPaths.contains(ldrawPath + QDir::separator() + "PARTS",Qt::CaseInsensitive))
-        searchPaths.append(ldrawPath + QDir::separator() + "PARTS");
-    if (!searchPaths.contains(ldrawPath + QDir::separator() + "P",Qt::CaseInsensitive))
-        searchPaths.append(ldrawPath + QDir::separator() + "P");
-    if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "PARTS",Qt::CaseInsensitive))
-        searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "PARTS");
-    if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "P",Qt::CaseInsensitive))
-        searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "P");
+    if (Preferences::searchOfficialModels)
+        if (!searchPaths.contains(ldrawPath + QDir::separator() + "MODELS",Qt::CaseInsensitive))
+            searchPaths.append(ldrawPath + QDir::separator() + "MODELS");
+    if (Preferences::searchOfficialParts)
+        if (!searchPaths.contains(ldrawPath + QDir::separator() + "PARTS",Qt::CaseInsensitive))
+            searchPaths.append(ldrawPath + QDir::separator() + "PARTS");
+    if (Preferences::searchOfficialPrimitives)
+        if (!searchPaths.contains(ldrawPath + QDir::separator() + "P",Qt::CaseInsensitive))
+            searchPaths.append(ldrawPath + QDir::separator() + "P");
+    if (Preferences::searchUnofficialParts)
+        if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "PARTS",Qt::CaseInsensitive))
+            searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "PARTS");
+    if (Preferences::searchUnofficialPrimitives)
+        if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "P",Qt::CaseInsensitive))
+            searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "P");
+    if (Preferences::searchUnofficialTextures)
+        if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "TEXTURES",Qt::CaseInsensitive))
+            searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "TEXTURES");
 
     /* Read it in the first time to put into fileList in order of appearance */
 
@@ -2291,21 +2300,21 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                                                             .arg(fileDesc).arg(subfileType).arg(subfile));
                 continue;
             }
-            // current path
-            if ((subfileFound = QFileInfo(projectPath + QDir::separator() + subfile).isFile())) {
-                fileInfo = QFileInfo(projectPath + QDir::separator() + subfile);
-            } else
-            // file path
+            // subfile path
             if ((subfileFound = QFileInfo(subfile).isFile())) {
                 fileInfo = QFileInfo(subfile);
-            }
-            else
-            // extended search - LDraw subfolder paths and extra search directorie paths
-            if (Preferences::extendedSubfileSearch) {
-                for (QString const &subFilePath : searchPaths) {
-                    if ((subfileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
-                        fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
-                        break;
+            } else if (Preferences::extendedSubfileSearch) {
+                // extended search - current project path
+                if (Preferences::searchProjectPath && (subfileFound = QFileInfo(projectPath + QDir::separator() + subfile).isFile())) {
+                    fileInfo = QFileInfo(projectPath + QDir::separator() + subfile);
+                }
+                if (!subfileFound) {
+                    // extended search - LDraw subfolder paths and extra search directories
+                    for (QString const &subFilePath : searchPaths) {
+                        if ((subfileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
+                            fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
+                            break;
+                        }
                     }
                 }
             }
@@ -2450,20 +2459,29 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         unofficialPart = UNOFFICIAL_UNKNOWN;
 
         QString subfileName, subFile, smLine;
-        QStringList stagedContents, stagedSubfiles, contents, tokens;
-        QStringList searchPaths = Preferences::ldSearchDirs;
+        QStringList stagedContents, stagedSubfiles, contents, tokens, searchPaths;
 
+        if (Preferences::searchLDrawSearchDirs)
+            searchPaths = Preferences::ldSearchDirs;
         QString ldrawPath = QDir::toNativeSeparators(Preferences::ldrawLibPath);
-        if (!searchPaths.contains(ldrawPath + QDir::separator() + "MODELS",Qt::CaseInsensitive))
-            searchPaths.append(ldrawPath + QDir::separator() + "MODELS");
-        if (!searchPaths.contains(ldrawPath + QDir::separator() + "PARTS",Qt::CaseInsensitive))
-            searchPaths.append(ldrawPath + QDir::separator() + "PARTS");
-        if (!searchPaths.contains(ldrawPath + QDir::separator() + "P",Qt::CaseInsensitive))
-            searchPaths.append(ldrawPath + QDir::separator() + "P");
-        if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "PARTS",Qt::CaseInsensitive))
-            searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "PARTS");
-        if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "P",Qt::CaseInsensitive))
-            searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "P");
+        if (Preferences::searchOfficialModels)
+            if (!searchPaths.contains(ldrawPath + QDir::separator() + "MODELS",Qt::CaseInsensitive))
+                searchPaths.append(ldrawPath + QDir::separator() + "MODELS");
+        if (Preferences::searchOfficialParts)
+            if (!searchPaths.contains(ldrawPath + QDir::separator() + "PARTS",Qt::CaseInsensitive))
+                searchPaths.append(ldrawPath + QDir::separator() + "PARTS");
+        if (Preferences::searchOfficialPrimitives)
+            if (!searchPaths.contains(ldrawPath + QDir::separator() + "P",Qt::CaseInsensitive))
+                searchPaths.append(ldrawPath + QDir::separator() + "P");
+        if (Preferences::searchUnofficialParts)
+            if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "PARTS",Qt::CaseInsensitive))
+                searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "PARTS");
+        if (Preferences::searchUnofficialPrimitives)
+            if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "P",Qt::CaseInsensitive))
+                searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "P");
+        if (Preferences::searchUnofficialTextures)
+            if (!searchPaths.contains(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "TEXTURES",Qt::CaseInsensitive))
+                searchPaths.append(ldrawPath + QDir::separator() + "UNOFFICIAL" + QDir::separator() + "TEXTURES");
 
         /* Read it in the first time to put into fileList in order of appearance */
 
@@ -2851,21 +2869,21 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     emit gui->messageSig(LOG_TRACE, QObject::tr("LDR %1%2 '%3' already loaded.").arg(fileDesc).arg(subfileType).arg(subfile));
                     continue;
                 }
-                // current path
-                if ((subfileFound = QFileInfo(projectPath + QDir::separator() + subfile).isFile())) {
-                    fileInfo = QFileInfo(projectPath + QDir::separator() + subfile);
-                } else
-                // file path
+                // subfile path
                 if ((subfileFound = QFileInfo(subfile).isFile())) {
                     fileInfo = QFileInfo(subfile);
-                }
-                else
-                // extended search - LDraw subfolder paths and extra search directorie paths
-                if (Preferences::extendedSubfileSearch) {
-                    for (QString const &subFilePath : searchPaths) {
-                        if ((subfileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
-                            fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
-                            break;
+                } else if (Preferences::extendedSubfileSearch) {
+                    // extended search - current project path
+                    if (Preferences::searchProjectPath && (subfileFound = QFileInfo(projectPath + QDir::separator() + subfile).isFile())) {
+                        fileInfo = QFileInfo(projectPath + QDir::separator() + subfile);
+                    }
+                    if (!subfileFound) {
+                        // extended search - LDraw subfolder paths and extra search directories
+                        for (QString const &subFilePath : searchPaths) {
+                            if ((subfileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
+                                fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
+                                break;
+                            }
                         }
                     }
                 }

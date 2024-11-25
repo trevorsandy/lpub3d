@@ -322,6 +322,14 @@ class Preferences
     static bool    loadLastOpenedFile;
     static bool    restoreLastOpenedPage;
     static bool    extendedSubfileSearch;
+    static bool    searchOfficialModels;
+    static bool    searchOfficialParts;
+    static bool    searchOfficialPrimitives;
+    static bool    searchUnofficialParts;
+    static bool    searchUnofficialPrimitives;
+    static bool    searchUnofficialTextures;
+    static bool    searchProjectPath;
+    static bool    searchLDrawSearchDirs;
 
     static bool    ldgliteInstalled;
     static bool    ldviewInstalled;

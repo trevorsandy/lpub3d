@@ -4815,6 +4815,28 @@ void CommonMenus::setWhatsThis()
 #endif
                 )
         },
+        // WT_CONTROL_LPUB3D_PREFERENCES_EXTENDED_SEARCH
+        {
+            QObject::tr(
+            "  Extended search paths used during initial LDraw model file load.<br>"
+            "  These paths are searched for parts, primitives, and textures<br>"
+            "  encountered in your model file during the initial file load<br>"
+            "  but are not in the model file or archive parts library.<br><br>"
+            "  Select among the available options, the search paths<br>"
+            "  to include in your extended model file search paths list.<br>"
+            "  This list is accessed when the extended search paths<br>"
+            "  setting is enabled.<br>"
+            "  If no items are selected %1 will only search the path of<br>"
+            "  the current subfile being loaded.%2<br>")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
+            .arg(
+#ifdef QT_DEBUG_MODE
+                 QLatin1String("<br><br>  WT_CONTROL_LPUB3D_PREFERENCES_EXTENDED_SEARCH")
+#else
+                 ""
+#endif
+                )
+        },
         // WT_CONTROL_LPUB3D_PREFERENCES_FADE_STEPS
         {
             QObject::tr(

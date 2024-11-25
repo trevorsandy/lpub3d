@@ -478,6 +478,15 @@ bool    Preferences::skipPartsArchive           = false;
 bool    Preferences::loadLastOpenedFile         = false;
 bool    Preferences::restoreLastOpenedPage      = false;
 bool    Preferences::extendedSubfileSearch      = false;
+bool    Preferences::searchOfficialModels       = true;
+bool    Preferences::searchOfficialParts        = false;
+bool    Preferences::searchOfficialPrimitives   = false;
+bool    Preferences::searchUnofficialParts      = true;
+bool    Preferences::searchUnofficialPrimitives = true;
+bool    Preferences::searchUnofficialTextures   = true;
+bool    Preferences::searchProjectPath          = true;
+bool    Preferences::searchLDrawSearchDirs      = true;
+
 bool    Preferences::cycleEachPage              = false;
 
 bool    Preferences::usingNPP                   = false;
@@ -4142,6 +4151,70 @@ void Preferences::userInterfacePreferences()
       extendedSubfileSearch = Settings.value(QString("%1/%2").arg(SETTINGS,extendedSubfileSearchKey)).toBool();
   }
 
+  QString const searchOfficialModelsKey("SearchOfficialModels");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,searchOfficialModelsKey))) {
+      QVariant uValue(searchOfficialModels);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,searchOfficialModelsKey),uValue);
+  } else {
+      searchOfficialModels = Settings.value(QString("%1/%2").arg(SETTINGS,searchOfficialModelsKey)).toBool();
+  }
+
+  QString const searchOfficialPartsKey("SearchOfficialParts");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,searchOfficialPartsKey))) {
+    QVariant uValue(searchOfficialParts);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,searchOfficialPartsKey),uValue);
+  } else {
+    searchOfficialParts = Settings.value(QString("%1/%2").arg(SETTINGS,searchOfficialPartsKey)).toBool();
+  }
+
+  QString const searchOfficialPrimitivesKey("SearchOfficialPrimitives");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,searchOfficialPrimitivesKey))) {
+    QVariant uValue(searchOfficialPrimitives);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,searchOfficialPrimitivesKey),uValue);
+  } else {
+    searchOfficialPrimitives = Settings.value(QString("%1/%2").arg(SETTINGS,searchOfficialPrimitivesKey)).toBool();
+  }
+
+  QString const searchUnofficialPartsKey("SearchUnofficialParts");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,searchUnofficialPartsKey))) {
+    QVariant uValue(searchUnofficialParts);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,searchUnofficialPartsKey),uValue);
+  } else {
+    searchUnofficialParts = Settings.value(QString("%1/%2").arg(SETTINGS,searchUnofficialPartsKey)).toBool();
+  }
+
+  QString const searchUnofficialPrimitivesKey("SearchUnofficialPrimitives");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,searchUnofficialPrimitivesKey))) {
+    QVariant uValue(searchUnofficialPrimitives);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,searchUnofficialPrimitivesKey),uValue);
+  } else {
+    searchUnofficialPrimitives = Settings.value(QString("%1/%2").arg(SETTINGS,searchUnofficialPrimitivesKey)).toBool();
+  }
+
+  QString const searchUnofficialTexturesKey("SearchUnofficialTextures");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,searchUnofficialTexturesKey))) {
+    QVariant uValue(searchUnofficialTextures);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,searchUnofficialTexturesKey),uValue);
+  } else {
+    searchUnofficialTextures = Settings.value(QString("%1/%2").arg(SETTINGS,searchUnofficialTexturesKey)).toBool();
+  }
+
+  QString const searchProjectPathKey("SearchProjectPath");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,searchProjectPathKey))) {
+    QVariant uValue(searchProjectPath);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,searchProjectPathKey),uValue);
+  } else {
+    searchProjectPath = Settings.value(QString("%1/%2").arg(SETTINGS,searchProjectPathKey)).toBool();
+  }
+
+  QString const searchLDrawSearchDirsKey("SearchLDrawSearchDirs");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,searchLDrawSearchDirsKey))) {
+    QVariant uValue(searchLDrawSearchDirs);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,searchLDrawSearchDirsKey),uValue);
+  } else {
+    searchLDrawSearchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,searchLDrawSearchDirsKey)).toBool();
+  }
+
   QString const ldrawFilesLoadMsgsKey("LDrawFilesLoadMsgs");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,ldrawFilesLoadMsgsKey))) {
       ldrawFilesLoadMsgs = NEVER_SHOW;
@@ -5283,7 +5356,6 @@ bool Preferences::getPreferences()
     }
 
     if (dialog->exec() == QDialog::Accepted) {
-
         QElapsedTimer timer;
         timer.start();
 
@@ -6107,6 +6179,70 @@ bool Preferences::getPreferences()
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended Subfile Search is %1")
                                   .arg(extendedSubfileSearch ? On : Off));
+        }
+
+        if (searchOfficialModels != dialog->getExtendedSearchOptions().officialModels)
+        {
+            searchOfficialModels = dialog->getExtendedSearchOptions().officialModels;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SearchOfficialModels"),searchOfficialModels);
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended search option Official Models is %1")
+                                  .arg(searchOfficialModels ? On : Off));
+        }
+
+        if (searchOfficialParts != dialog->getExtendedSearchOptions().officialParts)
+        {
+            searchOfficialParts = dialog->getExtendedSearchOptions().officialParts;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SearchOfficialParts"),searchOfficialParts);
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended search option Official Parts is %1")
+                                  .arg(searchOfficialParts ? On : Off));
+        }
+
+        if (searchOfficialPrimitives != dialog->getExtendedSearchOptions().officialPrimitives)
+        {
+            searchOfficialPrimitives = dialog->getExtendedSearchOptions().officialPrimitives;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SearchOfficialPrimitives"),searchOfficialPrimitives);
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended search option Official Primitives is %1")
+                                  .arg(searchOfficialPrimitives ? On : Off));
+        }
+
+        if (searchUnofficialParts != dialog->getExtendedSearchOptions().unofficialParts)
+        {
+            searchUnofficialParts = dialog->getExtendedSearchOptions().unofficialParts;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SearchUnofficialParts"),searchUnofficialParts);
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended search option Unofficial Parts is %1")
+                                  .arg(searchUnofficialParts ? On : Off));
+        }
+
+        if (searchUnofficialPrimitives != dialog->getExtendedSearchOptions().unofficialPrimitives)
+        {
+            searchUnofficialPrimitives = dialog->getExtendedSearchOptions().unofficialPrimitives;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SearchUnofficialPrimitives"),searchUnofficialPrimitives);
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended search option Unofficial Primitives is %1")
+                                  .arg(searchUnofficialPrimitives ? On : Off));
+        }
+
+        if (searchUnofficialTextures != dialog->getExtendedSearchOptions().unofficialTextures)
+        {
+            searchUnofficialTextures = dialog->getExtendedSearchOptions().unofficialTextures;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SearchUnofficialTextures"),searchUnofficialTextures);
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended search option Unofficial Textures is %1")
+                                  .arg(searchUnofficialTextures ? On : Off));
+        }
+
+        if (searchProjectPath != dialog->getExtendedSearchOptions().projectPath)
+        {
+            searchProjectPath = dialog->getExtendedSearchOptions().projectPath;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SearchProjectPath"),searchProjectPath);
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended search option Project Path is %1")
+                                  .arg(searchProjectPath ? On : Off));
+        }
+
+        if (searchLDrawSearchDirs != dialog->getExtendedSearchOptions().ldrawSearchDirs)
+        {
+            searchLDrawSearchDirs = dialog->getExtendedSearchOptions().ldrawSearchDirs;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SearchLDrawSearchDirs"),searchLDrawSearchDirs);
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Extended search option LDraw Search Directories is %1")
+                                  .arg(searchLDrawSearchDirs ? On : Off));
         }
 
         if (ldrawFilesLoadMsgs != dialog->ldrawFilesLoadMsgs())

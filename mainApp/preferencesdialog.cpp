@@ -622,6 +622,8 @@ void PreferencesDialog::setPreferences()
 #endif
   ui.changeLogGrpBox->setTitle(versionInfo);
 
+  ui.extendedSearchOptionsBtn->setEnabled(ui.extendedSubfileSearchCheck->isChecked());
+
   updateChangelog();
 
   // show message options
@@ -632,6 +634,15 @@ void PreferencesDialog::setPreferences()
   mShowIncludeFileErrors    = Preferences::showIncludeFileErrors;
   mShowAnnotationErrors     = Preferences::showAnnotationErrors;
   mShowConfigurationErrors  = Preferences::showConfigurationErrors;
+
+  mExtendedSearch.officialModels       = Preferences::searchOfficialModels;
+  mExtendedSearch.officialParts        = Preferences::searchOfficialParts;
+  mExtendedSearch.officialPrimitives   = Preferences::searchOfficialPrimitives;
+  mExtendedSearch.unofficialParts      = Preferences::searchUnofficialParts;
+  mExtendedSearch.unofficialPrimitives = Preferences::searchUnofficialPrimitives;
+  mExtendedSearch.unofficialTextures   = Preferences::searchUnofficialTextures;
+  mExtendedSearch.projectPath          = Preferences::searchProjectPath;
+  mExtendedSearch.ldrawSearchDirs      = Preferences::searchLDrawSearchDirs;
 }
 
 void PreferencesDialog::setOptions(lcLibRenderOptions* Options)
@@ -1856,6 +1867,86 @@ void PreferencesDialog::messageManagement()
     messageButtonBox->button(QDialogButtonBox::Cancel)->setEnabled(!cleared);
 }
 
+void PreferencesDialog::on_extendedSubfileSearchCheck_clicked(bool checked)
+{
+    ui.extendedSearchOptionsBtn->setEnabled(checked);
+}
+
+void PreferencesDialog::on_extendedSearchOptionsBtn_clicked()
+{
+    const QString windowTitle = QString("Extended Search");
+    QDialog *dialog = new QDialog();
+    dialog->setWindowTitle(windowTitle);
+    dialog->setWhatsThis(lpubWT(WT_CONTROL_LPUB3D_PREFERENCES_EXTENDED_SEARCH, windowTitle));
+
+    QFormLayout *form = new QFormLayout(dialog);
+    QGroupBox *searchOptionsGrpBox = new QGroupBox(tr("File Load Search Options"));
+    form->addWidget(searchOptionsGrpBox);
+    QFormLayout *searchOptionsSubform = new QFormLayout(searchOptionsGrpBox);
+
+    // Dialogues
+    QCheckBox *officialModelsChk = new QCheckBox(tr("Official Models"), dialog);
+    officialModelsChk->setToolTip(tr("Add Official Models path to extended search"));
+    officialModelsChk->setChecked(mExtendedSearch.officialModels);
+    searchOptionsSubform->addRow(officialModelsChk);
+
+    QCheckBox *officialPartsChk = new QCheckBox(tr("Official Parts"), dialog);
+    officialPartsChk->setToolTip(tr("Add Official Parts path to extended search"));
+    officialPartsChk->setChecked(mExtendedSearch.officialParts);
+    searchOptionsSubform->addRow(officialPartsChk);
+
+    QCheckBox *officialPrimitivesChk = new QCheckBox(tr("Official Primitives"), dialog);
+    officialPrimitivesChk->setToolTip(tr("Add Official Primitives path to extended search"));
+    officialPrimitivesChk->setChecked(mExtendedSearch.officialPrimitives);
+    searchOptionsSubform->addRow(officialPrimitivesChk);
+
+    QCheckBox *unofficialPartsChk = new QCheckBox(tr("Unofficial Parts"), dialog);
+    unofficialPartsChk->setToolTip(tr("Add Unofficial Parts path to extended search"));
+    unofficialPartsChk->setChecked(mExtendedSearch.unofficialParts);
+    searchOptionsSubform->addRow(unofficialPartsChk);
+
+    QCheckBox *unofficialPrimitivesChk = new QCheckBox(tr("Unofficial Primitives"), dialog);
+    unofficialPrimitivesChk->setToolTip(tr("Add Unofficial Primitives path to extended search"));
+    unofficialPrimitivesChk->setChecked(mExtendedSearch.unofficialPrimitives);
+    searchOptionsSubform->addRow(unofficialPrimitivesChk);
+
+    QCheckBox *unofficialTexturesChk = new QCheckBox(tr("Unofficial Textures"), dialog);
+    unofficialTexturesChk->setToolTip(tr("Add Unofficial Textures path to extended search"));
+    unofficialTexturesChk->setChecked(mExtendedSearch.unofficialTextures);
+    searchOptionsSubform->addRow(unofficialTexturesChk);
+
+    searchOptionsSubform->addItem(new QSpacerItem(0,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+    QCheckBox *projectPathChk = new QCheckBox(tr("Project Path"), dialog);
+    projectPathChk->setToolTip(tr("Add Project path to extended search"));
+    projectPathChk->setChecked(mExtendedSearch.projectPath);
+    searchOptionsSubform->addRow(projectPathChk);
+
+    QCheckBox *ldrawSearchDirsChk = new QCheckBox(tr("LDraw Search Directories"), dialog);
+    ldrawSearchDirsChk->setToolTip(tr("Add LDraw Search Directories to extended search"));
+    ldrawSearchDirsChk->setChecked(mExtendedSearch.ldrawSearchDirs);
+    searchOptionsSubform->addRow(ldrawSearchDirsChk);
+
+    // options - button box
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    form->addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+    dialog->setMinimumSize(220,100);
+
+    if (dialog->exec() == QDialog::Accepted) {
+        mExtendedSearch.officialModels       = officialModelsChk->isChecked();
+        mExtendedSearch.officialParts        = officialPartsChk->isChecked();
+        mExtendedSearch.officialPrimitives   = officialPrimitivesChk->isChecked();
+        mExtendedSearch.unofficialParts      = unofficialPartsChk->isChecked();
+        mExtendedSearch.unofficialPrimitives = unofficialPrimitivesChk->isChecked();
+        mExtendedSearch.unofficialTextures   = unofficialTexturesChk->isChecked();
+        mExtendedSearch.projectPath     = projectPathChk->isChecked();
+        mExtendedSearch.ldrawSearchDirs      = ldrawSearchDirsChk->isChecked();
+    }
+}
+
 QString const PreferencesDialog::moduleVersion()
 {
   return ui.moduleVersion_Combo->currentText();
@@ -2326,6 +2417,11 @@ bool PreferencesDialog::suppressFPrint()
   return ui.suppressFPrintBox->isChecked();
 }
 
+ExtendedSearch PreferencesDialog::getExtendedSearchOptions()
+{
+  return mExtendedSearch;
+}
+
 void PreferencesDialog::updateChangelog()
 {
     ui.changeLogGrpBox->setTitle(LPub::m_versionInfo);
@@ -2343,6 +2439,9 @@ void PreferencesDialog::updateChangelog()
 
 void PreferencesDialog::accept()
 {
+    // for some reason this is not displayed on accept
+    emit gui->messageSig(LOG_STATUS, tr("Saving preferences..."));
+
     bool missingParms = false;
     QFileInfo fileInfo;
 

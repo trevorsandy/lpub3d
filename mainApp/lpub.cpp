@@ -3194,6 +3194,7 @@ void Gui::preferences()
 
         Preferences::resetPreferenceFlags();
     }
+    emit gui->messageSig(LOG_STATUS, tr("Preferences saved"));
 }
 
 /*******************************************************************************
