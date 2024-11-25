@@ -168,8 +168,8 @@ class Preferences
                            const QString &message,
                            const QString &title = "",
                            const QString &type = "",
-                           bool option = false,
-                           bool override = false,
+                           bool option = false,  // true=OkCancel|default=Cancel, false=AbortIgnore|default=Ignore
+                           bool override = false,// true=Ok|default=Ok|NoCheckBox, false=AbortIgnore|default=Ignore,
                            int icon = 3);
     #ifdef Q_OS_MAC
     static LibFlag validRendererLib(const QString &, const QString &);

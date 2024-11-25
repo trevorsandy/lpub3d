@@ -1588,11 +1588,11 @@ signals:
   void parseErrorSig(const QString &,
                      const Where &,
                      Preferences::MsgKey = Preferences::ParseErrors,
-                     bool = false/*option*/,
-                     bool = false/*override*/,
-                     int = 0     /*NoIcon*/,
-                     const QString &  = "",/*title*/
-                     const QString &  = ""/*type*/);
+                     bool = false         /*option: true=OkCancel|default=Cancel, false=AbortIgnore|default=Ignore*/,
+                     bool = false         /*override: true=Ok|default=Ok|NoCheckBox, false=AbortIgnore|default=Ignore*/,
+                     int  = 0             /*NoIcon*/,
+                     const QString & = "",/*title*/
+                     const QString & = "" /*type*/);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
   void highlightSelectedLinesSig(QVector<int> &indexes, bool clear);

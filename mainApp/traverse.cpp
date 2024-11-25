@@ -1421,8 +1421,10 @@ int Gui::drawPage(
             case PliBeginSub6Rc:
             case PliBeginSub7Rc:
             case PliBeginSub8Rc:
-                if (pliIgnore)
-                    emit gui->parseErrorSig(tr("Nested PLI BEGIN/ENDS not allowed"),opts.current);
+                if (pliIgnore) {
+                    emit gui->parseErrorSig(tr("Nested PLI BEGIN/ENDS not allowed"),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
+                }
 
                 if (steps->meta.LPub.pli.show.value()
                         && ! excludedPart
@@ -1497,14 +1499,18 @@ int Gui::drawPage(
 
                 /* do not put subsequent parts into PLI */
             case PliBeginIgnRc:
-                if (pliIgnore)
-                    emit gui->parseErrorSig(tr("Nested PLI BEGIN/ENDS not allowed"),opts.current);
+                if (pliIgnore) {
+                    emit gui->parseErrorSig(tr("Nested PLI BEGIN/ENDS not allowed"),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
+                }
 
                 pliIgnore = true;
                 break;
             case PliEndRc:
-                if ( ! pliIgnore)
-                    emit gui->parseErrorSig(tr("PLI END with no PLI BEGIN"),opts.current);
+                if ( ! pliIgnore) {
+                    emit gui->parseErrorSig(tr("PLI END with no PLI BEGIN"),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
+                }
 
                 pliIgnore = false;
                 curMeta.LPub.pli.begin.sub.clearAttributes();
@@ -1512,7 +1518,8 @@ int Gui::drawPage(
 
             case AssemAnnotationIconRc:
                 if (assemAnnotation) {
-                    emit gui->parseErrorSig(tr("Nested ASSEM ANNOTATION ICON not allowed"),opts.current);
+                    emit gui->parseErrorSig(tr("Nested ASSEM ANNOTATION ICON not allowed"),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
                 } else {
                     if (step && ! Gui::exportingObjects())
                         step->appendCsiAnnotation(opts.current,curMeta.LPub.assem.annotation/*,view*/);
@@ -1624,7 +1631,8 @@ int Gui::drawPage(
                     proceed = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
                     if (Gui::stepContains(top,partTypeLineRx)) {
                         QString const message = tr("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1-5)");
-                        emit gui->parseErrorSig(message, opts.current, Preferences::InsertErrors);
+                        emit gui->parseErrorSig(message, opts.current, Preferences::InsertErrors, Preferences::ParseErrors, false, true);
+                        return static_cast<int>(HitInvalidLDrawLine);
                     }
                 } else { /*InsertDisplayModelRc*/
                     curMeta.LPub.assem.showStepNumber.setValue(false);
@@ -1736,7 +1744,8 @@ int Gui::drawPage(
             case PagePointerRc:
             {
                 if (pagePointer) {
-                    emit gui->parseErrorSig(tr("Nested page pointers not allowed within the same page."),opts.current);
+                    emit gui->parseErrorSig(tr("Nested page pointers not allowed within the same page."),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
                 } else {
                     Positions position    = PP_LEFT;
                     PointerMeta ppm       = curMeta.LPub.page.pointer;
@@ -1862,9 +1871,11 @@ int Gui::drawPage(
 
             case CalloutBeginRc:
                 if (callout) {
-                    emit gui->parseErrorSig(tr("Nested CALLOUT not allowed within the same file"),opts.current);
+                    emit gui->parseErrorSig(tr("Nested CALLOUT not allowed within the same file"),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
                 } else if (! buildModIgnoreOverride(buildMod.ignore, buildModTypeIgnore)) {
-                    emit gui->parseErrorSig(tr("Failed to process previous BUILD_MOD action for CALLOUT."),opts.current);
+                    emit gui->parseErrorSig(tr("Failed to process previous BUILD_MOD action for CALLOUT."),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
                 } else {
                     callout = new Callout(curMeta,view);
                     callout->setTopOfCallout(opts.current);
@@ -1918,11 +1929,13 @@ int Gui::drawPage(
 
             case CalloutEndRc:
                 if ( ! callout) {
-                    emit gui->parseErrorSig(tr("CALLOUT END without a CALLOUT BEGIN"),opts.current);
+                    emit gui->parseErrorSig(tr("CALLOUT END without a CALLOUT BEGIN"),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
                 }
                 else
                 if (! step) {
-                    emit gui->parseErrorSig(tr("CALLOUT does not contain a valid STEP"),opts.current);
+                    emit gui->parseErrorSig(tr("CALLOUT does not contain a valid STEP"),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
                 }
                 else
                 {
@@ -1947,9 +1960,11 @@ int Gui::drawPage(
 
             case StepGroupBeginRc:
                 if (opts.calledOut) {
-                    emit gui->parseErrorSig(tr("MULTI_STEP not allowed inside callout models"),opts.current);
+                    emit gui->parseErrorSig(tr("MULTI_STEP not allowed inside callout models"),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
                 } else if (multiStep) {
-                    emit gui->parseErrorSig(tr("Nested MULTI_STEP not allowed"),opts.current);
+                    emit gui->parseErrorSig(tr("Nested MULTI_STEP not allowed"),opts.current, Preferences::ParseErrors, false, true);
+                    return static_cast<int>(HitInvalidLDrawLine);
                 } else if (! (multiStep = buildModIgnoreOverride(buildMod.ignore, buildModTypeIgnore))) {
                     emit gui->parseErrorSig(tr("Failed to process previous BUILD_MOD action for MULTI_STEP."),opts.current);
                 } else {
@@ -1975,8 +1990,10 @@ int Gui::drawPage(
                 if ((multiStepPage = multiStep && steps->list.size())) {
                     // save the current meta as the meta for step group
                     // PLI for non-pli-per-step
-                    if (partsAdded)
-                        emit gui->parseErrorSig(tr("Expected STEP before MULTI_STEP END"), opts.current);
+                    if (partsAdded) {
+                        emit gui->parseErrorSig(tr("Expected STEP before MULTI_STEP END"), opts.current, Preferences::ParseErrors, false, true);
+                        return static_cast<int>(HitInvalidLDrawLine);
+                    }
 
                     multiStep = false;
 
