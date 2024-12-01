@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 20, 2024
+# Last Update November 26, 2024
 # Copyright (C) 2016 - 2024 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -256,8 +256,9 @@ fi
 FILE="$LP3D_PWD/docs/RELEASE_NOTES.html"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
 Info "$((LP3D_CMD_COUNT += 1)). update RELEASE_NOTES   - build version         [$FILE]" || :
-LineToReplace=20
-StringToReplace="      <h4><a id=\"LPub3D_0\"></a>LPub3D ${LP3D_BUILD_VERSION}</h4>"
+LineToReplace=83
+StringToReplace="  <li><code><h4>LPub3D ${LP3D_BUILD_VERSION}</h4></code></li>"
+
 if [[ -f "${FILE}" && -r "${FILE}" ]]
 then
     if [ "$LP3D_OS" = Darwin ]

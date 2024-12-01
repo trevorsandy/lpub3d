@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 27, 2023
+rem  Last Update: November 26, 2024
 rem  Copyright (C) 2015 - 2024 by Trevor SANDY
 rem --
 rem --
@@ -36,7 +36,7 @@ FOR %%a IN (%*) DO SET /a NUM_ARGS+=1
 rem Line number to replace
 SET LINE_README_TXT=1
 SET LINE_README_MD_VER=67
-SET LINE_RELEASE_NOTES_HTM=19
+SET LINE_RELEASE_NOTES_HTM=83
 
 SET LP3D_GIT_DEPTH=150000
 SET LP3D_PAST_RELEASES=2.3.6,2.0.20,1.3.5,1.2.3,1.0.0
@@ -149,7 +149,8 @@ GOTO :END
 SET LP3D_FILE="%LP3D_MAIN_APP%\docs\RELEASE_NOTES.html"
 ECHO  update RELEASE_NOTES.html build version [%LP3D_FILE%]
 SET /a LineToReplace=%LINE_RELEASE_NOTES_HTM%
-SET "Replacement=      ^<h4^>^<a id="LPub3D_0"^>^</a^>LPub3D %LP3D_BUILD_VERSION%^</h4^>"
+
+SET "Replacement=  ^<li^>^<code^>^<h4^>LPub3D %LP3D_BUILD_VERSION%^</h4^>^</code>^</li>"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
   IF %%a EQU %LineToReplace% SET "Line=%Replacement:^=%"
