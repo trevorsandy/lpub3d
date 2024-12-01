@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2015 - 2024 Trevor SANDY. All rights reserved.
 **
@@ -45,6 +45,7 @@ class Annotations {
     static const QString &getStyleAnnotation(QString part);
     static void loadDefaultAnnotationStyles(QByteArray &Buffer);
     static void loadTitleAnnotations(QByteArray& Buffer);
+    static void loadSampleLEGOElements(QByteArray& Buffer);
 
     static void loadBLColors(QByteArray &Buffer);
     static void loadLD2BLColorsXRef(QByteArray &Buffer);
@@ -72,6 +73,8 @@ class Annotations {
     static bool exportLD2BLCodesXRefFile();
     static bool exportLD2RBColorsXRefFile();
     static bool exportLD2RBCodesXRefFile();
+    static bool exportLEGOElementsFile();
+
 
     static bool exportAnnotationStyleFile();
     static bool exportTitleAnnotationsFile();

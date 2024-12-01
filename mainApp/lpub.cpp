@@ -487,13 +487,14 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
       // On page update, (move = 0), subtract first page from displayPageNum.
       int movement = setDirection(move);
       int pages = movement ? qAbs(movement) : Gui::displayPageNum - (1 + Gui::pa);
+      int pageDir = Gui::pageDirection;
       const QString message = tr("Cycle each of the %1 pages for the model file %2 %3 ?")
                                  .arg(pages)
-                                 .arg(directionName[Gui::pageDirection-1].toLower())
+                                 .arg(directionName[pageDir].toLower())
                                  .arg(fileReload ? tr("reload") : tr("load"));
       int result = CycleDialog::getCycle(tr("%1 Page %2")
                                             .arg(VER_PRODUCTNAME_STR)
-                                            .arg(directionName[Gui::pageDirection-1]), message, nullptr);
+                                            .arg(directionName[pageDir]), message, nullptr);
       if (result == CycleYes)
         cycleEachPage = FILE_RELOAD;
       else if (result == CycleNo)
@@ -3117,6 +3118,31 @@ void Gui::editBLCodes()
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("Bricklink Codes reference",
                                        "Edit/add Bricklink Codes reference"));
+        parmsWindow->show();
+    }
+}
+
+void Gui::editLEGOElements()
+{
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE));
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportLEGOElementsFile()) {
+            emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
+
+    if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
+        else
+#endif
+            openWith(fileInfo.absoluteFilePath());
+    } else {
+        displayParmsFile(fileInfo.absoluteFilePath());
+        parmsWindow->setWindowTitle(tr("LEGO Elements",
+                                       "Edit/add LEGO Elements"));
         parmsWindow->show();
     }
 }
@@ -5916,6 +5942,12 @@ void Gui::createActions()
     lpub->actions.insert(editAnnotationStyleAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Part Annotation Style Reference"), editAnnotationStyleAct));
     connect(editAnnotationStyleAct, SIGNAL(triggered()), gui, SLOT(editAnnotationStyle()));
 
+    QAction *editLEGOElementsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("LEGO Part Elements reference"), gui);
+    editLEGOElementsAct->setObjectName("editLEGOElementsAct.1");
+    editLEGOElementsAct->setStatusTip(tr("Add/Edit LEGO Elements"));
+    lpub->actions.insert(editLEGOElementsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Edit LEGO Elements"), editLEGOElementsAct));
+    connect(editLEGOElementsAct, SIGNAL(triggered()), gui, SLOT(editLEGOElements()));
+
     QAction *editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("LDraw to Bricklink Design ID Reference"), gui);
     editLD2BLCodesXRefAct->setObjectName("editLD2BLCodesXRefAct.1");
     editLD2BLCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Bricklink Design ID reference"));
@@ -5940,7 +5972,7 @@ void Gui::createActions()
     lpub->actions.insert(editLD2RBColorsXRefAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDraw To Rebrickable Color Reference"), editLD2RBColorsXRefAct));
     connect(editLD2RBColorsXRefAct, SIGNAL(triggered()), gui, SLOT(editLD2RBColorsXRef()));
 
-    QAction *editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Color Reference"), gui);
+    QAction *editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Bricklink Color Reference"), gui);
     editBLColorsAct->setObjectName("editBLColorsAct.1");
     editBLColorsAct->setStatusTip(tr("Add/Edit Bricklink Color ID reference"));
     lpub->actions.insert(editBLColorsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Edit Bricklink Color Reference"), editBLColorsAct));
@@ -6691,6 +6723,7 @@ void Gui::enableActions()
   gui->getAct("editPovrayIniAct.1")->setEnabled(true);
   gui->getAct("editPovrayConfAct.1")->setEnabled(true);
   gui->getAct("editAnnotationStyleAct.1")->setEnabled(true);
+  gui->getAct("editLEGOElementsAct.1")->setEnabled(true);
   gui->getAct("editLD2BLCodesXRefAct.1")->setEnabled(true);
   gui->getAct("editLD2BLColorsXRefAct.1")->setEnabled(true);
   gui->getAct("editLD2RBCodesXRefAct.1")->setEnabled(true);
@@ -7084,6 +7117,7 @@ void Gui::createMenus()
     editorMenu->addAction(gui->getAct("editExcludedPartsAct.1"));
     editorMenu->addAction(gui->getAct("editStickerPartsAct.1"));
     editorMenu->addAction(gui->getAct("editAnnotationStyleAct.1"));
+    editorMenu->addAction(gui->getAct("editLEGOElementsAct.1"));
     editorMenu->addAction(gui->getAct("editLD2BLCodesXRefAct.1"));
     editorMenu->addAction(gui->getAct("editLD2BLColorsXRefAct.1"));
     editorMenu->addAction(gui->getAct("editBLColorsAct.1"));
@@ -7386,6 +7420,7 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(gui->getAct("editExcludedPartsAct.1"));
     editParamsToolBar->addAction(gui->getAct("editStickerPartsAct.1"));
     editParamsToolBar->addAction(gui->getAct("editAnnotationStyleAct.1"));
+    editParamsToolBar->addAction(gui->getAct("editLEGOElementsAct.1"));
     editParamsToolBar->addAction(gui->getAct("editLD2BLCodesXRefAct.1"));
     editParamsToolBar->addAction(gui->getAct("editLD2BLColorsXRefAct.1"));
     editParamsToolBar->addAction(gui->getAct("editBLColorsAct.1"));
