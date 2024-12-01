@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 24, 2024
+# Last Update November 28, 2024
 # Copyright (C) 2018 - 2024 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -147,20 +147,8 @@ if [[ "${LP3D_OS_NAME}" = "Darwin" && "$BUILD_OPT" = "compile" ]]; then
     echo "- set macOS LPub3D executable..."
     LPUB3D_EXE="LPub3D.app/Contents/MacOS/LPub3D"
 
-    echo "- install library links..."
-    /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
-    /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/Libs/libQuaZIP.1.dylib
-
-    echo "- change mapping to LPub3D..."
-    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
-    /usr/bin/install_name_tool -change libQuaZIP.1.dylib @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/MacOS/LPub3D
-
     echo "- bundle LPub3D..."
     macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
-
-    echo "- change library dependency mapping..."
-    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-    /usr/bin/install_name_tool -change libQuaZIP.1.dylib @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 fi
 
 # Initialize variables

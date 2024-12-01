@@ -1,4 +1,3 @@
-lpub3d: package-name-doesnt-match-sonames libldrawini16 libquazip0
 lpub3d: spelling-error-in-description GNU Public License GNU General Public License
 lpub3d: dir-or-file-in-opt opt/lpub3d/
 lpub3d: dir-or-file-in-opt opt/lpub3d/3rdParty/
@@ -31,5 +30,3 @@ lpub3d: executable-not-elf-or-script usr/share/icons/hicolor/scalable/mimetypes/
 lpub3d: executable-not-elf-or-script usr/share/lpub3d/complete.zip
 lpub3d: executable-not-elf-or-script usr/share/lpub3d/tenteparts.zip
 lpub3d: executable-not-elf-or-script usr/share/lpub3d/vexiqparts.zip
-lpub3d: non-dev-pkg-with-shlib-symlink usr/lib/x86_64-linux-gnu/libldrawini.so.16.1.8 usr/lib/x86_64-linux-gnu/libldrawini.so
-lpub3d: non-dev-pkg-with-shlib-symlink usr/lib/x86_64-linux-gnu/libquazip.so.0.7.2 usr/lib/x86_64-linux-gnu/libquazip.so

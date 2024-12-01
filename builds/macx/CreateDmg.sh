@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: November 11, 2024
+# Last Update: November 28, 2024
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -316,23 +316,8 @@ cd builds/macx
 echo "- copy ${LPUB3D} bundle components to $(realpath .)..."
 cp -rf ../../mainApp/$release/LPub3D.app .
 
-echo "- install LDrawIni and QuaZIP library links..."
-/usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
-/usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/Libs/libQuaZIP.1.dylib
-
-echo "- change LDrawIni and QuaZIP mapping to LPub3D..."
-/usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
-/usr/bin/install_name_tool -change libQuaZIP.1.dylib @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/MacOS/LPub3D
-
 echo "- bundle LPub3D to add Qt framework..."
 macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
-
-echo "- change LDrawIni and QuaZIP library dependency mapping to Qt framework..."
-/usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-/usr/bin/install_name_tool -change libQuaZIP.1.dylib @executable_path/../Libs/libQuaZIP.1.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-
-echo "- reapply the code signature..."
-/usr/bin/codesign -f --deep -s - LPub3D.app
 
 LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
 if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then

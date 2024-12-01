@@ -1,8 +1,7 @@
 TEMPLATE = lib
 CONFIG += qt warn_on
 QT -= gui
-unix:!macx: CONFIG += staticlib
-win32-msvc*: CONFIG  += staticlib
+CONFIG += staticlib
 
 # The ABI version.
 VER_MAJ = 1

@@ -98,7 +98,10 @@ INCLUDEPATH += ../lclib/common ../lclib/qt ../ldvlib ../waitingspinner ../ldrawi
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SYSTEM_PREFIX = /usr/local
-macx:contains(QT_ARCH,arm64): SYSTEM_PREFIX = /opt/homebrew
+macx {
+    contains(QT_ARCH,arm64): SYSTEM_PREFIX = /opt/homebrew
+    CONFIG += sdk_no_version_check
+}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
