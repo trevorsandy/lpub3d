@@ -1,8 +1,9 @@
 @if (@X)==(@Y) @end /* Harmless hybrid line that begins a JScript comment
+@echo off
 rem Batch section within JScript comment that calls the internal JScript --
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 19, 2024
+rem  Last Update: November 30, 2024
 rem --
 rem Reference: https://stackoverflow.com/questions/10711839/using-a-custom-tee-command-for-bat-file/10719322#10719322
 rem --
@@ -19,10 +20,9 @@ rem The first required argument is the name of the file to write to.
 rem By default, the file is over-written if it already exists.
 rem If a second argument is provided (value does not matter),
 rem the command output is appended to the file instead.
-rem
+rem --
 rem Example: command.exe | win_tee.cmd output.txt append
 
-@echo off
 cscript //E:JScript //nologo "%~f0" %*
 exit /b
 

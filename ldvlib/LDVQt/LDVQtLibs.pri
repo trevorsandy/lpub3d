@@ -1,17 +1,16 @@
 win32 {
     BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
     isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
-    !contains(LOAD_LDV_LIBS,True): \
-    message("~~~ lib$${TARGET} build worker: Visual Studio $$BUILD_WORKER_VERSION ~~~")
-    equals(BUILD_WORKER_VERSION, 2019) {
+    lessThan(BUILD_WORKER_VERSION, 2019) {
+        VSVER=vs2015
+    } else {
         contains(QT_ARCH,i386): VSVER=vs2017
         else: VSVER=vs2019
-    } else {
-        VSVER=vs2015
     }
-    !contains(LOAD_LDV_LIBS,True): \
-    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) MSVS library version: $$VSVER ~~~")
-
+    !contains(LOAD_LDV_LIBS,True) {
+        message("~~~ lib$${TARGET} build worker: Visual Studio $$BUILD_WORKER_VERSION ~~~")
+        message("~~~ lib$${TARGET} $$upper($$QT_ARCH) MSVS library version: $$VSVER ~~~")
+    }
     COPY_CMD = COPY /y /a /b
 } else:unix {
     COPY_CMD = cp -f

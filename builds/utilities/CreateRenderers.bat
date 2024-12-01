@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 29, 2024
+rem  Last Update: November 30, 2024
 rem  Copyright (C) 2017 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -17,16 +17,16 @@ ECHO -Start %~nx0 with commandline args: [%*]...
 
 rem get the script run from folder - usually the root folder, e.g lpub3d
 FOR %%* IN (.) DO SET SCRIPT_RUN_DIR=%%~nx*
-IF "%SCRIPT_RUN_DIR%" EQU "utilities" (
+IF "%SCRIPT_RUN_DIR%"=="utilities" (
   rem get abs path to build 3rd party packages inside the LPub3D root dir
-  IF "%APPVEYOR%" EQU "True" (
+  IF "%APPVEYOR%"=="True" (
     CALL :WD_ABS_PATH ..\..\
   ) ELSE (
     CALL :WD_ABS_PATH ..\..\..\
   )
 ) ELSE (
   rem get abs path to build 3rd party packages outside the LPub3D root dir
-  IF "%APPVEYOR%" EQU "True" (
+  IF "%APPVEYOR%"=="True" (
     SET ABS_WD=%CD%
   ) ELSE (
     CALL :WD_ABS_PATH ..\
@@ -34,19 +34,19 @@ IF "%SCRIPT_RUN_DIR%" EQU "utilities" (
 )
 
 rem Variables - change these as required by your build environments
-IF "%GITHUB%" EQU "True" SET BUILD_WORKER=True
-IF "%LP3D_CONDA_BUILD%" EQU "True" SET BUILD_WORKER=True
+IF "%GITHUB%"=="True" SET BUILD_WORKER=True
+IF "%LP3D_CONDA_BUILD%"=="True" SET BUILD_WORKER=True
 
-IF "%LP3D_QTVERSION%" == "" SET LP3D_QTVERSION=5.15.2
-IF "%LP3D_QTVCVERSION%" == "" SET "LP3D_QTVCVERSION=2019"
+IF "%LP3D_QTVERSION%"=="" SET LP3D_QTVERSION=5.15.2
+IF "%LP3D_QTVCVERSION%"=="" SET LP3D_QTVCVERSION=2019
 
-IF "%BUILD_WORKER%" EQU "True" (
+IF "%BUILD_WORKER%"=="True" (
   SET BUILD_OUTPUT_PATH=%LP3D_BUILD_BASE%
   SET LDRAW_DIR=%LP3D_LDRAW_DIR_PATH%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 )
-IF "%APPVEYOR%" EQU "True" (
+IF "%APPVEYOR%"=="True" (
   SET BUILD_OUTPUT_PATH=%APPVEYOR_BUILD_FOLDER%
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
@@ -63,24 +63,24 @@ IF "%BUILD_WORKER%" NEQ "True" (
     )
     SET BUILD_OUTPUT_PATH=%ABS_WD%
     SET LDRAW_DIR=%USERPROFILE%\LDraw
-    IF "%LP3D_QT32_MSVC%" == "" (
+    IF "%LP3D_QT32_MSVC%"=="" (
       SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_QTVCVERSION%\bin
     )
-    IF "%LP3D_QT64_MSVC%" == "" (
+    IF "%LP3D_QT64_MSVC%"=="" (
       SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_QTVCVERSION%_64\bin
     )
-    IF "%LP3D_WIN_GIT%" == "" (
+    IF "%LP3D_WIN_GIT%"=="" (
       SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
     )
   )
 )
-IF "%LP3D_SYS_DIR%" == "" (
+IF "%LP3D_SYS_DIR%"=="" (
   SET LP3D_SYS_DIR=%SystemRoot%\System32
 )
-IF "%LP3D_7ZIP_WIN64%" == "" (
+IF "%LP3D_7ZIP_WIN64%"=="" (
   SET LP3D_7ZIP_WIN64=%ProgramFiles%\7-zip\7z.exe
 )
-IF "%LP3D_VALID_7ZIP%" == "" (
+IF "%LP3D_VALID_7ZIP%"=="" (
   SET LP3D_VALID_7ZIP=0
 )
 SET MAX_DOWNLOAD_ATTEMPTS=4
@@ -146,7 +146,7 @@ FOR %%A IN ( x86, x86_64 ) DO (
 GOTO :END
 
 :BUILD
-IF %BUILD_ARCH% EQU x86 (
+IF "%BUILD_ARCH%"=="x86" (
   SET "LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe"
   SET "LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe"
   SET "LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe"
@@ -168,7 +168,7 @@ IF %BUILD_ARCH% EQU x86 (
 
 ECHO.
 SETLOCAL ENABLEDELAYEDEXPANSION
-IF "%PATH_PREPENDED%" EQU "True" (
+IF "%PATH_PREPENDED%"=="True" (
   ECHO   PATH_ALREADY_PREPENDED.........[!PATH!]
 ) ELSE (
   ECHO   PATH_PREPEND...................[!PATH!]
@@ -182,8 +182,8 @@ FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
   IF %ERRORLEVEL% NEQ 0 (GOTO :FATAL_ERROR)
 )
 
-IF %BUILD_ARCH% EQU x86_64 (
-  IF "%CAN_PACKAGE%" EQU "True" (
+IF "%BUILD_ARCH%"=="x86_64" (
+  IF "%CAN_PACKAGE%"=="True" (
     IF NOT EXIST "%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe" ( GOTO :END )
     IF NOT EXIST "%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe" ( GOTO :END )
     IF NOT EXIST "%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe" ( GOTO :END )
@@ -193,10 +193,10 @@ IF %BUILD_ARCH% EQU x86_64 (
 GOTO :END
 
 :SET_BUILD_ARGS
-IF %BUILD_ARCH% EQU x86 (
+IF "%BUILD_ARCH%"=="x86" (
   SET POVRAY_INSTALL_ARG=-allins
 ) ELSE (
-  IF "%LP3D_CONDA_BUILD%" EQU "True" (
+  IF "%LP3D_CONDA_BUILD%"=="True" (
     SET POVRAY_INSTALL_ARG=-allins
   ) ELSE (
     SET POVRAY_INSTALL_ARG=-ins
@@ -231,7 +231,7 @@ EXIT /b
 :LDVIEW_BUILD
 ECHO.
 ECHO -Build %VER_LDVIEW%...
-IF %1 EQU x86 (
+IF "%1"=="x86" (
   SET "LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\i386"
   SET "LP3D_LDVIEW_LIB=%DIST_DIR%\%VER_LDVIEW%\lib\i386"
 ) ELSE (
@@ -244,7 +244,6 @@ IF EXIST "%LP3D_LDVIEW%" (
   ECHO - Renderer %VER_LDVIEW% bin contents:
   FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO - %%f
   POPD
-
   PUSHD "%LP3D_LDVIEW_LIB%"
   ECHO - Renderer %VER_LDVIEW% library contents:
   FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO - %%f
@@ -267,6 +266,11 @@ PUSHD "%LP3D_LDVIEW_BIN%"
 ECHO.
 ECHO - Renderer %VER_LDVIEW% bin contents:
 FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO  - %%f
+POPD
+PUSHD "%LP3D_LDVIEW_LIB%"
+ECHO.
+ECHO - Renderer %VER_LDVIEW% library contents:
+FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO - %%f
 POPD
 EXIT /b
 
@@ -346,7 +350,7 @@ EXIT /b
 ECHO.
 ECHO -Check for LDraw library (support image render tests)...
 SET BUILD_OUTPUT_PATH_SAVE=%BUILD_OUTPUT_PATH%
-IF "%BUILD_WORKER%" EQU "True" (
+IF "%BUILD_WORKER%"=="True" (
   SET BUILD_OUTPUT_PATH=%LP3D_3RD_PARTY_PATH%
 )
 IF "%BUILD_WORKER%" NEQ "True" (
@@ -439,29 +443,32 @@ IF "%CAN_PACKAGE%" NEQ "True" (
   GOTO :ERROR_END
 )
 IF %LP3D_VALID_7ZIP% NEQ 1 (
-  ECHO -ERROR: Cannot archive renderer package %LP3D_RENDERS%. 7zip not found.
+  ECHO -ERROR: Cannot archive %LP3D_RENDERS%. 7zip not found.
   GOTO :ERROR_END
 )
 SET LP3D_RENDERS=%PACKAGE%-renderers.zip
-IF NOT EXIST "%LP3D_BUILDPKG_PATH%\Downloads\" (
-  MKDIR "%LP3D_BUILDPKG_PATH%\Downloads\"
-)
 ECHO.
-ECHO -Create renderer package: %LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERS%...
+ECHO -Create renderer package %LP3D_RENDERS%...
 PUSHD %DIST_DIR%
-RMDIR /S /Q "%VER_LDVIEW%\lib" >NUL 2>&1
-RMDIR /S /Q "%VER_LDVIEW%\include" >NUL 2>&1
-DEL /Q /S "%VER_LDVIEW%\bin\*.exp" >NUL 2>&1
-DEL /Q /S "%VER_LDVIEW%\bin\*.lib" >NUL 2>&1
-DEL /Q /S "%VER_LDVIEW%\resources\*Messages.ini" >NUL 2>&1
 ECHO -Archiving %LP3D_RENDERS%...
-"%LP3D_7ZIP_WIN64%" a -tzip "%LP3D_RENDERS%" "%VER_LDGLITE%\*" "%VER_LDVIEW%\*" "%VER_POVRAY%\*" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
+SETLOCAL DISABLEDELAYEDEXPANSION
+"%LP3D_7ZIP_WIN64%" a -tzip "%LP3D_RENDERS%" "%VER_POVRAY%" "%VER_LDGLITE%" "%VER_LDVIEW%" ^
+    "-x!%VER_LDVIEW%\lib" "-xr!%VER_LDVIEW%\include" "-xr!%VER_LDVIEW%\bin\*.exp"  ^
+    "-xr!%VER_LDVIEW%\bin\*.lib" "-x!%VER_LDVIEW%\resources\*Messages.ini" >NUL 2>&1
+SET LP3D_RENDERS_OUT=%LP3D_CALL_DIR%\%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERS%
 IF EXIST "%LP3D_RENDERS%" (
-  MOVE /Y "%LP3D_RENDERS%" "%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERS%" >NUL 2>&1
-  ECHO -Finished
+  ECHO -Move %LP3D_RENDERS% to %LP3D_RENDERS_OUT%...
+  IF NOT EXIST "%LP3D_CALL_DIR%\%LP3D_BUILDPKG_PATH%\Downloads\" (
+    MKDIR "%LP3D_CALL_DIR%\%LP3D_BUILDPKG_PATH%\Downloads\"
+  )
+  MOVE /Y "%LP3D_RENDERS%" "%LP3D_RENDERS_OUT%"
+  IF EXIST "%LP3D_RENDERS_OUT%" (
+    ECHO -Finished
+  ) ELSE (
+    ECHO -WARNING: Failed to move %LP3D_RENDERS%
+  )
 ) ELSE (
-  ECHO -ERROR: Failed to archive renderer package %LP3D_RENDERS%
-  GOTO :ERROR_END
+  ECHO -WARNING: Failed to create %LP3D_RENDERS%
 )
 POPD
 EXIT /b

@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update November 29, 2024
+# Last Update November 30, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 
@@ -913,7 +913,7 @@ declare -r p=Package
 function package_renderers()
 {
     LP3D_RENDERS="${LPUB3D}-renderers.zip"
-    Info -n "Create renderer package: ${WD}/${LP3D_RENDERS}..."
+    echo -n "-Create renderer package: ${LP3D_LOG_PATH}/${LP3D_RENDERS}..."
     ( cd "${DIST_PKG_DIR}/" || return && \
     zip -rq "${LP3D_RENDERS}"  \
     "${VER_LDGLITE}/" \
@@ -924,8 +924,8 @@ function package_renderers()
     "${VER_LDVIEW}/bin/*.exp" \
     "${VER_LDVIEW}/bin/*.lib" \
     "${VER_LDVIEW}/resources/*Messages.ini" && \
-    mv -f "${DIST_PKG_DIR}/${LP3D_RENDERS}" "${WD}/" ) >$p.out 2>&1 && rm $p.out
-    [ -f $p.out ] && Info "ERROR\n" && tail -80 $p.out || Info "Ok"
+    mv -f "${DIST_PKG_DIR}/${LP3D_RENDERS}" "${LP3D_LOG_PATH}/" ) >$p.out 2>&1 && rm $p.out
+    [ -f $p.out ] && echo "ERROR\n" && tail -80 $p.out || echo "Ok"
 }
 
 # =======================================

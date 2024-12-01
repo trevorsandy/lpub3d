@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 21, 2024
+# Last Update November 30, 2024
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -452,6 +452,7 @@ if [ -d "${out_path}" ]; then
     rm -f ./*.rpm* 2>/dev/null || :
     rm -f ./*.deb* 2>/dev/null || :
     rm -f ./*.xz 2>/dev/null || :
+    rm -f ./*.zip 2>/dev/null || :
     popd
   fi
   ls -al ${out_path}
