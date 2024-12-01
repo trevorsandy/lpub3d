@@ -222,13 +222,20 @@ ECHO.
 ECHO -Build %VER_LDVIEW%...
 IF %1 EQU x86 (
   SET "LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\i386"
+  SET "LP3D_LDVIEW_LIB=%DIST_DIR%\%VER_LDVIEW%\lib\i386"
 ) ELSE (
   SET "LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\%1"
+  SET "LP3D_LDVIEW_LIB=%DIST_DIR%\%VER_LDVIEW%\lib\%1"
 )
 IF EXIST "%LP3D_LDVIEW%" (
   ECHO - Renderer %VER_LDVIEW% exist - build skipped.
   PUSHD "%LP3D_LDVIEW_BIN%"
   ECHO - Renderer %VER_LDVIEW% bin contents:
+  FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO - %%f
+  POPD
+
+  PUSHD "%LP3D_LDVIEW_LIB%"
+  ECHO - Renderer %VER_LDVIEW% library contents:
   FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO - %%f
   POPD
   EXIT /b

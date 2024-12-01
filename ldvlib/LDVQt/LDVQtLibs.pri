@@ -139,7 +139,7 @@ contains(LOAD_LDV_LIBS,True) {
             LDV3RDLIBDIR = $$system_path( $$LDVLIBDIR )
         }
     } else {
-        LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/bin/$$QT_ARCH )
+        LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/lib/$$QT_ARCH )
         LDV3RDLIBDIR = $$system_path( $$LDVLIBDIR )
     }
 
