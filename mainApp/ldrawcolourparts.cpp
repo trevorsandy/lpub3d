@@ -34,7 +34,7 @@ bool LDrawColourParts::LDrawColorPartsLoad(QString &result)
 
     // Load RegExp from file;
     QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$"); // 3 groups (file, libtype, desc)
-    QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+    QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
     while ( ! in.atEnd()) {
         QString sLine = in.readLine(0);
         if (sLine.contains(rxin)) {

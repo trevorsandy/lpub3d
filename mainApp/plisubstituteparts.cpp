@@ -37,15 +37,23 @@ PliSubstituteParts::PliSubstituteParts()
         if (!substitutePartsFile.isEmpty()) {
             QFile file(substitutePartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                logError() << QMessageBox::tr("Failed to open PLI substitute parts file: %1: %2")
-                              .arg(substitutePartsFile,file.errorString());
+                QString message(QObject::tr("Failed to open %1.<br>"
+                                "Regenerate by renaming the existing file and select<br>"
+                                "Substitute Parts List from<br>Configuration,<br>"
+                                "Edit Parameter Files menu.<br>%2")
+                                .arg(substitutePartsFile, file.errorString()));
+                if (Preferences::modeGUI) { 
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message); 
+                } else { 
+                    logWarning() << qPrintable(message.replace("<br>"," ")); 
+                }
                 return;
             }
             QTextStream in(&file);
 
             // Load RegExp from file;
             QRegExp rx("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -55,29 +63,15 @@ PliSubstituteParts::PliSubstituteParts()
                 }
             }
 
-            if (rxFound) {
-                in.seek(0);
-
-                // Load input values
-                while ( ! in.atEnd()) {
-                    QString sLine = in.readLine(0);
-                    if (sLine.contains(rx)) {
-                        QString modeledPartID = rx.cap(1);
-                        QString substitutePartID = rx.cap(2);
-                        substituteParts.insert(modeledPartID.toLower().trimmed(),substitutePartID.toLower().trimmed());
-                        //logDebug() << "** ModeledPartID Loaded: " << modeledPartID.toLower() << " SubstitutePartID: " << substitutePartID.toLower(); //TEST
-                    }
-                }
-            } else {
-                QString message = QString("Regular expression pattern was not found in %1.<br>"
-                                          "Be sure the following lines exist in the file header:<br>"
-                                          "# File: %1<br>"
-                                          "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
-                        .arg(QFileInfo(substitutePartsFile).fileName());
-                if (Preferences::modeGUI) {
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
-                } else {
-                    logError() << message.replace("<br>"," ");
+            // Load input values
+            in.seek(0);
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString modeledPartID = rx.cap(1);
+                    QString substitutePartID = rx.cap(2);
+                    substituteParts.insert(modeledPartID.toLower().trimmed(),substitutePartID.toLower().trimmed());
+                    //logDebug() << "** ModeledPartID Loaded: " << modeledPartID.toLower() << " SubstitutePartID: " << substitutePartID.toLower(); //TEST
                 }
             }
         }
@@ -139,7 +133,7 @@ bool PliSubstituteParts::exportSubstitutePartsHeader() {
         outstream << "# It would be wise to backup the default entry before performing and update - copy" << lpub_endl;
         outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << lpub_endl;

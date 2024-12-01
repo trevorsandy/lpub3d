@@ -50,7 +50,7 @@ void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer) {
 #
 # Tab-delmited LDConfig and BrickLink Color code cross reference
 #
-# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+).*$
+# The Regular Expression used to load this file is: ^([^\t]+)\t+\s*([^\t]+).*$
 #
 # 1. LDConfig Color ID: LDraw Color ID             (Required)
 # 2. Color ID:          BrickLink Color ID         (Required)
@@ -219,7 +219,7 @@ void Annotations::loadLD2BLCodesXRef(QByteArray& Buffer) {
 #
 # Tab-delmited LDraw Design ID and BrickLink Item Number cross reference
 #
-# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+).*$
+# The Regular Expression used to load this file is: ^([^\t]+)\t+\s*([^\t]+).*$
 #
 # 1. Design ID:            LDraw Part Number            (Required)
 # 2. Item No:              BrickLink Item Number        (Required)
@@ -538,7 +538,7 @@ void Annotations::loadBLColors(QByteArray& Buffer) {
 #
 # Tab-delmited BrickLink Color code and Color Name cross reference
 #
-# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+).*$
+# The Regular Expression used to load this file is: ^([^\t]+)\t+\s*([^\t]+).*$
 #
 # 1. Color ID:            BrickLink Color ID             (Required)
 # 2. Color Name:          BrickLink Color Name           (Required)
@@ -817,7 +817,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer) {
 #
 # Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference
 #
-# The Regular Expression used is: ^(\b[^=]+\b)=([1|2|3])\s+([1-6])?\s*(".*"|[^\s]+).*$
+# The Regular Expression used to load this file is: ^(\b[^=]+\b)=([1|2|3])\s+([1-6])?\s*(".*"|[^\s]+).*$
 #
 # 1. Design ID:           LDraw Part Name                 (Required)
 # 2. Annotation Style:    1 Square, 2 Circle, 3 Rectangle (Required)
@@ -1030,7 +1030,7 @@ void Annotations::loadLD2RBColorsXRef(QByteArray& Buffer) {
 #
 # Tab-delmited LDConfig and Rebrickable Color code cross reference
 #
-# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+).*$
+# The Regular Expression used to load this file is: ^([^\t]+)\t+\s*([^\t]+).*$
 #
 # 1. LDConfig Color ID: LDraw Color ID             (Required)
 # 2. Color ID:          Rebrickable Color ID        (Required)
@@ -1067,7 +1067,7 @@ void Annotations::loadLD2RBCodesXRef(QByteArray& Buffer) {
 #
 # Tab-delmited LDraw Design ID and Rebrickable Part ID cross reference
 #
-# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+).*$
+# The Regular Expression used to load this file is: ^([^\t]+)\t+\s*([^\t]+).*$
 #
 # 1. Design ID:            LDraw Part Number            (Required)
 # 2. Part ID:              Rebrickable Part Number      (Required)
@@ -1093,7 +1093,7 @@ void Annotations::loadSampleLEGOElements(QByteArray& Buffer) {
 #
 # Tab-delmited LEGO Elements (Bricklink Codes) sample reference
 #
-# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+)\t+\s*([^\t]+).*$
+# The Regular Expression used to load this file is: ^([^\t]+)\t+\s*([^\t]+)\t+\s*([^\t]+).*$
 
 # 1. Item ID:             BrickLink Item ID             (Required)
 # 2. Color Name:          BrickLink Color               (Required)
@@ -1133,7 +1133,7 @@ void Annotations::loadTitleAnnotations(QByteArray &Buffer) {
 #
 # This space-delimited list captures part category and annotation Regular Expression.
 #
-# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$
+# The Regular Expression used to load this file is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$
 #
 */
     const char LEGOLDefaultTitleAnnotations[] = {
@@ -1300,8 +1300,8 @@ Annotations::Annotations()
             }
             QTextStream in(&file);
 
-            // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            // Load RegExp from file if exist;
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -1369,8 +1369,7 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -1423,7 +1422,7 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -1499,7 +1498,7 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -1567,7 +1566,7 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -1635,7 +1634,7 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -1705,7 +1704,7 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -1773,7 +1772,7 @@ Annotations::Annotations()
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -1973,7 +1972,7 @@ bool Annotations::loadLEGOElements() {
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -2168,7 +2167,7 @@ bool Annotations::overwriteFile(const QString &file)
         outstream << "#" << lpub_endl;
         outstream << "# Tab-delmited LEGO Elements (Bricklink Codes) reference" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. Item ID:             BrickLink Item ID             (Required)" << lpub_endl;
         outstream << "# 2. Color Name:          BrickLink Color               (Required)" << lpub_endl;
@@ -2252,7 +2251,7 @@ bool Annotations::exportBLColorsFile() {
         outstream << "#" << lpub_endl;
         outstream << "# Tab-delmited BrickLink Color code and Color Name cross reference" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. Color ID:            BrickLink Color ID             (Required)" << lpub_endl;
         outstream << "# 2. Color Name:          BrickLink Color Name           (Required)" << lpub_endl;
@@ -2330,7 +2329,7 @@ bool Annotations::exportLD2BLColorsXRefFile() {
         outstream << "#" << lpub_endl;
         outstream << "# Tab-delmited LDConfig and BrickLink Color code cross reference" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. LDConfig Color ID: LDraw Color ID             (Required)" << lpub_endl;
         outstream << "# 2. Color ID:          BrickLink Color ID         (Required)" << lpub_endl;
@@ -2408,7 +2407,7 @@ bool Annotations::exportLD2BLCodesXRefFile() {
         outstream << "#" << lpub_endl;
         outstream << "# Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. Design ID:            LDraw Part Number            (Required)" << lpub_endl;
@@ -2487,7 +2486,7 @@ bool Annotations::exportLD2RBColorsXRefFile() {
         outstream << "#" << lpub_endl;
         outstream << "# Tab-delmited LDConfig and Rebrickable Color code cross reference" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. LDConfig Color ID: LDraw Color ID             (Required)" << lpub_endl;
@@ -2551,7 +2550,7 @@ bool Annotations::exportLD2RBCodesXRefFile() {
         outstream << "#" << lpub_endl;
         outstream << "# Tab-delmited LDraw Design ID and Rebrickable Part ID cross reference" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. Design ID:            LDraw Part Number            (Required)" << lpub_endl;
@@ -2634,7 +2633,7 @@ bool Annotations::exportTitleAnnotationsFile() {
         outstream << "# It would be wise to backup the default entry before performing and update - copy" << lpub_endl;
         outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << lpub_endl;
         outstream << "" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
@@ -2689,7 +2688,7 @@ bool Annotations::exportAnnotationStyleFile() {
         outstream << "#" << lpub_endl;
         outstream << "# Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+).*$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+).*$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. Design ID:           LDraw Part Name                 (Required)" << lpub_endl;
@@ -2799,7 +2798,7 @@ bool Annotations::exportfreeformAnnotationsHeader() {
         outstream << "# It would be wise to backup the default entry before performing and update - copy" << lpub_endl;
         outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << lpub_endl;
         outstream << "" << lpub_endl;
-        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << lpub_endl;

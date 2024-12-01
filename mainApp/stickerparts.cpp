@@ -39,16 +39,22 @@ StickerParts::StickerParts()
         if (!stickerPartsFile.isEmpty()) {
             QFile file(stickerPartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Sticker Parts"),
-                                     QMessageBox::tr("Failed to open sticker parts file: %1:\n%2")
-                                     .arg(stickerPartsFile)
-                                     .arg(file.errorString()));
+                QString message(QObject::tr("Failed to open %1.<br>"
+                                "Regenerate by renaming the existing file and select<br>"
+                                "Part Count Sticker Parts List from<br>Configuration,<br>"
+                                "Edit Parameter Files menu.<br>%2")
+                                .arg(stickerPartsFile, file.errorString()));
+                if (Preferences::modeGUI) { 
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Sticker Parts"),message); 
+                } else { 
+                    logWarning() << qPrintable(message.replace("<br>"," "));
+                }
                 return;
             }
             QTextStream in(&file);
 
             // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
                 if ((rxFound = sLine.contains(rxin))) {
@@ -58,28 +64,14 @@ StickerParts::StickerParts()
                 }
             }
 
-            if (rxFound) {
-                in.seek(0);
-
-                // Load input values
-                while ( ! in.atEnd()) {
-                    QString sLine = in.readLine(0);
-                    if (sLine.contains(rx)) {
-                        QString stickerPartID = rx.cap(1);
-                        stickerParts.append(stickerPartID.toLower().trimmed());
-                        //logDebug() << "** StickerPartID: " << stickerPartID.toLower();
-                    }
-                }
-            } else {
-                QString message = QString("Regular expression pattern was not found in %1.<br>"
-                                          "Be sure the following lines exist in the file header:<br>"
-                                          "# File: %1<br>"
-                                          "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
-                                  .arg(QFileInfo(stickerPartsFile).fileName());
-                if (Preferences::modeGUI) {
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Sticker Parts"),message);
-                } else {
-                    logError() << message.replace("<br>"," ");
+            // Load input values
+            in.seek(0);
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString stickerPartID = rx.cap(1);
+                    stickerParts.append(stickerPartID.toLower().trimmed());
+                    //logDebug() << "** StickerPartID: " << stickerPartID.toLower();
                 }
             }
         } else {
@@ -142,7 +134,7 @@ void StickerParts::loadStickerParts(QByteArray &Buffer)
 # It would be wise to backup the default entry before performing and update - copy
 # and paste to a new line with starting phrase other than 'The Regular Expression...'
 
-# The Regular Expression used is: ^(\b.*[^\s]\b)(?:\s)\s+(.*)$
+# The Regular Expression used to load this file is: ^(\b.*[^\s]\b)(?:\s)\s+(.*)$
 
 # 1. Part ID:          LDraw Part Name                               (Required)
 # 2. Part Description: LDraw Part Description - for reference only   (Optional)
@@ -298,7 +290,7 @@ bool StickerParts::exportStickerParts() {
         outstream << "# It would be wise to backup the default entry before performing and update - copy" << lpub_endl;
         outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << lpub_endl;
         outstream << "# " << lpub_endl;
-        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << lpub_endl;

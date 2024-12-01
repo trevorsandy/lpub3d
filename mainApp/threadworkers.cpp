@@ -1934,7 +1934,7 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
         _ldrawStaticColourParts  << tr("# It would be wise to backup the default entry before performing an update - copy");
         _ldrawStaticColourParts  << tr("# and paste to a new line with starting phrase other than 'The Regular Expression...'");
         _ldrawStaticColourParts  << QString();
-        _ldrawStaticColourParts  << tr("# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$");
+        _ldrawStaticColourParts  << tr("# The Regular Expression used to load this file is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$");
         _ldrawStaticColourParts  << QString();
         _ldrawStaticColourParts  << tr("# There are three defined columns in this file:");
         _ldrawStaticColourParts  << tr("# 1. File Name: The part file name as defined in the LDraw Library.");
