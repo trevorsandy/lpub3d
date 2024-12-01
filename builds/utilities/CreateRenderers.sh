@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update November 30, 2024
+# Last Update December 01, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 
@@ -651,6 +651,7 @@ Info "Platform ID..............[ucs]" || \
 Info "Platform ID..............[${platform_id}]"
 if [ "$LP3D_BUILD_OS" = "snap" ]; then
   platform_pretty="Snap (using $platform_pretty)"
+  SNAP="true"
 elif [ "$LP3D_BUILD_OS" = "appimage" ]; then
   platform_pretty="AppImage (using $platform_pretty)"
 fi
@@ -908,24 +909,36 @@ if [ "$OS_NAME" = "Darwin" ]; then
 fi
 
 # Package the renderers
-canPackageRenderers="true"
+canPackageRenderers=true
 declare -r p=Package
 function package_renderers()
 {
-    LP3D_RENDERS="${LPUB3D}-renderers.zip"
-    echo -n "-Create renderer package: ${LP3D_LOG_PATH}/${LP3D_RENDERS}..."
+    if [[ -n "${OBS}" || -n "${SNAP}" ]]; then
+        return
+    fi
+    if [ -d "/out" ]; then 
+        LP3D_OUT_PATH=/out
+    elif [ -d "/buildpkg" ]; then 
+        LP3D_OUT_PATH=/buildpkg
+    else
+        LP3D_OUT_PATH=${LP3D_LOG_PATH}
+    fi
+    LP3D_ARCH=${TARGET_CPU}
+    LP3D_BASE=${platform_id}
+    LP3D_RENDERERS=${LPUB3D}-renderers-${LP3D_BASE}-${LP3D_ARCH}.tar.gz
+    echo -n "-Create renderer package: ${LP3D_OUT_PATH}/${LP3D_RENDERERS}..."
     ( cd "${DIST_PKG_DIR}/" || return && \
-    zip -rq "${LP3D_RENDERS}"  \
-    "${VER_LDGLITE}/" \
-    "${VER_LDVIEW}/" \
-    "${VER_POVRAY}/" -x \
-    "${VER_LDVIEW}/lib/*" \
-    "${VER_LDVIEW}/include/*" \
-    "${VER_LDVIEW}/bin/*.exp" \
-    "${VER_LDVIEW}/bin/*.lib" \
-    "${VER_LDVIEW}/resources/*Messages.ini" && \
-    mv -f "${DIST_PKG_DIR}/${LP3D_RENDERS}" "${LP3D_LOG_PATH}/" ) >$p.out 2>&1 && rm $p.out
-    [ -f $p.out ] && echo "ERROR\n" && tail -80 $p.out || echo "Ok"
+    tar -czf "${LP3D_RENDERERS}"  \
+    "--exclude=${VER_LDVIEW}/lib" \
+    "--exclude=${VER_LDVIEW}/include" \
+    "--exclude=${VER_LDVIEW}/bin/*.exp" \
+    "--exclude=${VER_LDVIEW}/bin/*.lib" \
+    "--exclude=${VER_LDVIEW}/resources/*Messages.ini" \
+    "${VER_LDGLITE}/" "${VER_LDVIEW}/" "${VER_POVRAY}/" && \
+	sha512sum "${LP3D_RENDERERS}" > "${LP3D_RENDERERS}.sha512" && \
+    mv -f "${LP3D_RENDERERS}" "${LP3D_RENDERERS}.sha512" \
+	"${LP3D_OUT_PATH}/" ) >$p.out 2>&1 && rm $p.out
+    [ -f $p.out ] && echo "ERROR" && tail -80 $p.out || echo "Ok"
 }
 
 # =======================================
@@ -1044,7 +1057,7 @@ for buildDir in ldglite ldview povray; do
         Info "------------------Build Log-------------------------"
         cat ${buildLog}
         Info "----------------End-Build Log-----------------------"
-        canPackageRenderers="false"
+        canPackageRenderers=false
       fi
     fi
     Msg="Build ${buildDir} finished."

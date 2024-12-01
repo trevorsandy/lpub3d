@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 30, 2024
+rem  Last Update: December 01, 2024
 rem  Copyright (C) 2017 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -446,7 +446,7 @@ IF %LP3D_VALID_7ZIP% NEQ 1 (
   ECHO -ERROR: Cannot archive %LP3D_RENDERS%. 7zip not found.
   GOTO :ERROR_END
 )
-SET LP3D_RENDERS=%PACKAGE%-renderers.zip
+SET LP3D_RENDERS=%PACKAGE%-renderers-win-%BUILD_ARCH%.zip
 ECHO.
 ECHO -Create renderer package %LP3D_RENDERS%...
 PUSHD %DIST_DIR%
