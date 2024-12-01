@@ -406,7 +406,7 @@ int SubModel::createSubModelImage(
               future = QtConcurrent::run([&] () {
                   QStringList futureModel = rotatedModel;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedModel file
-                  renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMI, step ? step->displayStep : false);
+                  renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMI, step ? step->displayStep : DT_DEFAULT);
                   // consolidate submodel subfiles into single file
                   int rcf = 0;
                   if (!coverPagePreview) {
