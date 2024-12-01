@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 02, 2024
+rem  Last Update: November 29, 2024
 rem  Copyright (C) 2017 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -80,13 +80,14 @@ IF "%LP3D_SYS_DIR%" == "" (
 IF "%LP3D_7ZIP_WIN64%" == "" (
   SET LP3D_7ZIP_WIN64=%ProgramFiles%\7-zip\7z.exe
 )
-IF "%LP3D_VALID_7ZIP%" =="" (
+IF "%LP3D_VALID_7ZIP%" == "" (
   SET LP3D_VALID_7ZIP=0
 )
 SET MAX_DOWNLOAD_ATTEMPTS=4
 SET VER_LDGLITE=LDGLite-1.3
 SET VER_LDVIEW=LDView-4.5
 SET VER_POVRAY=lpub3d_trace_cui-3.8
+SET CAN_PACKAGE=True
 
 rem Check if invalid platform flag
 IF NOT [%1]==[] (
@@ -180,6 +181,15 @@ FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
   CALL :%%I_BUILD %BUILD_ARCH%
   IF %ERRORLEVEL% NEQ 0 (GOTO :FATAL_ERROR)
 )
+
+IF %BUILD_ARCH% EQU x86_64 (
+  IF "%CAN_PACKAGE%" EQU "True" (
+    IF NOT EXIST "%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe" ( GOTO :END )
+    IF NOT EXIST "%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe" ( GOTO :END )
+    IF NOT EXIST "%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe" ( GOTO :END )
+    CALL :PACKAGE_RENDERERS
+  )
+)
 GOTO :END
 
 :SET_BUILD_ARGS
@@ -213,6 +223,7 @@ CALL build.cmd %LDGLITE_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDGLITE%" (
   ECHO  ERROR - Renderer %VER_LDGLITE% was not successfully built.
   ECHO  LDGLite executable was not found at %LP3D_LDGLITE%.
+  SET CAN_PACKAGE=False
   GOTO :ERROR_END
 )
 EXIT /b
@@ -249,6 +260,7 @@ CALL build.cmd %LDVIEW_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDVIEW%" (
   ECHO  ERROR - Renderer %VER_LDVIEW% was not successfully built.
   ECHO  LDView executable was not found at %LP3D_LDVIEW%.
+  SET CAN_PACKAGE=False
   GOTO :ERROR_END
 )
 PUSHD "%LP3D_LDVIEW_BIN%"
@@ -275,6 +287,7 @@ CALL autobuild.cmd %POVRAY_BUILD_ARGS%
 IF NOT EXIST "%LP3D_POVRAY%" (
   ECHO  ERROR - Renderer %VER_POVRAY% was not successfully built.
   ECHO  LPub3D-Trace 'POV-ray' executable was not found at %LP3D_POVRAY%.
+  SET CAN_PACKAGE=False
   GOTO :ERROR_END
 )
 EXIT /b
@@ -417,6 +430,40 @@ IF EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%\%VALID_SDIR%" (
   ECHO -ERROR: Build folder %BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR% is not valid.
   GOTO :ERROR_END
 )
+EXIT /b
+
+:PACKAGE_RENDERERS
+IF "%CAN_PACKAGE%" NEQ "True" (
+  ECHO.
+  ECHO -ERROR: Cannot package %LP3D_RENDERS%
+  GOTO :ERROR_END
+)
+IF %LP3D_VALID_7ZIP% NEQ 1 (
+  ECHO -ERROR: Cannot archive renderer package %LP3D_RENDERS%. 7zip not found.
+  GOTO :ERROR_END
+)
+SET LP3D_RENDERS=%PACKAGE%-renderers.zip
+IF NOT EXIST "%LP3D_BUILDPKG_PATH%\Downloads\" (
+  MKDIR "%LP3D_BUILDPKG_PATH%\Downloads\"
+)
+ECHO.
+ECHO -Create renderer package: %LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERS%...
+PUSHD %DIST_DIR%
+RMDIR /S /Q "%VER_LDVIEW%\lib" >NUL 2>&1
+RMDIR /S /Q "%VER_LDVIEW%\include" >NUL 2>&1
+DEL /Q /S "%VER_LDVIEW%\bin\*.exp" >NUL 2>&1
+DEL /Q /S "%VER_LDVIEW%\bin\*.lib" >NUL 2>&1
+DEL /Q /S "%VER_LDVIEW%\resources\*Messages.ini" >NUL 2>&1
+ECHO -Archiving %LP3D_RENDERS%...
+"%LP3D_7ZIP_WIN64%" a -tzip "%LP3D_RENDERS%" "%VER_LDGLITE%\*" "%VER_LDVIEW%\*" "%VER_POVRAY%\*" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
+IF EXIST "%LP3D_RENDERS%" (
+  MOVE /Y "%LP3D_RENDERS%" "%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERS%" >NUL 2>&1
+  ECHO -Finished
+) ELSE (
+  ECHO -ERROR: Failed to archive renderer package %LP3D_RENDERS%
+  GOTO :ERROR_END
+)
+POPD
 EXIT /b
 
 :DOWNLOAD_ARCHIVE

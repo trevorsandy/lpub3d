@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update September 27, 2024
+# Last Update November 29, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 
@@ -907,6 +907,27 @@ if [ "$OS_NAME" = "Darwin" ]; then
   BUILD_CPUs=$(sysctl -n hw.ncpu)
 fi
 
+# Package the renderers
+canPackageRenderers="true"
+declare -r p=Package
+function package_renderers()
+{
+    LP3D_RENDERS="${LPUB3D}-renderers.zip"
+    Info -n "Create renderer package: ${WD}/${LP3D_RENDERS}..."
+    ( cd "${DIST_PKG_DIR}/" || return && \
+    zip -rq "${LP3D_RENDERS}"  \
+    "${VER_LDGLITE}/" \
+    "${VER_LDVIEW}/" \
+    "${VER_POVRAY}/" -x \
+    "${VER_LDVIEW}/lib/*" \
+    "${VER_LDVIEW}/include/*" \
+    "${VER_LDVIEW}/bin/*.exp" \
+    "${VER_LDVIEW}/bin/*.lib" \
+    "${VER_LDVIEW}/resources/*Messages.ini" && \
+    mv -f "${DIST_PKG_DIR}/${LP3D_RENDERS}" "${WD}/" ) >$p.out 2>&1 && rm $p.out
+    [ -f $p.out ] && Info "ERROR\n" && tail -80 $p.out || Info "Ok"
+}
+
 # =======================================
 # Main loop
 # =======================================
@@ -1023,6 +1044,7 @@ for buildDir in ldglite ldview povray; do
         Info "------------------Build Log-------------------------"
         cat ${buildLog}
         Info "----------------End-Build Log-----------------------"
+        canPackageRenderers="false"
       fi
     fi
     Msg="Build ${buildDir} finished."
@@ -1033,6 +1055,10 @@ for buildDir in ldglite ldview povray; do
   fi
   cd ${WD}
 done
+# Package renderers as a deliverable
+if [[ "${canPackageRenderers}" = "true"  ]]; then
+  package_renderers
+fi
 # Restore ld_library_path
 export LD_LIBRARY_PATH=$LP3D_LD_LIBRARY_PATH_SAVED
 
