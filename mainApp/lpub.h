@@ -368,6 +368,10 @@
 #include "application.h"
 #include "lpub_object.h"
 
+#ifndef Q_FALLTHROUGH
+#define Q_FALLTHROUGH();
+#endif
+
 // Set to enable file watcher
 #ifndef WATCHER
 #define WATCHER
