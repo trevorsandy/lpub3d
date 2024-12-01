@@ -231,3 +231,4 @@ protected:
 	lcSynthInfo* mSynthInfo = nullptr;
 	lcTrainTrackInfo* mTrainTrackInfo = nullptr;
 };
+

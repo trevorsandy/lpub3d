@@ -19,6 +19,7 @@
 #include <deque>
 #include <functional>
 #include <memory>
+#include <optional>
 
 #if _MSC_VER
 #pragma warning(default : 4062) // enumerator 'identifier' in switch of enum 'enumeration' is not handled
@@ -70,7 +71,7 @@ char* strupr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "23.03"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_SHA "72c8e7a"
+#define LC_VERSION_SHA "14e5e7d"
 /*** LPub3D Mod end ***/
 
 
