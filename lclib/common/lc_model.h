@@ -466,6 +466,8 @@ protected:
 //	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved to public) ***/
 	void InsertPiece(lcPiece* Piece, size_t Index);
 
+	void UpdateTrainTrackConnections(lcPiece* FocusPiece) const;
+
 	lcPOVRayOptions mPOVRayOptions;
 	lcModelProperties mProperties;
 	Project* const mProject;

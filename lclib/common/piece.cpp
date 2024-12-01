@@ -601,6 +601,9 @@ void lcPiece::RayTest(lcObjectRayTest& ObjectRayTest) const
 
 		for (quint32 ConnectionIndex = 0; ConnectionIndex < Connections.size(); ConnectionIndex++)
 		{
+			if (mTrainTrackConnections[ConnectionIndex])
+				continue;
+
 			const lcMatrix44 InverseTransform = lcMatrix44AffineInverse(Connections[ConnectionIndex].Transform);
 			const lcVector3 PointStart = lcMul31(Start, InverseTransform);
 			const lcVector3 PointEnd = lcMul31(End, InverseTransform);
@@ -819,6 +822,9 @@ void lcPiece::DrawTrainTrackInterface(lcContext* Context, const lcMatrix44& Worl
 
 	for (quint32 ConnectionIndex = 0; ConnectionIndex < Connections.size(); ConnectionIndex++)
 	{
+		if (mTrainTrackConnections[ConnectionIndex])
+			continue;
+
 		Context->SetWorldMatrix(lcMul(Connections[ConnectionIndex].Transform, WorldMatrix));
 
 		Context->SetVertexBufferPointer(Verts);
