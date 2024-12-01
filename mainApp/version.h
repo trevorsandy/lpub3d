@@ -168,6 +168,7 @@
 
 #define VER_LPUB3D_BLCOLORS_FILE            "colors.txt"
 #define VER_LPUB3D_BLCODES_FILE             "codes.txt"
+#define VER_LPUB3D_USERELEMENTS_FILE        "userelements.lst"
 #define VER_LPUB3D_LEGOELEMENTS_FILE        "legoelements.lst"
 
 #define VER_LPUB3D_LD2BLCOLORSXREF_FILE     "ld2blcolorsxref.lst"

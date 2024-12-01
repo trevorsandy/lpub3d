@@ -5437,18 +5437,22 @@ void PliSortMeta::init(BranchMeta *parent, QString name)
 PliPartElementMeta::PliPartElementMeta() : BranchMeta()
 {
   display.setValue               (false);
-  bricklinkElements.setValue     (false);
   legoElements.setValue          (true);
-  localLegoElements.setValue     (false);   // default is to use BrickLink's LEGO Elements
+  bricklinkElements.setValue     (false);
+  userElements.setValue          (false);   // default is to use BrickLink's LEGO Elements
+  userElementsLDrawKey.setValue  (true);
+  localElements.setValue         (false);   // kept localElements for backwards compatability
 }
 
 void PliPartElementMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   display.init(this, "DISPLAY");
-  bricklinkElements.init(this, "BRICKLINK");
   legoElements.init(this, "LEGO");
-  localLegoElements.init(this, "LOCAL_LEGO_ELEMENTS_FILE");
+  bricklinkElements.init(this, "BRICKLINK");
+  userElements.init(this, "USER_ELEMENTS_FILE");
+  userElementsLDrawKey.init(this, "USER_ELEMENTS_USE_LDRAW_KEY");
+  localElements.init(this, "LOCAL_LEGO_ELEMENTS_FILE"); // kept localElements for backwards compatability
 }
 
 /* ------------------ */

@@ -397,7 +397,7 @@ QString Preferences::ldrawSearchDirsKey         = LEGO_SEARCH_DIR_KEY;
 QString Preferences::ldrawLibPathKey            = LEGO_LDRAW_LIB_PATH_KEY;
 
 QString Preferences::blCodesFile                = VER_LPUB3D_BLCODES_FILE;
-QString Preferences::legoElementsFile           = VER_LPUB3D_LEGOELEMENTS_FILE;
+QString Preferences::userElementsFile           = VER_LPUB3D_USERELEMENTS_FILE;
 QString Preferences::blColorsFile               = VER_LPUB3D_BLCOLORS_FILE;
 QString Preferences::ld2blColorsXRefFile        = VER_LPUB3D_LD2BLCOLORSXREF_FILE;
 QString Preferences::ld2blCodesXRefFile         = VER_LPUB3D_LD2BLCODESXREF_FILE;
@@ -4867,7 +4867,7 @@ void Preferences::annotationPreferences()
     QString const freeFormAnnotationsKey("FreeFormAnnotationsFile");
     QString const annotationStyleKey(    "AnnotationStyleFile");
     QString const blCodesKey(            "BLCodesFile");
-    QString const legoElementsKey(       "LEGOElementsFile");
+    QString const userElementsKey(       "UserElementsFile");
     QString const blColorsKey(           "BLColorsFile");
     QString const ld2blColorsXRefKey(    "LD2BLColorsXRefFile");
     QString const ld2blCodesXRefKey(     "LD2BLCodesXRefFile");
@@ -4910,11 +4910,11 @@ void Preferences::annotationPreferences()
         }
     }
 
-    if ((annOk[A_05] = Settings.contains(QString("%1/%2").arg(SETTINGS,legoElementsKey)))) {
-        legoElementsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,legoElementsKey)).toString());
-        annInfo.setFile(legoElementsFile);
+    if ((annOk[A_05] = Settings.contains(QString("%1/%2").arg(SETTINGS,userElementsKey)))) {
+        userElementsFile = QDir::toNativeSeparators(Settings.value(QString("%1/%2").arg(SETTINGS,userElementsKey)).toString());
+        annInfo.setFile(userElementsFile);
         if (! annInfo.exists()) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,legoElementsKey));
+            Settings.remove(QString("%1/%2").arg(SETTINGS,userElementsKey));
             annOk[A_05] = false;
         }
     }
@@ -4980,12 +4980,12 @@ void Preferences::annotationPreferences()
     }
 
     if (! annOk[A_05]) {
-        legoElementsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE));
-        annInfo.setFile(legoElementsFile);
+        userElementsFile = QDir::toNativeSeparators(QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_USERELEMENTS_FILE));
+        annInfo.setFile(userElementsFile);
         if (annInfo.exists())
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,legoElementsKey),legoElementsFile);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,userElementsKey),userElementsFile);
         else
-            legoElementsFile.clear();
+            userElementsFile.clear();
     }
 
     if (! annOk[A_06]) {

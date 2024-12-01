@@ -6532,29 +6532,40 @@ PliPartElementGui::PliPartElementGui(
           this,              SLOT(  legoElements(bool)));
   hLayout->addWidget(legoElementsButton);
 
-  localLegoElementsCheck = new QCheckBox(tr("User Defined"),gbPliPartElement);
-  localLegoElementsCheck->setToolTip(tr("Use user-defined part element id file legoelements.lst."));
-  connect(localLegoElementsCheck,SIGNAL(clicked(bool)),
-          this,                  SLOT(  localLegoElements(bool)));
-  hLayout->addWidget(localLegoElementsCheck);
+  userElementsCheck = new QCheckBox(tr("User Defined"),gbPliPartElement);
+  userElementsCheck->setToolTip(tr("Use user-defined part element id file userelements.lst."));
+  connect(userElementsCheck,SIGNAL(clicked(bool)),
+          this,                  SLOT(  userElements(bool)));
+  hLayout->addWidget(userElementsCheck);
+
+  userElementsLDrawKeyCheck = new QCheckBox(tr("LDraw Key"),gbPliPartElement);
+  userElementsLDrawKeyCheck->setToolTip(tr("Use LDraw Part Type and Color ID for user-defined part elements, Otherwise use Bricklink Item No and Color."));
+  connect(userElementsLDrawKeyCheck,SIGNAL(clicked(bool)),
+          this,                     SLOT(  userElementsLDrawKey(bool)));
+  hLayout->addWidget(userElementsLDrawKeyCheck);
+
+  // kept localElements for backwards compatability
+  if (meta->localElements.value() && !meta->userElements.value())
+      meta->userElements.setValue(meta->localElements.value());
 
   bricklinkElementsButton->setChecked(meta->bricklinkElements.value());
   legoElementsButton->setChecked(meta->legoElements.value());
-  localLegoElementsCheck->setChecked(meta->localLegoElements.value());
-  localLegoElementsCheck->setEnabled(gbPliPartElement->isChecked() &&
-                                     legoElementsButton->isChecked());
+  userElementsCheck->setChecked(meta->userElements.value());
+  userElementsLDrawKeyCheck->setChecked(meta->userElementsLDrawKey.value());
+  userElementsLDrawKeyCheck->setEnabled(userElementsCheck->isChecked());
 
-  displayModified           = false;
-  bricklinkElementsModified = false;
-  legoElementsModified      = false;
-  localLegoElementsModified = false;
+  displayModified              = false;
+  bricklinkElementsModified    = false;
+  legoElementsModified         = false;
+  userElementsModified         = false;
+  userElementsLDrawKeyModified = false;
 }
 
 void PliPartElementGui::bricklinkElements(bool checked)
 {
   meta->bricklinkElements.setValue(checked);
   meta->legoElements.setValue(! checked);
-  localLegoElementsCheck->setDisabled(checked);
+  userElementsCheck->setDisabled(checked);
   modified = bricklinkElementsModified = true;
 }
 
@@ -6562,14 +6573,21 @@ void PliPartElementGui::legoElements(bool checked)
 {
   meta->bricklinkElements.setValue(! checked);
   meta->legoElements.setValue( checked);
-  localLegoElementsCheck->setEnabled(checked);
+  userElementsCheck->setEnabled(checked);
   modified = legoElementsModified = true;
 }
 
-void PliPartElementGui::localLegoElements(bool checked)
+void PliPartElementGui::userElements(bool checked)
 {
-  meta->localLegoElements.setValue( checked);
-  modified = localLegoElementsModified = true;
+  meta->userElements.setValue( checked);
+  userElementsLDrawKeyCheck->setEnabled(checked);
+  modified = userElementsModified = true;
+}
+
+void PliPartElementGui::userElementsLDrawKey(bool checked)
+{
+  meta->userElementsLDrawKey.setValue( checked);
+  modified = userElementsLDrawKeyModified = true;
 }
 
 void PliPartElementGui::gbToggled(bool toggled)
@@ -6578,9 +6596,9 @@ void PliPartElementGui::gbToggled(bool toggled)
   if(toggled) {
       bricklinkElementsButton->setChecked(meta->bricklinkElements.value());
       legoElementsButton->setChecked(meta->legoElements.value());
-      localLegoElementsCheck->setChecked(meta->localLegoElements.value());
+      userElementsCheck->setChecked(meta->userElements.value());
   }
-  localLegoElementsCheck->setEnabled(toggled && legoElementsButton->isChecked());
+  userElementsCheck->setEnabled(toggled && legoElementsButton->isChecked());
   modified = displayModified = true;
 }
 
@@ -6601,8 +6619,23 @@ void PliPartElementGui::apply(QString &topLevelFile)
   if (legoElementsModified) {
       mi.setGlobalMeta(topLevelFile,&meta->legoElements);
   }
-  if (localLegoElementsModified) {
-      mi.setGlobalMeta(topLevelFile,&meta->localLegoElements);
+  if (userElementsLDrawKeyModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->userElementsLDrawKey);
+  }
+  if (userElementsModified) {
+      // kept localElements for backwards compatability
+      if (meta->localElements.value()) {
+          QString const message("LPUB command LOCAL_LEGO_ELEMENTS_FILE is deprecated,<br>"
+                                "use USER_ELEMENTS_FILE instead.");
+          Where annotationFile(topLevelFile);
+          Annotations::annotationMessage(message, annotationFile, false, true);
+      }
+      if (meta->localElements.value() && !meta->userElements.value()) {
+          meta->localElements.setValue(meta->userElements.value());
+          mi.setGlobalMeta(topLevelFile,&meta->localElements);
+      } else {
+          mi.setGlobalMeta(topLevelFile,&meta->userElements);
+      }
   }
 }
 

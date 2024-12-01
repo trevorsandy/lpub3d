@@ -599,6 +599,8 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bUSE_FREE_FORM\\b"),
         QStringLiteral("\\bUSE_TITLE\\b"),
         QStringLiteral("\\bUSE_TITLE_AND_FREE_FORM\\b"),
+        QStringLiteral("\\bUSER_ELEMENTS_FILE\\b"),
+        QStringLiteral("\\bUSER_ELEMENTS_USE_LDRAW_KEY\\b"),
         QStringLiteral("\\bVERTICAL\\b"),
         QStringLiteral("\\bVIEW_ANGLE\\b"),
         QStringLiteral("\\bWHOLE\\b"),

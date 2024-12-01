@@ -3122,11 +3122,11 @@ void Gui::editBLCodes()
     }
 }
 
-void Gui::editLEGOElements()
+void Gui::editUserElements()
 {
-    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE));
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_USERELEMENTS_FILE));
     if (!fileInfo.exists()) {
-        if (!Annotations::exportLEGOElementsFile()) {
+        if (!Annotations::exportUserElementsFile()) {
             emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
             return;
         }
@@ -5942,11 +5942,11 @@ void Gui::createActions()
     lpub->actions.insert(editAnnotationStyleAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Part Annotation Style Reference"), editAnnotationStyleAct));
     connect(editAnnotationStyleAct, SIGNAL(triggered()), gui, SLOT(editAnnotationStyle()));
 
-    QAction *editLEGOElementsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("LEGO Part Elements reference"), gui);
-    editLEGOElementsAct->setObjectName("editLEGOElementsAct.1");
-    editLEGOElementsAct->setStatusTip(tr("Add/Edit LEGO Elements"));
-    lpub->actions.insert(editLEGOElementsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Edit LEGO Elements"), editLEGOElementsAct));
-    connect(editLEGOElementsAct, SIGNAL(triggered()), gui, SLOT(editLEGOElements()));
+    QAction *editUserElementsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("User Part Elements Reference"), gui);
+    editUserElementsAct->setObjectName("editUserElementsAct.1");
+    editUserElementsAct->setStatusTip(tr("Add/Edit User-defined Part Elements"));
+    lpub->actions.insert(editUserElementsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.User-defined Part Elements"), editUserElementsAct));
+    connect(editUserElementsAct, SIGNAL(triggered()), gui, SLOT(editUserElements()));
 
     QAction *editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("LDraw to Bricklink Design ID Reference"), gui);
     editLD2BLCodesXRefAct->setObjectName("editLD2BLCodesXRefAct.1");
@@ -5972,13 +5972,13 @@ void Gui::createActions()
     lpub->actions.insert(editLD2RBColorsXRefAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.LDraw To Rebrickable Color Reference"), editLD2RBColorsXRefAct));
     connect(editLD2RBColorsXRefAct, SIGNAL(triggered()), gui, SLOT(editLD2RBColorsXRef()));
 
-    QAction *editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Bricklink Color Reference"), gui);
+    QAction *editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Bricklink Colors Reference"), gui);
     editBLColorsAct->setObjectName("editBLColorsAct.1");
     editBLColorsAct->setStatusTip(tr("Add/Edit Bricklink Color ID reference"));
-    lpub->actions.insert(editBLColorsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Edit Bricklink Color Reference"), editBLColorsAct));
+    lpub->actions.insert(editBLColorsAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Edit Bricklink Colors Reference"), editBLColorsAct));
     connect(editBLColorsAct, SIGNAL(triggered()), gui, SLOT(editBLColors()));
 
-    QAction *editBLCodesAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Bricklink Codes Reference"), gui);
+    QAction *editBLCodesAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Bricklink Codes (LEGO Elements) Reference"), gui);
     editBLCodesAct->setObjectName("editBLCodesAct.1");
     editBLCodesAct->setStatusTip(tr("Add/Edit Bricklink Item No, Color Name, LEGO Element reference"));
     lpub->actions.insert(editBLCodesAct->objectName(), Action(QStringLiteral("Configuration.Edit Parameter Files.Bricklink Codes Reference"), editBLCodesAct));
@@ -6723,7 +6723,7 @@ void Gui::enableActions()
   gui->getAct("editPovrayIniAct.1")->setEnabled(true);
   gui->getAct("editPovrayConfAct.1")->setEnabled(true);
   gui->getAct("editAnnotationStyleAct.1")->setEnabled(true);
-  gui->getAct("editLEGOElementsAct.1")->setEnabled(true);
+  gui->getAct("editUserElementsAct.1")->setEnabled(true);
   gui->getAct("editLD2BLCodesXRefAct.1")->setEnabled(true);
   gui->getAct("editLD2BLColorsXRefAct.1")->setEnabled(true);
   gui->getAct("editLD2RBCodesXRefAct.1")->setEnabled(true);
@@ -7117,7 +7117,7 @@ void Gui::createMenus()
     editorMenu->addAction(gui->getAct("editExcludedPartsAct.1"));
     editorMenu->addAction(gui->getAct("editStickerPartsAct.1"));
     editorMenu->addAction(gui->getAct("editAnnotationStyleAct.1"));
-    editorMenu->addAction(gui->getAct("editLEGOElementsAct.1"));
+    editorMenu->addAction(gui->getAct("editUserElementsAct.1"));
     editorMenu->addAction(gui->getAct("editLD2BLCodesXRefAct.1"));
     editorMenu->addAction(gui->getAct("editLD2BLColorsXRefAct.1"));
     editorMenu->addAction(gui->getAct("editBLColorsAct.1"));
@@ -7420,7 +7420,7 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(gui->getAct("editExcludedPartsAct.1"));
     editParamsToolBar->addAction(gui->getAct("editStickerPartsAct.1"));
     editParamsToolBar->addAction(gui->getAct("editAnnotationStyleAct.1"));
-    editParamsToolBar->addAction(gui->getAct("editLEGOElementsAct.1"));
+    editParamsToolBar->addAction(gui->getAct("editUserElementsAct.1"));
     editParamsToolBar->addAction(gui->getAct("editLD2BLCodesXRefAct.1"));
     editParamsToolBar->addAction(gui->getAct("editLD2BLColorsXRefAct.1"));
     editParamsToolBar->addAction(gui->getAct("editBLColorsAct.1"));

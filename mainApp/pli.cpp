@@ -375,10 +375,10 @@ void Pli::setParts(
                   int which = 0; // Bricklink
                   if ( pliMeta.partElements.legoElements.value())
                       which = 1; // LEGO
-
-                  if (pliMeta.partElements.localLegoElements.value()) {
-                      QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
-                      element = Annotations::getLEGOElement(elementKey.toLower());
+                  // kept localElements for backwards compatability
+                  if (pliMeta.partElements.userElements.value() || pliMeta.partElements.localElements.value() ) {
+                      bool useLDrawKey = pliMeta.partElements.userElementsLDrawKey.value();
+                      element = Annotations::getUserElement(_typeid.toLower(),_colorid.toLower(),useLDrawKey);
                   }
                   else
                   {
@@ -388,7 +388,7 @@ void Pli::setParts(
                           QByteArray Buffer = lpub->getDownloadedFile();
                           Annotations::loadBLCodes(Buffer);
                       }
-                      element = Annotations::getBLElement(_colorid,_typeid,which);
+                      element = Annotations::getBLElement(_colorid.toLower(),_typeid.toLower(),which);
                   }
               }
 

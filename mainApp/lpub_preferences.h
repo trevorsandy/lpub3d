@@ -263,7 +263,7 @@ class Preferences
     static QString blenderExe;
 
     static QString blCodesFile;
-    static QString legoElementsFile;
+    static QString userElementsFile;
     static QString blColorsFile;
     static QString ld2blColorsXRefFile;
     static QString ld2blCodesXRefFile;

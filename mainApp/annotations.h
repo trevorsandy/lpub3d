@@ -29,7 +29,7 @@ class Annotations {
     static QHash<QString, QStringList> annotationStyles;
 
     static QHash<QString, QStringList> blCodes;
-    static QHash<QString, QString>     legoElements;
+    static QHash<QString, QString>     userElements;
     static QHash<QString, QString>     blColors;
     static QHash<QString, QString>     ld2blColorsXRef;
     static QHash<QString, QString>     ld2blCodesXRef;
@@ -45,7 +45,7 @@ class Annotations {
     static const QString &getStyleAnnotation(QString part);
     static void loadDefaultAnnotationStyles(QByteArray &Buffer);
     static void loadTitleAnnotations(QByteArray& Buffer);
-    static void loadSampleLEGOElements(QByteArray& Buffer);
+    static void loadSampleUserElements(QByteArray& Buffer);
 
     static void loadBLColors(QByteArray &Buffer);
     static void loadLD2BLColorsXRef(QByteArray &Buffer);
@@ -56,24 +56,26 @@ class Annotations {
 
     static bool loadBLCodes();
     static bool loadBLCodes(QByteArray &Buffer);
-    static bool loadLEGOElements();
+    static bool loadUserElements(bool useLDrawKey = true);
 
-    static const QString &getBLColorID(QString blcolorname);
-    static const QString &getLEGOElement(QString elementkey);
-    static const QString &getBLElement(QString ldcolorid,
-                                       QString ldpartid,
+    static const QString &getBLColorID(const QString &blcolorname);
+    static const QString &getUserElement(const QString &ldpartid,
+                                         const QString &ldcolorid,
+                                         bool useLDrawKey);
+    static const QString &getBLElement(const QString &ldcolorid,
+                                       const QString &ldpartid,
                                        int     which = 0);
-    static const QString &getBrickLinkPartId(QString ldpartid);
+    static const QString &getBrickLinkPartId(const QString &ldpartid);
     static const int &getBrickLinkColor(int ldcolorid);
-    static const int &getRBColorID(QString blcolorid);
-    static const QString &getRBPartID(QString blpartid);
+    static const int &getRBColorID(const QString &blcolorid);
+    static const QString &getRBPartID(const QString &blpartid);
 
     static bool exportBLColorsFile();
     static bool exportLD2BLColorsXRefFile();
     static bool exportLD2BLCodesXRefFile();
     static bool exportLD2RBColorsXRefFile();
     static bool exportLD2RBCodesXRefFile();
-    static bool exportLEGOElementsFile();
+    static bool exportUserElementsFile();
 
 
     static bool exportAnnotationStyleFile();
@@ -86,7 +88,7 @@ class Annotations {
         return titleAnnotations;
     }
 
-    static void annotationMessage(QString &message, Where &here);
+    static int annotationMessage(QString const &message, Where &here, bool option = true, bool override = true);
 };
 
 #endif

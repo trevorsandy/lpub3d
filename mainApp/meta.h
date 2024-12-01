@@ -3367,9 +3367,11 @@ class PliPartElementMeta : public BranchMeta
 {
 public:
   BoolMeta      display;
-  BoolMeta      bricklinkElements;
   BoolMeta      legoElements;
-  BoolMeta      localLegoElements;
+  BoolMeta      bricklinkElements;
+  BoolMeta      userElements;
+  BoolMeta      userElementsLDrawKey;
+  BoolMeta      localElements;
 
   PliPartElementMeta();
   virtual void init(BranchMeta *parent, QString name);

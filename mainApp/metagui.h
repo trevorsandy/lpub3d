@@ -1790,7 +1790,8 @@ public:
   bool        displayModified;
   bool        bricklinkElementsModified;
   bool        legoElementsModified;
-  bool        localLegoElementsModified;
+  bool        userElementsModified;
+  bool        userElementsLDrawKeyModified;
 
 
   PliPartElementGui(
@@ -1805,7 +1806,8 @@ private:
   QLabel            *headingLabel;
   QRadioButton      *bricklinkElementsButton;
   QRadioButton      *legoElementsButton;
-  QCheckBox         *localLegoElementsCheck;
+  QCheckBox         *userElementsCheck;
+  QCheckBox         *userElementsLDrawKeyCheck;
   QGroupBox         *gbPliPartElement;
 
   PliPartElementMeta *meta;
@@ -1816,7 +1818,8 @@ signals:
 public slots:
   void bricklinkElements(bool);
   void legoElements(bool);
-  void localLegoElements(bool);
+  void userElements(bool);
+  void userElementsLDrawKey(bool);
 
   void gbToggled(bool toggled);
   void enablePliPartElementGroup(bool);

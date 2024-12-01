@@ -1893,7 +1893,7 @@ private slots:
     void editLD2RBColorsXRef();
     void editAnnotationStyle();
     void editBLColors();
-    void editLEGOElements();
+    void editUserElements();
     void editBLCodes();
     void generateCustomColourPartsList(bool prompt = true);
     void enableLPubFadeOrHighlight(bool enableFadeSteps, bool enableHighlightStep ,bool waitForFinish);
