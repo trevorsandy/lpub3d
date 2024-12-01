@@ -297,6 +297,7 @@ public:
 	void Paste(bool PasteToCurrentStep);
 	void DuplicateSelectedPieces();
 	void PaintSelectedPieces();
+	void UpdateTrainTrackConnections(lcPiece* FocusPiece) const;
 
 	void GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const;
 	void AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const;
@@ -466,8 +467,6 @@ protected:
 
 //	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved to public) ***/
 	void InsertPiece(lcPiece* Piece, size_t Index);
-
-	void UpdateTrainTrackConnections(lcPiece* FocusPiece) const;
 
 	lcPOVRayOptions mPOVRayOptions;
 	lcModelProperties mProperties;
