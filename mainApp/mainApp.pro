@@ -193,7 +193,7 @@ contains(USE_CPP11,NO) {
 
 message("~~~ $${LPUB3D} BUILDING WITH QT VERSION: $$QT_VERSION ~~~")
 
-# Greater than Qt 5.4
+# Greater than or equal to Qt 5.4
 greaterThan(QT_MAJOR_VERSION, 4): \
 greaterThan(QT_MINOR_VERSION, 3) {
     win32-msvc* {
