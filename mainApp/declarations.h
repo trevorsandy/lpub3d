@@ -221,15 +221,15 @@ enum ActionModuleType { NO_ACTION,                 //  0
                         COMMANDS_TEXT_EDIT_ACTION, //  7
                         OTHER_ACTION               //  8
 };
-enum PageDirection { DIRECTION_NOT_SET,
-                     FILE_DEFAULT  = DIRECTION_NOT_SET,
-                     PAGE_NEXT,
-                     PAGE_FORWARD  = PAGE_NEXT,
-                     FILE_RELOAD   = PAGE_NEXT,
-                     PAGE_JUMP_FORWARD,
-                     PAGE_BACKWARD,
-                     PAGE_PREVIOUS = PAGE_BACKWARD,
-                     PAGE_JUMP_BACKWARD
+enum PageDirection { DIRECTION_NOT_SET,                 // 0
+                     FILE_DEFAULT  = DIRECTION_NOT_SET, // 0
+                     PAGE_NEXT,                         // 1
+                     PAGE_FORWARD  = PAGE_NEXT,         // 1
+                     FILE_RELOAD   = PAGE_NEXT,         // 1
+                     PAGE_JUMP_FORWARD,                 // 2
+                     PAGE_BACKWARD,                     // 3
+                     PAGE_PREVIOUS = PAGE_BACKWARD,     // 3
+                     PAGE_JUMP_BACKWARD                 // 4
 };
 enum ExportMode { ERROR_ENCOUNTERED = -3,  //-3 to pass error encountered to visual editor banner
                   PRINT_FILE   = -2,       //-2
@@ -814,10 +814,10 @@ enum ThemeColorType {
 
 #define FADE_SFX                                "-fade"
 #define HIGHLIGHT_SFX                           "-highlight"
-#define RESTART_TRIGGER                         "@@ReStArT@@"
-#define RESTART_PAGE_NUM_KEY                    "RestartPageNum"
+#define RESTART_NOTICE                          "@@ReStArT@@"
+#define RESTART_APPLICATION_KEY                 "RestartApplication"
 #define RESTART_EXPORTING_KEY                   "RestartExporting"
-#define RESTART_DISPLAY_PAGE_NUM_KEY            "RestartDisplayPageNum"
+#define LAST_DISPLAYED_PAGE_NUM_KEY             "LastDisplayedPageNum"
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY             "SaveSkipPartsArchive"
 #define VIEW_IMPORT_TOOLBAR_KEY                 "ViewImportToolbar"
 #define VIEW_EXPORT_TOOLBAR_KEY                 "ViewExportToolbar"

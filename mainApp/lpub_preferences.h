@@ -320,7 +320,7 @@ class Preferences
     static bool    excludeModelsSearchDir;
     static bool    skipPartsArchive;
     static bool    loadLastOpenedFile;
-    static bool    restoreLastOpenedPage;
+    static bool    loadLastDisplayedPage;
     static bool    extendedSubfileSearch;
     static bool    searchOfficialModels;
     static bool    searchOfficialParts;

@@ -655,7 +655,7 @@ int Application::initialize(lcCommandLineOptions &Options)
 #ifdef Q_OS_MAC
     m_application.setStyle(QStyleFactory::create("macintosh"));
 #endif
-    m_auto_restart = false;
+    m_application_restart = false;
     m_console_mode = false;
     m_print_output = false;
 #ifdef Q_OS_WIN
@@ -699,8 +699,8 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
         {
 
             if (Param[0] != '+') {
-                if (Param[0] == '@' && Param == RESTART_TRIGGER) {
-                    m_auto_restart = true;
+                if (Param[0] == '@' && Param == RESTART_NOTICE) {
+                    m_application_restart = true;
                     continue;
                 } else
                     if (m_commandline_file.isEmpty() && QFileInfo(Param).isReadable() && !m_console_mode)
@@ -1324,11 +1324,11 @@ void Application::mainApp()
         QWindowsWindowFunctions::setHasBorderInFullScreen(gui->windowHandle(), true);
 #endif
 #endif
-        Gui::setAutoRestart(m_auto_restart);
+        Gui::setLoadLastDisplayedPage(m_application_restart);
 
         if (!m_commandline_file.isEmpty())
             emit gui->loadFileSig(m_commandline_file);
-        else if (Preferences::loadLastOpenedFile || m_auto_restart)
+        else if (Preferences::loadLastOpenedFile || m_application_restart)
             emit gui->loadLastOpenedFileSig();
 
 #ifndef DISABLE_UPDATE_CHECK
@@ -1520,9 +1520,9 @@ static int lpub3dMonitorMain(int &argc, char **argv)
 #endif
       if (abend) {
 #if defined(Q_OS_WIN32)
-         proc.setNativeArguments(args + " " + RESTART_TRIGGER);
+         proc.setNativeArguments(args + " " + RESTART_NOTICE);
 #else
-         proc.setArguments(QStringList(args) << RESTART_TRIGGER);
+         proc.setArguments(QStringList(args) << RESTART_NOTICE);
 #endif
          proc.start();                               // restart the app if the app crashed
       } else

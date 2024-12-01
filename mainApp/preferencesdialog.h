@@ -127,7 +127,7 @@ class PreferencesDialog : public QDialog
     bool          printDocumentTOC();
     bool          doNotShowPageProcessDlg();
     bool          loadLastOpenedFile();
-    bool          restoreLastOpenedPage();
+    bool          loadLastDisplayedPage();
     bool          extendedSubfileSearch();
     bool          centimeters();
     bool          applyCALocally();

@@ -476,7 +476,7 @@ bool    Preferences::addLSynthSearchDir         = false;
 bool    Preferences::excludeModelsSearchDir     = false;
 bool    Preferences::skipPartsArchive           = false;
 bool    Preferences::loadLastOpenedFile         = false;
-bool    Preferences::restoreLastOpenedPage      = false;
+bool    Preferences::loadLastDisplayedPage      = false;
 bool    Preferences::extendedSubfileSearch      = false;
 bool    Preferences::searchOfficialModels       = true;
 bool    Preferences::searchOfficialParts        = false;
@@ -4135,12 +4135,12 @@ void Preferences::userInterfacePreferences()
       loadLastOpenedFile = Settings.value(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey)).toBool();
   }
 
-  QString const restoreLastOpenedPageKey("RestoreLastOpenedPage");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,restoreLastOpenedPageKey))) {
-     QVariant uValue(restoreLastOpenedPage);
-     Settings.setValue(QString("%1/%2").arg(SETTINGS,restoreLastOpenedPageKey),uValue);
+  QString const loadLastDisplayedPageKey("LoadLastDisplayedPage");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,loadLastDisplayedPageKey))) {
+     QVariant uValue(loadLastDisplayedPage);
+     Settings.setValue(QString("%1/%2").arg(SETTINGS,loadLastDisplayedPageKey),uValue);
   } else {
-     restoreLastOpenedPage = Settings.value(QString("%1/%2").arg(SETTINGS,restoreLastOpenedPageKey)).toBool();
+     loadLastDisplayedPage = Settings.value(QString("%1/%2").arg(SETTINGS,loadLastDisplayedPageKey)).toBool();
   }
 
   QString const extendedSubfileSearchKey("ExtendedSubfileSearch");
@@ -6164,10 +6164,10 @@ bool Preferences::getPreferences()
                                   .arg(loadLastOpenedFile ? On : Off));
         }
 
-        if (restoreLastOpenedPage != dialog->restoreLastOpenedPage())
+        if (loadLastDisplayedPage != dialog->loadLastDisplayedPage())
         {
-            restoreLastOpenedPage = dialog->restoreLastOpenedPage();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"RestoreLastOpenedPage"),restoreLastOpenedPage);
+            loadLastDisplayedPage = dialog->loadLastDisplayedPage();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LoadLastDisplayedPage"),loadLastDisplayedPage);
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Restore Last Opened Page on Restart is %1")
                                   .arg(loadLastOpenedFile ? On : Off));
         }

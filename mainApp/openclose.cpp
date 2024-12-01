@@ -556,23 +556,31 @@ void Gui::openWith()
     gui->openWith(file);
 }
 
+void Gui::loadLastOpenedFile() {
+  Gui::m_lastDisplayedPage = Preferences::loadLastDisplayedPage;
+  bool debug = m_lastDisplayedPage;
+  Q_UNUSED(debug)
+  gui->updateRecentFileActions();
+  int const fileIndex = 0;
+  QAction *fileAction = recentFilesActs[fileIndex];
+  if (fileAction) {
+    QString const recentFile = fileAction->data().toString();
+    if (QFileInfo(recentFile).isReadable()) {
+      gui->loadFile(recentFile);
+    }
+  }
+}
+
 void Gui::openRecentFile()
 {
   QAction *action = qobject_cast<QAction *>(sender());
   if (action) {
     fileLoadTimer.start();
     QString fileName = action->data().toString();
-    QFileInfo fileInfo(fileName);
-    if (!gui->openFile(fileName))
-        return;
-    Paths::mkDirs();
-    Gui::displayPage();
-    gui->enableActions();
-    emit lpub->messageSig(LOG_STATUS, tr("Loaded LDraw file %1 (%2 pages, %3 parts). %4")
-                                         .arg(fileInfo.fileName())
-                                         .arg(Gui::maxPages)
-                                         .arg(lpub->ldrawFile.getPartCount())
-                                         .arg(Gui::elapsedTime(fileLoadTimer.elapsed())));
+    QString const recentFile = action->data().toString();
+    if (QFileInfo(recentFile).isReadable()) {
+      gui->loadFile(recentFile);
+    }
   }
 }
 
@@ -599,6 +607,14 @@ bool Gui::loadFile(const QString &file, bool console)
         gui->resetModelCache(QFileInfo(file).absoluteFilePath(), console);
     }
 
+    if (Preferences::modeGUI) {
+        QSettings Settings;
+        if (Settings.contains(QString("%1/%2").arg(RESTART, RESTART_APPLICATION_KEY))) {
+            Gui::m_lastDisplayedPage = Preferences::loadLastDisplayedPage;
+            Settings.remove(QString("%1/%2").arg(RESTART, RESTART_APPLICATION_KEY));
+        }
+    }
+
     bool fileLoaded = false;
     QString fileName = file;
     QFileInfo fileInfo(fileName);
@@ -606,7 +622,7 @@ bool Gui::loadFile(const QString &file, bool console)
         fileLoadTimer.start();
         if (!openFile(fileName)) {
             emit gui->fileLoadedSig(false);
-            Gui::m_autoRestart = false;
+            Gui::m_lastDisplayedPage = false;
             return false;
         }
         Paths::mkDirs();
@@ -623,7 +639,7 @@ bool Gui::loadFile(const QString &file, bool console)
     }
 
     emit gui->fileLoadedSig(fileLoaded);
-    Gui::m_autoRestart = false;
+    Gui::m_lastDisplayedPage = false;
     return fileLoaded;
 }
 
@@ -1216,18 +1232,6 @@ void Gui::setCurrentFile(const QString &fileName)
     Settings.setValue(QString("%1/%2").arg(SETTINGS,LPUB3D_RECENT_FILES_KEY), files);
   }
   gui->updateRecentFileActions();
-}
-
-void Gui::loadLastOpenedFile() {
-  gui->updateRecentFileActions();
-  int const fileIndex = 0;
-  QAction *fileAction = recentFilesActs[fileIndex];
-  if (fileAction) {
-    QString const recentFile = fileAction->data().toString();
-    if (QFileInfo(recentFile).isReadable()) {
-      gui->loadFile(recentFile);
-    }
-  }
 }
 
 void Gui::reloadFromDisk()

@@ -426,7 +426,7 @@ void PreferencesDialog::setPreferences()
   ui.pageDisplayPauseSpin->setValue(             Preferences::pageDisplayPause);
 
   ui.loadLastOpenedFileCheck->setChecked(        Preferences::loadLastOpenedFile);
-  ui.restoreLastOpenedPageCheck->setChecked(     Preferences::restoreLastOpenedPage);
+  ui.loadLastDisplayedPageCheck->setChecked(     Preferences::loadLastDisplayedPage);
   ui.extendedSubfileSearchCheck->setChecked(     Preferences::extendedSubfileSearch);
   ui.ldrawFilesLoadMsgsCombo->setCurrentIndex(   Preferences::ldrawFilesLoadMsgs);
   ui.projectionCombo->setCurrentIndex(           Preferences::perspectiveProjection ? 0 : 1);
@@ -2058,9 +2058,9 @@ bool PreferencesDialog::loadLastOpenedFile()
   return ui.loadLastOpenedFileCheck->isChecked();
 }
 
-bool PreferencesDialog::restoreLastOpenedPage()
+bool PreferencesDialog::loadLastDisplayedPage()
 {
-  return ui.restoreLastOpenedPageCheck->isChecked();
+  return ui.loadLastDisplayedPageCheck->isChecked();
 }
 
 bool PreferencesDialog::extendedSubfileSearch()

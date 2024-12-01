@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>644</width>
+    <width>636</width>
     <height>660</height>
    </rect>
   </property>
@@ -263,19 +263,28 @@
              </spacer>
             </item>
             <item>
-             <widget class="QCheckBox" name="restoreLastOpenedPageCheck">
+             <widget class="QCheckBox" name="loadLastDisplayedPageCheck">
               <property name="toolTip">
-               <string>On automatic restart, restore last opened file at last page number</string>
+               <string>Load the last displayed page when loading the last opened file</string>
               </property>
               <property name="text">
-               <string>Restore Last Opened Page On Restart</string>
+               <string>Load Last Displayed Page</string>
               </property>
              </widget>
             </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_32">
+            <item>
+             <spacer name="horizontalSpacer_18">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
             <item>
              <widget class="QLabel" name="label_20">
               <property name="toolTip">
@@ -324,6 +333,10 @@
               </item>
              </widget>
             </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_32">
             <item>
              <widget class="QCheckBox" name="extendedSubfileSearchCheck">
               <property name="sizePolicy">
@@ -3853,7 +3866,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>altLDConfigPath</tabstop>
   <tabstop>browseAltLDConfig</tabstop>
   <tabstop>loadLastOpenedFileCheck</tabstop>
-  <tabstop>restoreLastOpenedPageCheck</tabstop>
+  <tabstop>loadLastDisplayedPageCheck</tabstop>
   <tabstop>ldrawFilesLoadMsgsCombo</tabstop>
   <tabstop>extendedSubfileSearchCheck</tabstop>
   <tabstop>extendedSearchOptionsBtn</tabstop>

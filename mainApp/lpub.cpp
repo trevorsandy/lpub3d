@@ -157,7 +157,7 @@ bool         Gui::m_contPageProcessing;   // indicate continuous page processing
 bool         Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
 bool         Gui::m_partListCSIFile;      // processing part list CSI file
 bool         Gui::m_abort;                // set to true when response to critcal error is abort
-bool         Gui::m_autoRestart;          // flag to check last display page number
+bool         Gui::m_lastDisplayedPage;    // flag to check last display page number
 bool         Gui::m_previewDialog;
 
 bool         Gui::doFadeStep;
@@ -171,7 +171,7 @@ int          Gui::m_saveExportMode;       // saved export mode used when exporti
 QString      Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
 
 RendererData Gui::savedRendererData;      // store current renderer data when temporarily switching renderer;
-QMap<int, PageSizeData> Gui::pageSizes;  // page size and orientation object
+QMap<int, PageSizeData> Gui::pageSizes;   // page size and orientation object
 
 /***********************************************************************
  * set Native renderer for fast processing
@@ -426,32 +426,31 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   int goToPageNum = inputPageNum;
 
   // check if possible to load last opened page
-  if (Preferences::restoreLastOpenedPage && Preferences::modeGUI) {
+  if (Gui::m_lastDisplayedPage && Preferences::modeGUI) {
     QSettings Settings;
-    const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : RESTART_DISPLAY_PAGE_NUM_KEY;
-    if (Settings.contains(QString("%1/%2").arg(RESTART, pageNumKey))) {
-      bool wasExporting = false;
-      if (Gui::m_autoRestart)
-        wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY))) {
+      bool wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
       if (!wasExporting)
-        goToPageNum = Settings.value(QString("%1/%2").arg(RESTART, pageNumKey)).toInt();
+        goToPageNum = Settings.value(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)).toInt();
     }
   }
 
-  int move = 0;
+  PageDirection move = DIRECTION_NOT_SET;
   int notAtStartOfPages = (Gui::displayPageNum > 1 + Gui::pa || goToPageNum > 1 + Gui::pa);
 
-  auto setDirection = [&] (int &move)
+  auto setDirection = [&] (PageDirection &move)
   {
-    move = goToPageNum - Gui::displayPageNum;
-    if (move == 1)
-      Gui::pageDirection = PAGE_NEXT;
-    else if (move > 1)
-      Gui::pageDirection = PAGE_JUMP_FORWARD;
-    else if (move == -1)
-      Gui::pageDirection = PAGE_PREVIOUS;
-    else if (move < -1)
-      Gui::pageDirection = PAGE_JUMP_BACKWARD;
+    int movement = goToPageNum - Gui::displayPageNum;
+    if (movement == 1)
+      move = PAGE_NEXT;
+    else if (movement > 1)
+      move = PAGE_JUMP_FORWARD;
+    else if (movement == -1)
+      move = PAGE_PREVIOUS;
+    else if (movement < -1)
+      move = PAGE_JUMP_BACKWARD;
+    Gui::pageDirection = move;
+    return movement;
   };
 
   auto cycleDisplay = [&] ()
@@ -474,19 +473,20 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   bool saveCycleEachPage = Preferences::cycleEachPage;
   PageDirection operation = FILE_DEFAULT;
 
-  if (!silent || fileReload || Gui::m_autoRestart) {
+  if (!silent || fileReload) {
     // if dialog or fileReload is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0) do not cycle
-    int cycleEachPage = Preferences::cycleEachPage || fileReload || Gui::m_autoRestart;
-    if (!cycleEachPage && notAtStartOfPages) {
+    PageDirection cycleEachPage = DIRECTION_NOT_SET;
+    if (notAtStartOfPages && !(Preferences::cycleEachPage || fileReload)) {
       const QString directionName[] = {
         tr("Next"),
         tr("Jump Forward"),
         tr("Previous"),
         tr("Jump Backward")
       };
-      setDirection(move);
+
       // On page update, (move = 0), subtract first page from displayPageNum.
-      int pages = move ? qAbs(move) : Gui::displayPageNum - (1 + Gui::pa);
+      int movement = setDirection(move);
+      int pages = movement ? qAbs(movement) : Gui::displayPageNum - (1 + Gui::pa);
       const QString message = tr("Cycle each of the %1 pages for the model file %2 %3 ?")
                                  .arg(pages)
                                  .arg(directionName[Gui::pageDirection-1].toLower())
@@ -495,17 +495,17 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
                                             .arg(VER_PRODUCTNAME_STR)
                                             .arg(directionName[Gui::pageDirection-1]), message, nullptr);
       if (result == CycleYes)
-        cycleEachPage = 1; // FILE_RELOAD
+        cycleEachPage = FILE_RELOAD;
       else if (result == CycleNo)
-        cycleEachPage = 0; // FILE_DEFAULT
+        cycleEachPage = FILE_DEFAULT;
       else if (result == CycleCancel)
         return;
     }
 
-    if (cycleEachPage) {
-      Preferences::setCyclePageDisplay(cycleEachPage);
+    if (cycleEachPage > DIRECTION_NOT_SET) {
       if (Preferences::buildModEnabled)
-        cycleEachPage = PAGE_JUMP_FORWARD;
+        cycleEachPage = move;
+      Preferences::setCyclePageDisplay(cycleEachPage);
     }
 
     operation = PageDirection(cycleEachPage);
@@ -516,11 +516,12 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   if (operation == FILE_RELOAD) {
     int savePage = Gui::displayPageNum;
     if (gui->openFile(Gui::curFile)) {
-      goToPageNum = Gui::pa ? savePage + Gui::pa : savePage;
+      if (!Gui::m_lastDisplayedPage)
+          goToPageNum = Gui::pa ? savePage + Gui::pa : savePage;
       Gui::displayPageNum = 1 + Gui::pa;
-      if (!move)
+      if (move == DIRECTION_NOT_SET)
         setDirection(move);
-      if (move > 1) {
+      if (move > PAGE_NEXT) {
         cycleDisplay();
         gui->enableActions();
       } else {
@@ -529,9 +530,9 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
       }
     }
   } else {
-    if (!move)
+    if (move == DIRECTION_NOT_SET)
       setDirection(move);
-    if (move > 1 && Preferences::cycleEachPage) {
+    if (move > PAGE_NEXT && (Preferences::cycleEachPage || Preferences::buildModEnabled)) {
       cycleDisplay();
     } else {
       Gui::displayPageNum = goToPageNum;
@@ -594,12 +595,8 @@ void Gui::enableNavigationActions(bool enable)
 void Gui::restartAutoSave()
 {
     QSettings Settings;
-
-    QVariant displayPageNum(Gui::displayPageNum);
-    Settings.setValue(QString("%1/%2").arg(RESTART,RESTART_PAGE_NUM_KEY), displayPageNum);
-
-    QVariant exporting(Gui::exporting());
-    Settings.setValue(QString("%1/%2").arg(RESTART,RESTART_EXPORTING_KEY), exporting);
+    Settings.setValue(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY), QVariant(Gui::exporting()));
+    Settings.setValue(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY), QVariant(Gui::displayPageNum));
 }
 
 void Gui::pageProcessUpdate()
@@ -861,20 +858,15 @@ bool Gui::continuousPageDialog(PageDirection d)
 
   if (Preferences::modeGUI) {
       // check if possible to load last opened page
-      if (Preferences::restoreLastOpenedPage) {
+      if (Gui::m_lastDisplayedPage) {
           QSettings Settings;
-          const char *pageNumKey = Gui::m_autoRestart ? RESTART_PAGE_NUM_KEY : RESTART_DISPLAY_PAGE_NUM_KEY;
-          if (Settings.contains(QString("%1/%2").arg(RESTART, pageNumKey))) {
-              bool wasExporting = false;
-              if (Gui::m_autoRestart)
-                  wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
+          if (Settings.contains(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY))) {
+              bool wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
               if (!wasExporting) {
-                  goToPageNum = Settings.value(QString("%1/%2").arg(RESTART, pageNumKey)).toInt();
+                  goToPageNum = Settings.value(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)).toInt();
                   pageLineEditText = QString("%1-%2").arg(Gui::displayPageNum).arg(goToPageNum);
                   displayPause = PAGE_CYCLE_DISPLAY_DEFAULT;
                   Preferences::doNotShowPageProcessDlg = true;
-                  if (!Gui::m_autoRestart)
-                      Settings.remove(QString("%1/%2").arg(RESTART, RESTART_DISPLAY_PAGE_NUM_KEY));
               }
           }
       }
@@ -1780,21 +1772,21 @@ void  Gui::restartApplication(bool changeLibrary, bool prompt) {
     if (prompt && QMessageBox::question(gui, tr(VER_PRODUCTNAME_STR),
                                         tr("%1 must restart. Do you want to continue ?")
                                         .arg(VER_PRODUCTNAME_STR),
-                                        QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
+                                        QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
         return;
-    }
+
     QStringList args;
-    if (! changeLibrary && ! Gui::getCurFile().isEmpty()) {
-        args = QApplication::arguments();
-        args.removeFirst();
-        if (!args.contains(Gui::getCurFile(),Qt::CaseInsensitive))
-            args << Gui::getCurFile();
-        QSettings Settings;
-        Settings.setValue(QString("%1/%2").arg(RESTART,RESTART_DISPLAY_PAGE_NUM_KEY),Gui::displayPageNum);
-    } else {
+    if (changeLibrary)
         args << (Preferences::validLDrawLibraryChange == LEGO_LIBRARY  ? "++liblego" :
                  Preferences::validLDrawLibraryChange == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
+    else {
+        args = QApplication::arguments();
+        args.removeFirst();
+        args << RESTART_NOTICE;
+        QSettings Settings;
+        Settings.setValue(QString("%1/%2").arg(RESTART, RESTART_APPLICATION_KEY),QVariant(true));
     }
+
     QProcess::startDetached(QApplication::applicationFilePath(), args);
     emit gui->messageSig(LOG_INFO, tr("Restarted %1 with Command: %2 %3")
                             .arg(VER_PRODUCTNAME_STR).arg(QApplication::applicationFilePath()).arg(args.join(" ")));
@@ -3717,15 +3709,6 @@ void Gui::initialize()
   connect(this, SIGNAL(parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)),
           this, SLOT(  parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)));
 
-#if defined AUTO_RESTART && AUTO_RESTART == 1
-  if (Preferences::modeGUI) {
-    Gui::m_autoRestart = false;
-    // not yet needed - we can 'autoSave' the current page number from displayPage()
-    //restartTimer.setInterval(30000); // 30 second interval
-    //restartTimer.start();
-    //connect(&restartTimer, &QTimer::timeout, this, &Gui::restartAutoSave);
-  }
-#endif
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
 //      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
@@ -4891,7 +4874,7 @@ void Gui::exportMetaCommands()
 }
 
 void Gui::createOpenWithActions(int maxPrograms)
-{        
+{
     // adjust for separator and system editor
     const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
     const int maxOpenWithPrograms = maxPrograms ? maxPrograms + systemEditor : Preferences::maxOpenWithPrograms + systemEditor;
@@ -6083,7 +6066,7 @@ void Gui::createActions()
     // Help
     QAction *aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About %1...").arg(VER_PRODUCTNAME_STR), gui);
     aboutAct->setObjectName("aboutAct.1");
-	aboutAct->setShortcut(QStringLiteral("Ctrl+Alt+V"));
+    aboutAct->setShortcut(QStringLiteral("Ctrl+Alt+V"));
     aboutAct->setStatusTip(tr("Display version, system and build information"));
     lpub->actions.insert(aboutAct->objectName(), Action(QStringLiteral("Help.About"), aboutAct));
     connect(aboutAct, SIGNAL(triggered()), gui, SLOT(aboutDialog()));

@@ -549,10 +549,10 @@ public:
 
   static bool continuousPageDialog(PageDirection d);
 
-  static void setAutoRestart(bool b)
+  static void setLoadLastDisplayedPage(bool b)
   {
-      if (Preferences::modeGUI)
-          Gui::m_autoRestart = b;
+      if (Preferences::modeGUI && Preferences::loadLastDisplayedPage)
+          Gui::m_lastDisplayedPage = b;
   }
 
   /* We need to send ourselves these, to eliminate recursion and the model
@@ -1722,7 +1722,7 @@ private:
   static bool            m_contPageProcessing;   // indicate continuous page processing underway
   static bool            m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
   static bool            m_abort;                // set to true when response to critcal error is abort
-  static bool            m_autoRestart;          // flag to check last display page number
+  static bool            m_lastDisplayedPage;    // flag to check last display page number
 
   static int             boms;                   // the number of pli BOMs in the document
   static int             bomOccurrence;          // the actual occurrence of each pli BOM
