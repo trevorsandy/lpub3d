@@ -1011,7 +1011,8 @@ int Gui::drawPage(
                     bool calloutPliPerStep = callout->meta.LPub.pli.show.value() &&
                             callout->meta.LPub.callout.pli.perStep.value();
 
-                    buildModPliIgnore = calloutPliPerStep || pliIgnore || excludedPart;
+                    if (Preferences::buildModEnabled)
+                        buildModPliIgnore = calloutPliPerStep || pliIgnore || excludedPart;
 
                     if (! calloutPliPerStep && ! excludedPart && ! pliIgnore && ! buildModPliIgnore && ! partIgnore && ! synthBegin && calloutMode == CalloutBeginMeta::Unassembled) {
                         opts.pliParts += calloutParts;

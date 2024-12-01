@@ -1,4 +1,4 @@
-LPub3D 2.4.8.180.3903 (01 12 2024 18:02:36)
+LPub3D 2.4.8.181.3904 (01 12 2024 18:03:44)
 
 Features, enhancements, fixes and changes
 ------------
@@ -31,6 +31,7 @@ Revisions:
 - Fix - macOS app execution blocked because of invalid code signature #783
 - Fix - Message reset dialog does not show the number of messages to reset #785
 - Fix - Parts in PLI are not always drawn on model #780
+- Fix - Part placed after CALLOUT does not display in the PLI #793
 - Fix - TopOfStep modelIndex below model start #778
 - Fix - Treat submodel as substitute part error #747
 
