@@ -804,12 +804,13 @@ QMAKE_CFLAGS_WARN_ON += \
 macx {
 
 QMAKE_CFLAGS_WARN_ON += \
+    -Wall -W \
     -Wno-deprecated-copy \
+    -Wno-deprecated-declarations \
     -Wno-overloaded-virtual \
     -Wno-self-assign \
     -Wno-sometimes-uninitialized \
-    -Wno-unused-result \
-    -Wno-deprecated-declarations
+    -Wno-unused-result
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 
 } else: win32 {

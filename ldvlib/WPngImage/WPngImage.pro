@@ -102,9 +102,9 @@ include(WPngImage.pri)
 !win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
     -Wall -W \
-    -Wno-sign-compare \
     -Wno-deprecated-copy \
+    -Wno-deprecated-declarations \
+    -Wno-sign-compare \
     -Wno-overloaded-virtual
-
 QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
 }

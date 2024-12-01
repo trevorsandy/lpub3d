@@ -94,7 +94,10 @@ include(ldrawini.pri)
 
 # Suppress warnings
 !win32-msvc* {
-QMAKE_CFLAGS_WARN_ON += -Wall -W \
+QMAKE_CFLAGS_WARN_ON += \
+    -Wall -W \
+    -Wno-deprecated-copy \
+    -Wno-deprecated-declarations \
     -Wno-sign-compare
 QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
 }

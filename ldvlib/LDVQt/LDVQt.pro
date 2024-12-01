@@ -281,7 +281,9 @@ QMAKE_CFLAGS_WARN_ON += \
 }
 macx {
 QMAKE_CFLAGS_WARN_ON += \
+     -Wall -W \
      -Wno-deprecated-copy \
+     -Wno-deprecated-declarations \
      -Wno-for-loop-analysis \
      -Wno-implicit-function-declaration \
      -Wno-incompatible-pointer-types \
@@ -325,10 +327,12 @@ QMAKE_CFLAGS_WARN_ON +=  \
 }
 
 macx {
-QMAKE_CFLAGS_WARN_ON += \
-      -Wno-deprecated-copy \
-      -Wno-overloaded-virtual \
 
+QMAKE_CFLAGS_WARN_ON += \
+      -Wall -W \
+      -Wno-deprecated-copy \
+      -Wno-deprecated-declarations \
+      -Wno-overloaded-virtual
 QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
 
 QMAKE_CFLAGS_WARN_ON += \
