@@ -208,9 +208,9 @@ public:
 		UpdateMesh();
 	}
 
-	bool IsTrainTrackConnectionVisible(int ConnectionIndex) const
+	bool IsTrainTrackConnected(int ConnectionIndex) const
 	{
-		return !mTrainTrackConnections[ConnectionIndex];
+		return mTrainTrackConnections[ConnectionIndex];
 	}
 
 	void SetTrainTrackConnections(std::vector<bool>&& Connections)
@@ -433,7 +433,7 @@ protected:
 
 	bool AreTrainTrackConnectionsVisible() const
 	{
-		return IsSelected();
+		return IsFocused();
 	}
 
 	void DrawTrainTrackInterface(lcContext* Context, const lcMatrix44& WorldMatrix) const;
