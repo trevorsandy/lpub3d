@@ -35,14 +35,14 @@ class RotateIconSizeDialog : public QDialog
 public:
 
   RotateIconSizeDialog(
-    float           goods[],
+    float           goods[2],
     QString          name,
     QWidget         *parent);
 
   virtual ~RotateIconSizeDialog();
 
   static bool getRotateIconSize(
-    float          goods[],
+    float          goods[2],
     QString        name,
     QWidget       *parent = 0);
 
