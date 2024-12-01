@@ -429,7 +429,7 @@ int Gui::drawPage(
     QElapsedTimer pageRenderTimer;
     pageRenderTimer.start();
 
-    LGraphicsView *view = opts.printing ? view = &gui->KexportView : view =  gui->KpageView;
+    LGraphicsView *view = opts.printing ? &gui->KexportView : gui->KpageView;
 
     QRegExp partTypeLineRx("(^[1-5]\\s+)|(\\bBEGIN SUB\\b)");
     QStringList configuredCsiParts; // fade and highlight configuration
