@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 21, 2024
+# Last Update November 30, 2024
 #
 # This script is called from .github/workflows/codeql.yml
 #
@@ -238,6 +238,24 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
   else
     echo "Directory ${LDRAWDIR} exists. Nothing to do."
   fi
+
+  # Trigger rebuild renderers if specified
+  LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
+  ldglite_path=${LP3D_DIST_DIR_PATH}/ldglite-1.3
+  ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.5
+  povray_path=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8
+  [[ "${LP3D_COMMIT_MSG}" == *"ALL_RENDERERS"* ]] && \
+  echo "'Build LDGLite, LDView and POV-Ray' detected." && \
+  LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG} BUILD_LDGLITE BUILD_LDVIEW BUILD_POVRAY" || :
+  [[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDGLITE"* ]] && \
+  echo "'Build LDGLite' detected." && [ -d "${ldglite_path}" ] && \
+  rm -rf "${ldglite_path}" && echo "Cached ${ldglite_path} deleted" || :
+  [[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDVIEW"* ]] && \
+  echo "'Build LDView' detected." && [ -d "${ldview_path}" ] && \
+  rm -rf "${ldview_path}" && echo "Cached ${ldview_path} deleted" || :
+  [[ "${LP3D_COMMIT_MSG}" == *"BUILD_POVRAY"* ]] && \
+  echo "'Build POV-Ray' detected." && [ -d "${povray_path}" ] && \
+  rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 
   # Build renderers LDGLite, LDView, and POV-Ray
   chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh

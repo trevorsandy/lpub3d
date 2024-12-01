@@ -52,6 +52,7 @@ jobs:
           test -d ${{ env.LP3D_3RD_PARTY_PATH }} && ls -aldFR ${{ env.LP3D_3RD_PARTY_PATH }} || true
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
       - name: Initialize
         uses: github/codeql-action/init@v3
         with:
