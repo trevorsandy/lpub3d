@@ -448,6 +448,8 @@ bool    Preferences::finalModelEnabled          = true;
 bool    Preferences::editorHighlightLines       = false;
 bool    Preferences::editorLoadSelectionStep    = true;
 bool    Preferences::editorPreviewOnDoubleClick = true;
+bool    Preferences::editorCyclePagesOnUpdate   = true;
+bool    Preferences::editorCyclePagesOnUpdateDialog = true;
 bool    Preferences::editorTabLock              = false;
 bool    Preferences::inlineNativeContent        = true;
 bool    Preferences::useSystemTheme             = true;
@@ -3705,6 +3707,22 @@ void Preferences::editorPreferences()
         editorHighlightLines = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines")).toBool();
     }
 
+    // Remember cycle pages on update dialog choice - Yes=true, No=false
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorCyclePagesOnUpdate"))) {
+        QVariant uValue(editorCyclePagesOnUpdate);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorCyclePagesOnUpdate"),uValue);
+    } else {
+        editorCyclePagesOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorCyclePagesOnUpdate")).toBool();
+    }
+
+    // Show cycle pages on Update dialog - Show=true. Hide=false
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorCyclePagesOnUpdateDialog"))) {
+        QVariant uValue(editorCyclePagesOnUpdateDialog);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorCyclePagesOnUpdateDialog"),uValue);
+    } else {
+        editorCyclePagesOnUpdateDialog = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorCyclePagesOnUpdateDialog")).toBool();
+    }
+
     // Load the first step (on multi-line select) of selected lines in the Visual Editor
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"))) {
         QVariant uValue(editorLoadSelectionStep);
@@ -4530,6 +4548,20 @@ int  Preferences::showMessage(
     Preferences::messageBoxAdjustWidth(qobject_cast<QMessageBox*>(&box), title, message);
 
     return box.exec();
+}
+
+void Preferences::setEditorCyclePagesOnUpdate(bool b)
+{
+    QSettings Settings;
+    editorCyclePagesOnUpdate = b;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorCyclePagesOnUpdate"),QVariant(b));
+}
+
+void Preferences::setEditorCyclePagesOnUpdateDialog(bool b)
+{
+    QSettings Settings;
+    editorCyclePagesOnUpdateDialog = b;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorCyclePagesOnUpdateDialog"),QVariant(b));
 }
 
 void Preferences::setShowSaveOnRedrawPreference(bool b)

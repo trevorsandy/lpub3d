@@ -39,6 +39,7 @@
 #include <atomic>
 
 #include "declarations.h"
+#include "qaction.h"
 
 class QAbstractItemModel;
 class QCompleter;
@@ -88,7 +89,16 @@ public:
     {
         return stepLines.bottom;
     }
-    bool updateEnabled();
+
+    bool updateEnabled()
+    {
+        return updateAct->isEnabled();
+    }
+
+    void setUpdateEnabled(bool b)
+    {
+        updateAct->setEnabled(b);
+    }
 
     QToolBar *editToolBar;
     QToolBar *toolsToolBar;

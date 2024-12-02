@@ -234,18 +234,21 @@ public:
   CycleDialog(
               QString  title,
               QString  question,
+              bool isEditor,
               QWidget *parent);
  ~CycleDialog();
-  static int getCycle(
+  static CyclePageDlgType getCycle(
                 QString  title,
                 QString  question,
+                bool isEditor,
                 QWidget *parent);
 private slots:
-  virtual void cancel();
-  virtual void reject();
+  void buttonClicked(QAbstractButton *button);
 
 private:
-  static int cycleResult;
+  QDialogButtonBox *buttonBox;
+  CyclePageDlgType cycleResult;
+  bool rememberEditorCycleChoice;
 };
 
 class OptionDialog : public QDialog

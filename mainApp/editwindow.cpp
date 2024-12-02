@@ -561,7 +561,7 @@ void EditWindow::createActions()
     redrawAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Redraw"), this);
     redrawAct->setObjectName("redrawAct.2");
     redrawAct->setShortcut(QStringLiteral("Ctrl+R"));
-    redrawAct->setStatusTip(tr("Redraw page, reset model caches"));
+    redrawAct->setStatusTip(tr("Redraw page and reset model caches"));
     lpub->actions.insert(redrawAct->objectName(), Action(QStringLiteral("Edit.Redraw"), redrawAct));
     connect(redrawAct, SIGNAL(triggered()), this, SLOT(redraw()));
 
@@ -2272,11 +2272,6 @@ void EditWindow::showLine(int lineNumber, int lineType)
   pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
 }
 
-bool EditWindow::updateEnabled()
-{
-    return updateAct->isEnabled();
-}
-
 void EditWindow::updateDisabled(bool state)
 {
     if (sender() == saveAct) {
@@ -2666,10 +2661,13 @@ void EditWindow::preferences()
     bool editorBufferedPaging       = Preferences::editorBufferedPaging;
     bool editorHighlightLines       = Preferences::editorHighlightLines;
     bool editorLoadSelectionStep    = Preferences::editorLoadSelectionStep;
+
     QString editorFont              = Preferences::editorFont;
     QString change;
     // modelFileEdit() only
     bool editorPreviewOnDoubleClick = Preferences::editorPreviewOnDoubleClick;
+
+    bool editorCyclePagesOnUpdateDialog = Preferences::editorCyclePagesOnUpdateDialog;
 
     auto showMessage = [&windowTitle] (const QString change) {
         QMessageBoxResizable box;
@@ -2738,6 +2736,17 @@ void EditWindow::preferences()
     editorLinesPerPageSpin->setToolTip(tr("Set lines per page between %1 and %2 to optimize scrolling.").arg(EDITOR_MIN_LINES_DEFAULT).arg(EDITOR_MAX_LINES_DEFAULT));
     editorBufferedPagingSubform->addRow(editorLinesPerPageLabel, editorLinesPerPageSpin);
 
+    // options - cycle pages on update dialog
+    QGroupBox *editorCyclePagesOnUpdateDialogGrpBox = new QGroupBox(tr("Cycle Pages Dialog"));
+    form->addWidget(editorCyclePagesOnUpdateDialogGrpBox);
+    QFormLayout *editorCyclePagesOnUpdateDialogSubform = new QFormLayout(editorCyclePagesOnUpdateDialogGrpBox);
+
+    QCheckBox *editorCyclePagesOnUpdateDialogChkBox = nullptr;
+    editorCyclePagesOnUpdateDialogChkBox = new QCheckBox(tr("Show Cycle Pages On Update Dialog"), dialog);
+    editorCyclePagesOnUpdateDialogChkBox->setToolTip(tr("Check to display the dialog on page update."));
+    editorCyclePagesOnUpdateDialogChkBox->setChecked(editorCyclePagesOnUpdateDialog);
+    editorCyclePagesOnUpdateDialogSubform->addRow(editorCyclePagesOnUpdateDialogChkBox);
+
     // options - selected lines
     QCheckBox *editorHighlightLinesBox = nullptr;
     QCheckBox *editorLoadSelectionStepBox = nullptr;
@@ -2763,7 +2772,6 @@ void EditWindow::preferences()
         editorPreviewOnDoubleClickBox->setChecked(editorHighlightLines);
         editorSelectedItemsSubform->addRow(editorPreviewOnDoubleClickBox);
     } // ! modelFileEdit()
-
 
     // options - button box
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -2813,6 +2821,12 @@ void EditWindow::preferences()
         if (editorLinesPerPage != Preferences::editorLinesPerPage) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLinesPerPage"),Preferences::editorLinesPerPage);
             emit lpub->messageSig(LOG_INFO,tr("Buffered lines par page changed from %1 to %2").arg(editorLinesPerPage).arg(Preferences::editorLinesPerPage));
+        }
+
+        if (editorCyclePagesOnUpdateDialog != editorCyclePagesOnUpdateDialogChkBox->isChecked()) {
+            editorCyclePagesOnUpdateDialog = editorCyclePagesOnUpdateDialogChkBox->isChecked();
+            Preferences::setEditorCyclePagesOnUpdateDialog(editorCyclePagesOnUpdateDialog);
+            emit lpub->messageSig(LOG_INFO,tr("Show Cycle Pages On Update dialog changed is %1").arg(editorCyclePagesOnUpdateDialog ? "On" : "Off"));
         }
 
         if (! modelFileEdit()) {
