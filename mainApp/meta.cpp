@@ -4845,6 +4845,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
   int argc = argv.size() - index;
   QString originalColor;
   QString attributes = "undefined;";
+  QRegExp rx("^(ABS|REL|ADD)$");
   if (argc > 0) {
     if ((ldrawType = argv[argv.size() - 2] == "LDRAW_TYPE")) {
       // the last item is an ldrawType - specified when substitute is a generated part
@@ -4875,10 +4876,9 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
         newStep   = originalTypeLine.endsWith("STEP") ||
                     originalTypeLine.contains("ROTSTEP");
         // do we have reason to stop checking?
-        if (!validLine && !subEnd && !newStep) {
+        if (!validLine && !subEnd && !newStep)
           originalTypeLine =  configured ? lpub->ldrawFile.readConfiguredLine(lineBelow.modelName,lineBelow.lineNumber) :
                                            lpub->ldrawFile.readLine(lineBelow.modelName,lineBelow.lineNumber);
-        }
       }
 
       QStringList tokens;
@@ -4889,16 +4889,16 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
         originalColor  = tokens[1];
       } else if (Gui::pageProcessRunning != PROC_NONE) {
         here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
-        QString message = QString("Invalid substitute meta command.<br>"
-                                  "No valid parts between %1 and PLI END.<br>Got %2.")
-                                  .arg(argv.join(" ")).arg(originalTypeLine);
+        QString const message = QObject::tr("Invalid substitute meta command.<br>"
+                                            "No valid parts between %1 and PLI END.<br>Got %2.")
+                                            .arg(argv.join(" ")).arg(originalTypeLine);
         emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
       }
     }
   }
   if (argc > 1) {
-      _value.part  = argv[index];
-      _value.color = argv[index+1];
+    _value.part  = argv[index];
+    _value.color = argv[index+1];
   }
   if (argc == 1) {
     _value.part  = argv[index];
@@ -4919,61 +4919,42 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
     if (ok[0])
       _value.type = rc = PliBeginSub4Rc;;
   } else if (argc == 6) {
-    argv[index+2].toFloat(&ok[0]);
-    argv[index+3].toFloat(&ok[1]);
-    argv[index+4].toFloat(&ok[2]);
-    argv[index+5].toFloat(&ok[3]);
-    ok[0] &= ok[1] &= ok[2] &= ok[3];
+    int j = 0;
+    for (int i = index+2; i < index+6; i++) {
+        argv[i].toFloat(&ok[j]);j++; }
+    for (int i = 0; i < 4; i++) {
+        if (!ok[i]) ok[0] = false; break; }
     if (ok[0])
       _value.type = rc = PliBeginSub5Rc;
   } else if (argc == 9) {
-    argv[index+2].toFloat(&ok[0]);
-    argv[index+3].toFloat(&ok[1]);
-    argv[index+4].toFloat(&ok[2]);
-    argv[index+5].toFloat(&ok[3]);
-    argv[index+6].toFloat(&ok[4]);
-    argv[index+7].toFloat(&ok[5]);
-    argv[index+8].toFloat(&ok[6]);
-    ok[0] &= ok[1] &= ok[2] &=
-    ok[3] &= ok[4] &= ok[5] & ok[6];
+    int j = 0;
+    for (int i = index+2; i < index+9; i++) {
+      argv[i].toFloat(&ok[j]);j++; }
+    for (int i = 0; i < 7; i++) {
+      if (!ok[i]) ok[0] = false; break; }
     if (ok[0])
       _value.type = rc = PliBeginSub6Rc;      // target
   } else if (argc == 10) {;
-    argv[index+2].toFloat(&ok[0]);
-    argv[index+3].toFloat(&ok[1]);
-    argv[index+4].toFloat(&ok[2]);
-    argv[index+5].toFloat(&ok[3]);
-    argv[index+6].toFloat(&ok[4]);
-    argv[index+7].toFloat(&ok[5]);
-    argv[index+8].toFloat(&ok[6]);
-    ok[0] &= ok[1] &= ok[2] &=
-    ok[3] &= ok[4] &= ok[5] & ok[6];
-    QRegExp rx("^(ABS|REL|ADD)$");
+    int j = 0;
+    for (int i = index+2; i < index+9; i++) {
+      argv[i].toFloat(&ok[j]);j++; }
+    for (int i = 0; i < 7; i++) {
+      if (!ok[i]) ok[0] = false; break; }
     if (ok[0] && argv[index+9].contains(rx))
       _value.type = rc = PliBeginSub7Rc;       // Rotstep
   } else if (argc == 13) {
-    argv[index+ 2].toFloat(&ok[0]);
-    argv[index+ 3].toFloat(&ok[1]);
-    argv[index+ 4].toFloat(&ok[2]);
-    argv[index+ 5].toFloat(&ok[3]);
-    argv[index+ 6].toFloat(&ok[4]);
-    argv[index+ 7].toFloat(&ok[5]);
-    argv[index+ 8].toFloat(&ok[6]);
-    argv[index+ 9].toFloat(&ok[7]);
-    argv[index+10].toFloat(&ok[8]);
-    argv[index+11].toFloat(&ok[9]);
-    ok[0] &= ok[1] &= ok[2] &=
-    ok[3] &= ok[4] &= ok[5] &=
-    ok[6] &= ok[7] &= ok[8] & ok[9];
-    QRegExp rx("^(ABS|REL|ADD)$");
-    if (ok[0] && argv[index+9].contains(rx))
+    int j = 0;
+    for (int i = index+2; i < index+12; i++) {
+      argv[i].toFloat(&ok[j]);j++; }
+    for (int i = 0; i < 10; i++) {
+      if (!ok[i]) ok[0] = false; break; }
+    if (ok[0] && argv[index+12].contains(rx))
       _value.type = rc = PliBeginSub8Rc;     // target and rotstep
   }
   if (rc != FailureRc) {
     // add attributes - advance past part and color +2
-    for (int i = index+2; i < argv.size(); i++) {
+    for (int i = index+2; i < argv.size(); i++)
       attributes.append(argv.at(i)+";");
-    }
     // append line number to end of attributes - used by Pli::partLine()
     attributes.append(QString::number(here.lineNumber));
     _value.attrs     = attributes;

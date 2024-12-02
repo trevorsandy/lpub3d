@@ -3222,7 +3222,7 @@ int Native::renderPli(
   if (keySub || pliType == BOM) {
       cleanPngName.replace(";", "_");
       attributes = getImageAttributes(pngName);
-      if (attributes.size() >= nTypeNameKey)
+      if (attributes.size() >= nColorCode)
           nameKey = QString("%1_%2").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
   }
 

@@ -999,7 +999,7 @@ int Pli::createPartImage(
             altNameKey = nameKey;
         nameKeys[nType].replace(";", "_");
         nameKey.replace(";", "_");
-    } else if (bom)
+    } else if (keySub || bom)
         altNameKey = nameKey;
 
     // populate rotStep string from nameKeys - if exist
@@ -1059,10 +1059,10 @@ int Pli::createPartImage(
                                    .arg(nameKeys.at(nCameraAngleYY));// cameraAngles.value(Y)
 
         if (!targetPosition.isEmpty())
-            keyPart2.append(QString("_%1").arg(targetPosition));
+            keyPart2.append(QString("%1").arg(targetPosition));
 
         if (!rotStep.isEmpty())
-            keyPart2.append(QString("_%1").arg(rotStep));
+            keyPart2.append(QString("%1").arg(rotStep));
 
         emit gui->messageSig(LOG_INFO, QObject::tr("Generate PLI image for [%1] parts...").arg(PartTypeNames[pT]));
 

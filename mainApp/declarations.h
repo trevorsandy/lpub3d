@@ -358,36 +358,33 @@ enum SubAttributes {
 };
 enum NameKeyAttributes {
     nType = 0,        // 0 Includes the Render index at end delimited by '-'. Set to CSI for CSI type
-    nTypeNameKey,     // 1
-    nTypeAttributes = nTypeNameKey, // 1
-    nColorCode = nTypeNameKey,      // 1 This is Step Number for CSI type
+    nColorCode,       // 1 This is Step Number for CSI type
     nPageWidth,       // 2
     nResolution,      // 3
     nResType,         // 4
     nModelScale,      // 5
     nCameraFoV,       // 6
-    nAdjustedBaseAttributes = nCameraFoV,
+    nAdjustedBaseAttributes = nCameraFoV,   // 6th element index
     nCameraAngleXX,   // 7
     nCameraAngleYY,   // 8
-    nBaseAttributes      = nCameraAngleYY,  // 8th element
+    nBaseAttributes      = nCameraAngleYY,  // 8th element index
     nTargetX,         // 9
-    nAdjustedTarget      = nTargetX,
-    nRotX                = nTargetX,
+    nAdjustedTarget      = nTargetX,        // 9th element index
+    nRotX                = nTargetX,        // 9th element index
     nTargetY,         // 10
-    nRotY                = nTargetY,
+    nRotY                = nTargetY,        // 10th element index
     nTargetZ,         // 11
-    nRotZ                = nTargetZ,
-    nHasTarget           = nTargetZ,       // 11th element
-    nRot_X,           // 12
-    nRotTrans            = nRot_X,
-    nHasRotstep          = nRotTrans,      // 12th element
-    nRot_Y,           // 13
+    nRotZ                = nTargetZ,        // 11th element index
+    nHasTarget,       // 12  Size of keys with Target
+    nRot_X               = nHasTarget,      // 12th element index
+    nRotTrans            = nHasTarget,
+    nHasRotstep,      // 13  Size of keys with Rotstep
+    nRot_Y               = nHasRotstep,     // 13th element index
     nRot_Z,           // 14
     nRot_Trans,       // 15
-    nHasTargetAndRotstep = nRot_Trans,     // 15th element
-    nSub              // 16 Used by LDView single call
+    nHasTargetAndRotstep// 16 Size of keys with Target and Rotstep
 };
-enum NameKeyAttributes2{
+enum NameKeyAttributes2 {
     K_STEPNUMBER = 0, // 0  not used
     K_IMAGEWIDTH,     // 1  not used
     K_RESOLUTION,     // 2

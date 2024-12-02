@@ -1,4 +1,4 @@
-LPub3D 2.4.8.211.3934 (01 12 2024 18:37:55)
+LPub3D 2.4.8.212.3935 (02 12 2024 01:41:12)
 
 Features, enhancements, fixes and changes
 ------------
@@ -34,6 +34,7 @@ Revisions:
 - Fix - Message reset dialog does not show the number of messages to reset #785
 - Fix - Parts in PLI are not always drawn on model #780
 - Fix - Part placed after CALLOUT does not display in the PLI #793
+- Fix - PLI substitution and rotation parse fail #797
 - Fix - TopOfStep modelIndex below model start #778
 - Fix - Treat submodel as substitute part error #747
 

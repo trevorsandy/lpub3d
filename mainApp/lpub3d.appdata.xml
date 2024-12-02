@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.8.3934" date="2024-12-01">
+            <release version="2.4.8.3935" date="2024-12-02">
                 <description>
-                    <p>LPub3D 01.12.2024 v2.4.8 r211 Continuous Build.
+                    <p>LPub3D 02.12.2024 v2.4.8 r212 Continuous Build.
                         Feature - Increase the capability to change Edge Lines size #772
                         Enhancement - Add renderer arguments and environment vars to global settings #775
                         Enhancement - Automatic restart #790
@@ -102,6 +102,7 @@
                         Fix - Message reset dialog does not show the number of messages to reset #785
                         Fix - Part placed after CALLOUT does not display in the PLI #793
                         Fix - Parts in PLI are not always drawn on model #780
+                        Fix - PLI substitution and rotation parse fail #797
                         Fix - TopOfStep modelIndex below model start #778
                         Fix - Treat submodel as substitute part error #747
                         See RELEASE_NOTES for full details.
