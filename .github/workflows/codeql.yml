@@ -1,6 +1,6 @@
 # LPub3D security and quality analysis
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: October 04, 2024
+# Last Update: December 01, 2024
 # Copyright (c) 2021 - 2024 by Trevor SANDY
 #
 name: quality # used for badge label
@@ -41,7 +41,7 @@ jobs:
           echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
       - name: Cache
-        id: cache-third-party
+        id: cache-third-party-quality
         uses: actions/cache@v4
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
