@@ -1298,18 +1298,21 @@ void EditWindow::editLineItem()
 
     if (sender() == editColorAct) {
         elements = editColorAct->data().toString().split("|");
-        int colorCode = elements.first().toInt();
+        int colorCode = 16;
         int newColorIndex = -1;
-        items = elements.at(1).split(" ", SkipEmptyParts);
-        QColor qcolor = lcQColorFromVector4(gColorList[lcGetColorIndex(colorCode)].Value);
-        QColor newColor = LDrawColorDialog::getLDrawColor(colorCode, newColorIndex, this);
-        if (newColor.isValid() && qcolor != newColor) {
-            if (elements.size() == 3)  // selection is a substitute meta command
-                items[6] = QString::number(lcGetColorCode(newColorIndex));
-            else
-                items[1] = QString::number(lcGetColorCode(newColorIndex));
+        if (elements.size() == 2) {
+            colorCode = elements.first().toInt();
+            items = elements.last().split(" ", SkipEmptyParts);
+            QColor qcolor = lcQColorFromVector4(gColorList[lcGetColorIndex(colorCode)].Value);
+            QColor newColor = LDrawColorDialog::getLDrawColor(colorCode, newColorIndex, this);
+            if (newColor.isValid() && qcolor != newColor) {
+                if (items.size() > 6)  // selection is a substitute meta command
+                    items[6] = QString::number(lcGetColorCode(newColorIndex));
+                else if (items.size() > 14)
+                    items[1] = QString::number(lcGetColorCode(newColorIndex));
+            }
+            replaceText = items.join(" ");
         }
-        replaceText = items.join(" ");
     } else if (sender() == editPartAct) {
         elements = editPartAct->data().toString().split("|");
         findText = elements.first();
