@@ -51,6 +51,7 @@ public:
 
 private:
     Ui::AboutDialog *ui;
+    bool changeLogLoaded;
 
 };
 #endif // _ABOUTDIALOG_H_

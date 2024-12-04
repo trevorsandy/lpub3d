@@ -196,8 +196,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(creditsButton,SIGNAL(clicked(bool)),
             this,SLOT(showCreditDetails(bool)));
 
-    //populate readme
-    updateChangelog();
+    connect(this, SIGNAL(iamOpening()), SLOT(updateChangelog ()));
+
+    changeLogLoaded = false;
 
     setSizeGripEnabled(true);
 }
@@ -214,14 +215,14 @@ void AboutDialog::updateChangelog () {
         ui->contentEdit->setPlainText(LPub::m_releaseNotesContent);
     else
         ui->contentEdit->setHtml(LPub::m_releaseNotesContent);
+    changeLogLoaded = true;
 }
 
-void AboutDialog::showChangeLogDetails(bool clicked) {
-    Q_UNUSED(clicked);
-
-    updateChangelog ();
-
+void AboutDialog::showChangeLogDetails(bool) {
     if (ui->contentGroupBox->isHidden()) {
+        //populate readme
+        if (!changeLogLoaded)
+            updateChangelog ();
         ui->contentGroupBox->show();
         this->adjustSize();
     } else {
@@ -243,6 +244,7 @@ void AboutDialog::showCreditDetails(bool clicked) {
     } else {
         QTextStream in(&file);
         ui->contentEdit->setPlainText(in.readAll());
+        changeLogLoaded = false;
     }
 
     if (ui->contentGroupBox->isHidden()) {
