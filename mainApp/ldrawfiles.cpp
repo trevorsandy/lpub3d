@@ -5348,13 +5348,19 @@ QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNum
 
 QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lineNumber, const int topModelIndex, const int topLineNumber, const int bottomModelIndex, const int bottomLineNumber)
 {
-    Where here(getSubmodelName(modelIndex,false), modelIndex, lineNumber);
-    int stepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
-    here = Where(getSubmodelName(topModelIndex,false), topModelIndex, topLineNumber);
+    bool ok[2];
+    Where here(getSubmodelName(topModelIndex,false), topModelIndex, topLineNumber);
     int topStepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
+    ok[0] = topStepIndex != BM_INVALID_INDEX;
     here = Where(getSubmodelName(bottomModelIndex,false), bottomModelIndex, bottomLineNumber);
     int bottomStepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
+    ok[1] = bottomStepIndex != BM_INVALID_INDEX;
 
+    if (ok[0] && ok[1] && topModelIndex == modelIndex && topLineNumber <= lineNumber && bottomModelIndex == modelIndex)
+        return getViewerStepKey(topStepIndex);
+
+    here = Where(getSubmodelName(modelIndex,false), modelIndex, lineNumber);
+    int stepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
     if (stepIndex >= topStepIndex && stepIndex <= bottomStepIndex)
         return getViewerStepKey(stepIndex);
 
