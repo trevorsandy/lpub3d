@@ -437,14 +437,15 @@ IF EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%\%VALID_SDIR%" (
 EXIT /b
 
 :PACKAGE_RENDERERS
+IF "%LP3D_CONDA_BUILD%"=="True" ( EXIT /b )
 IF "%CAN_PACKAGE%" NEQ "True" (
   ECHO.
-  ECHO -ERROR: Cannot package %LP3D_RENDERS%
-  GOTO :ERROR_END
+  ECHO -WARNING: Cannot package %LP3D_RENDERS%.
+  EXIT /b
 )
 IF %LP3D_VALID_7ZIP% NEQ 1 (
-  ECHO -ERROR: Cannot archive %LP3D_RENDERS%. 7zip not found.
-  GOTO :ERROR_END
+  ECHO -WARNING: Cannot archive %LP3D_RENDERS%. 7zip not found.
+  EXIT /b
 )
 SET LP3D_RENDERS=%PACKAGE%-renderers-win-%BUILD_ARCH%.zip
 ECHO.
@@ -455,7 +456,7 @@ SETLOCAL DISABLEDELAYEDEXPANSION
 "%LP3D_7ZIP_WIN64%" a -tzip "%LP3D_RENDERS%" "%VER_POVRAY%" "%VER_LDGLITE%" "%VER_LDVIEW%" ^
     "-x!%VER_LDVIEW%\lib" "-xr!%VER_LDVIEW%\include" "-xr!%VER_LDVIEW%\bin\*.exp"  ^
     "-xr!%VER_LDVIEW%\bin\*.lib" "-x!%VER_LDVIEW%\resources\*Messages.ini" >NUL 2>&1
-SET LP3D_RENDERS_OUT=%LP3D_CALL_DIR%\%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERS%
+SET LP3D_RENDERS_OUT=%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERS%
 IF EXIST "%LP3D_RENDERS%" (
   ECHO -Move %LP3D_RENDERS% to %LP3D_RENDERS_OUT%...
   IF NOT EXIST "%LP3D_CALL_DIR%\%LP3D_BUILDPKG_PATH%\Downloads\" (
@@ -465,10 +466,10 @@ IF EXIST "%LP3D_RENDERS%" (
   IF EXIST "%LP3D_RENDERS_OUT%" (
     ECHO -Finished
   ) ELSE (
-    ECHO -WARNING: Failed to move %LP3D_RENDERS%
+    ECHO -WARNING: Failed to move %LP3D_RENDERS%.
   )
 ) ELSE (
-  ECHO -WARNING: Failed to create %LP3D_RENDERS%
+  ECHO -WARNING: Failed to create %LP3D_RENDERS%.
 )
 POPD
 EXIT /b
