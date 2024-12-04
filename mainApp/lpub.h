@@ -2033,7 +2033,7 @@ private slots:
     bool openFile(const QString &fileName);
     bool maybeSave(bool prompt = true, int sender = SaveOnNone);
     bool saveFile(const QString &fileName);
-    void closeFile();
+    void closeFileOperations();
     void reloadFromDisk();
     void restorePreviousPage();
     void updateOpenWithActions();

@@ -780,7 +780,7 @@ void Gui::saveAs()
       extension == "dat" ||
       extension.isEmpty()) {
     gui->saveFile(fileName);
-    gui->closeFile();
+    gui->closeFileOperations();
     int loadMsgType = Preferences::ldrawFilesLoadMsgs;
     if (loadMsgType)
         Preferences::ldrawFilesLoadMsgs = static_cast<int>(NEVER_SHOW);
@@ -904,7 +904,7 @@ bool Gui::saveFile(const QString &fileName)
 
 // This call performs LPub3D file close operations - does not clear Gui::curFile
 // use closeModelFile() to definitively close the current file in LPub3D
-void Gui::closeFile()
+void Gui::closeFileOperations()
 {
   Gui::pa = Gui::sa = 0;
   Gui::buildModJumpForward = false;
@@ -969,7 +969,7 @@ void Gui::closeModelFile()
     Gui::clearPage(true);
     gui->disableActions();
     gui->disableEditActions();
-    gui->closeFile();           // perform LPub3D file close operations here...
+    gui->closeFileOperations();           // perform LPub3D file close operations here...
     gui->editModeWindow->close();
     gui->getAct("editModelFileAct.1")->setText(tr("Edit current model file"));
     gui->getAct("editModelFileAct.1")->setStatusTip(tr("Edit LDraw file with detached LDraw Editor"));
@@ -1014,7 +1014,7 @@ bool Gui::openFile(const QString &fileName)
   Preferences::setInitHighlightStep();
   Preferences::setInitPreferredRenderer();
   Gui::clearPage(true);
-  gui->closeFile();
+  gui->closeFileOperations();
   if (lcGetPreferences().mViewPieceIcons)
       gui->mPliIconsPath.clear();
   QFileInfo fileInfo(fileName);
