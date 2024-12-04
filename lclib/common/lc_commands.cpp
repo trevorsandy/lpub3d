@@ -673,7 +673,7 @@ const lcCommand gCommands[] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Camera"),
 		QT_TRANSLATE_NOOP("Menu", "Camera"),
-		QT_TRANSLATE_NOOP("Status", "Add a new camera - edit in Properties tab"),              /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "Save camera settings and generate camera-defined image"),                                /*** LPub3D Mod - default camera properties freeze (LPub3D Menu update) ***/
 		""
 	},
 	// LC_EDIT_ACTION_SELECT

@@ -4129,7 +4129,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_ACTION_CAMERA:
-		SetTool(lcTool::Camera);
+/*** LPub3D Mod - default camera properties freeze ***/
+		//*---*-SetTool(lcTool::Camera);
+		gui->applyCameraSettings();
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_EDIT_ACTION_MOVE:

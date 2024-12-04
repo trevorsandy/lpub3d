@@ -363,7 +363,7 @@ void Gui::create3DActions()
     ApplyCameraAct = new QAction(ApplyCameraIcon,tr("Save Camera Settings"),this);
     ApplyCameraAct->setObjectName("ApplyCameraAct.4");
     ApplyCameraAct->setStatusTip(tr("Save current camera settings to current step and regenerate image"));
-    ApplyCameraAct->setShortcut(QStringLiteral("Shift+A"));
+	ApplyCameraAct->setShortcut(QStringLiteral("Shift+A"));
     lpub->actions.insert(ApplyCameraAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Camera.Save Camera Settings"), ApplyCameraAct));
     connect(ApplyCameraAct, SIGNAL(triggered()), this, SLOT(applyCameraSettings()));
 
@@ -859,11 +859,11 @@ void Gui::create3DMenus()
      CameraMenu = new QMenu(tr("Camera Settings"),this);
      CameraMenu->addAction(ApplyCameraAct);
      CameraMenu->addSeparator();
-     CameraMenu->addMenu(gMainWindow->GetCameraMenu());
-     CameraMenu->addSeparator();
      CameraMenu->addAction(UseImageSizeAct);
      CameraMenu->addAction(AutoCenterSelectionAct);
      CameraMenu->addAction(DefaultCameraPropertiesAct);
+     CameraMenu->addSeparator();
+     CameraMenu->addMenu(gMainWindow->GetCameraMenu());
      gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(CameraMenu);
 }
 
