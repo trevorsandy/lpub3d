@@ -482,7 +482,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
         cycleEachPage = Preferences::editorCyclePagesOnUpdate;
     }
 
-    if (showCycleDialog || (!atStartOfPages && !cycleEachPage)) {
+    if (showCycleDialog && !atStartOfPages && !cycleEachPage) {
       const QString directionName[] = {
         tr("Update"),        // move =  0
         tr("Next"),          // move =  1
