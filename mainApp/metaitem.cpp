@@ -4496,10 +4496,11 @@ void MetaItem::addPointerTipMetas(
   int csiSize[2]  = { 0,0 };
   int partSize[2] = { 0,0 };
 
-  QFuture<int> future = QtConcurrent::run([&]() {
-    return static_cast<int>(offsetPoint(*meta,fromHere,toHere,partLoc,csiSize,partSize));
-  });
-  if (future.result())
+  //QFuture<int> future = QtConcurrent::run([&]() {
+  //  return static_cast<int>(offsetPoint(*meta,fromHere,toHere,partLoc,csiSize,partSize));
+  //});
+  //if (future.result())
+  if (offsetPoint(*meta,fromHere,toHere,partLoc,csiSize,partSize))
       centerOffset = QPointF(qreal(partLoc[XX])/csiSize[XX], qreal(partLoc[YY])/csiSize[YY]);
 
   QString pointerType;
