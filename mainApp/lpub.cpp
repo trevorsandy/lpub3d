@@ -421,7 +421,7 @@ void Gui::displayPage()
   }
 }
 
-void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fileReload/*false*/, bool isEditor)
+void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fileReload/*false*/)
 {
   int goToPageNum = inputPageNum;
 
@@ -476,13 +476,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   if (!silent || fileReload) {
     // if dialog or fileReload is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0) do not cycle
     PageDirection cycleEachPage = DIRECTION_NOT_SET;
-    bool showCycleDialog = true;
-    if (isEditor) {
-        showCycleDialog = Preferences::editorCyclePagesOnUpdateDialog;
-        if (!showCycleDialog)
-            cycleEachPage = Preferences::editorCyclePagesOnUpdate ? FILE_RELOAD : FILE_DEFAULT;
-    }
-    if (notAtStartOfPages && !(Preferences::cycleEachPage || fileReload) && showCycleDialog) {
+    if (notAtStartOfPages && !(Preferences::cycleEachPage || fileReload)) {
       const QString directionName[] = {
         tr("Next"),
         tr("Jump Forward"),
@@ -493,30 +487,23 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
       // On page update, (move = 0), subtract first page from displayPageNum.
       int movement = setDirection(move);
       int pages = movement ? qAbs(movement) : Gui::displayPageNum - (1 + Gui::pa);
-      if (pages > 1) {
-          int pageDir = Gui::pageDirection;
-          const QString message = tr("Cycle each of the %1 pages for the model file %2 %3 ?")
-                  .arg(pages)
-                  .arg(directionName[pageDir].toLower())
-                  .arg(fileReload ? tr("reload") : tr("load"));
+      int pageDir = Gui::pageDirection;
+      const QString message = tr("Cycle each of the %1 pages for the model file %2 %3 ?")
+                                 .arg(pages)
+                                 .arg(directionName[pageDir].toLower())
+                                 .arg(fileReload ? tr("reload") : tr("load"));
+      int result = CycleDialog::getCycle(tr("%1 Page %2")
+                                            .arg(VER_PRODUCTNAME_STR)
+                                            .arg(directionName[pageDir]), message, nullptr);
+      if (result == CycleYes)
+        cycleEachPage = FILE_RELOAD;
+      else if (result == CycleNo)
+        cycleEachPage = FILE_DEFAULT;
+      else if (result == CycleCancel)
+        return;
+    }
 
-          CyclePageDlgType result = CycleDialog::getCycle(tr("%1 Page %2")
-                                                          .arg(VER_PRODUCTNAME_STR)
-                                                          .arg(directionName[pageDir]), message, isEditor, nullptr);
-          if (result == CycleYes)
-              cycleEachPage = FILE_RELOAD;
-          else if (result == CycleNo)
-              cycleEachPage = FILE_DEFAULT;
-          else if (result == CycleCancel) {
-              editWindow->setUpdateEnabled(true);
-              return;
-          }
-      } else {
-          cycleEachPage = FILE_DEFAULT;
-      }
-    } // show dialog
-
-    if (cycleEachPage > FILE_DEFAULT) {
+    if (cycleEachPage > DIRECTION_NOT_SET) {
       if (Preferences::buildModEnabled)
         cycleEachPage = move;
       Preferences::setCyclePageDisplay(cycleEachPage);
@@ -533,7 +520,6 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
       if (!Gui::m_lastDisplayedPage)
           goToPageNum = Gui::pa ? savePage + Gui::pa : savePage;
       Gui::displayPageNum = 1 + Gui::pa;
-      gui->setPageLineEdit->setText(QString("%1 of %2").arg(goToPageNum).arg(Gui::maxPages));
       if (move == DIRECTION_NOT_SET)
         setDirection(move);
       if (move > PAGE_NEXT) {
@@ -1826,8 +1812,7 @@ void Gui::reloadCurrentPage(bool prompt) {
         return;
     }
 
-    bool isEditor = sender() == gui->editWindow;
-    if (isEditor || prompt) {
+    if (sender() == gui->editWindow || prompt) {
         bool _continue;
         if (Preferences::saveOnUpdate) {
             _continue = gui->maybeSave(false); // No prompt
@@ -1842,7 +1827,7 @@ void Gui::reloadCurrentPage(bool prompt) {
     timer.start();
 
     // Gui::displayPage();
-    gui->cyclePageDisplay(Gui::displayPageNum, false/*silent*/, false/*fileReload*/,isEditor);
+    gui->cyclePageDisplay(Gui::displayPageNum, false/*silent*/);
 
     emit gui->messageSig(LOG_STATUS, tr("Page %1 reloaded. %2").arg(Gui::displayPageNum).arg(Gui::elapsedTime(timer.elapsed())));
 

@@ -1565,7 +1565,7 @@ public slots:
   void reloadCurrentModelFile();
   void reloadModelFileAfterColorFileGen();
   void reloadCurrentPage(bool prompt = false);
-  void cyclePageDisplay(const int inputPageNum, bool silent = true, bool global = false, bool isEditor = false);
+  void cyclePageDisplay(const int inputPageNum, bool silent = true, bool global = false);
   void resetModelCache(QString file = QString(), bool commandLine = false);
   bool removeDir(int &count,const QString &dirName);
 

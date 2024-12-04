@@ -144,10 +144,7 @@ class Preferences
     static void setBlenderVersionPreference(QString);
     static void setBlenderLDrawConfigPreference(QString);
     static void setBlenderImportModule(QString);
-    static void setBlenderAddonVersionCheck(bool = true);
-
-    static void setEditorCyclePagesOnUpdate(bool);
-    static void setEditorCyclePagesOnUpdateDialog(bool);
+	static void setBlenderAddonVersionCheck(bool = true);
 
     static void setInitFadeSteps();
     static void setInitHighlightStep();
@@ -426,8 +423,6 @@ class Preferences
     static bool    editorHighlightLines;
     static bool    editorLoadSelectionStep;
     static bool    editorPreviewOnDoubleClick;
-    static bool    editorCyclePagesOnUpdate;
-    static bool    editorCyclePagesOnUpdateDialog;
     static bool    editorTabLock;
 
 #ifdef Q_OS_MAC

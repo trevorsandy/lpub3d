@@ -1,4 +1,4 @@
-LPub3D 2.4.8.217.3940 (02 12 2024 01:46:02)
+LPub3D 2.4.8.218.3941 (04 12 2024 03:31:18)
 
 Features, enhancements, fixes and changes
 ------------
@@ -21,7 +21,6 @@ Revisions:
 - Enhancement - Expanded part filter options #786
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
 - Enhancement - Option to load last opened page on load last opened file #795
-- Enhancement - Option to show or hide the cycle each page on Update dialog #798
 - Change - AbEnd on insert a page pointer at the top of a STEP #789
 - Change - Add minizip unzOpen to quazip to avoid violating ODR #787
 - Change - AppImage build Qt Network SSL limitation #784

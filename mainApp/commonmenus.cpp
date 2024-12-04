@@ -3857,16 +3857,9 @@ void CommonMenus::setWhatsThis()
             "  Cycle each page when navigating forward by more than <br>"
             "  one page.<br><br>"
             "  Select Yes to perform the cycle behaviour across the<br>"
-            "  specified pages<br>"
-            "  Select No to perform a direct jump to the the specified page.<br>"
-            "  Select Cancel to abort the navigation action altogether.<br><br>"
-            "  If you do not wan to display this dialog at each Update,<br>"
-            "  you may elect to not show this dialog. When the cycle<br>"
-            "  each page dialog is presented upon clicking Update,<br>"
-            "  The additional dialog to Remember your choice and do<br>"
-            "  not show this message again is presented.%1<br><br>"
-            "  You may reset the dialog display from the Command Editor<br>"
-            "  dialog.%1<br>")
+            "  specified pages<br>Select No to perform a direct jump<br>"
+            "  to the the specified page. Select Cancel to abort the<br>"
+            "  navigation action altogether.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_DIALOG_CYCLE")

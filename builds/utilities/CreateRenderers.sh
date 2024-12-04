@@ -909,12 +909,11 @@ if [ "$OS_NAME" = "Darwin" ]; then
 fi
 
 # Package the renderers
-canPackageRenderers="true"
+canPackageRenderers=true
 declare -r p=Package
 function package_renderers()
 {
-    if [[ "${OBS}" = "true" || "${SNAP}" = "true" ]]; then
-        Info "Cannot create renderer package under OBS or SNAP builds"
+    if [[ -n "${OBS}" || -n "${SNAP}" ]]; then
         return
     fi
     if [ -d "/out" ]; then 
@@ -927,7 +926,7 @@ function package_renderers()
     LP3D_ARCH=${TARGET_CPU}
     LP3D_BASE=${platform_id}
     LP3D_RENDERERS=${LPUB3D}-renderers-${LP3D_BASE}-${LP3D_ARCH}.tar.gz
-    echo -n "-Create renderer package ${LP3D_OUT_PATH}/${LP3D_RENDERERS}..."
+    echo -n "-Create renderer package: ${LP3D_OUT_PATH}/${LP3D_RENDERERS}..."
     ( cd "${DIST_PKG_DIR}/" || return && \
     tar -czf "${LP3D_RENDERERS}"  \
     "--exclude=${VER_LDVIEW}/lib" \
@@ -936,9 +935,9 @@ function package_renderers()
     "--exclude=${VER_LDVIEW}/bin/*.lib" \
     "--exclude=${VER_LDVIEW}/resources/*Messages.ini" \
     "${VER_LDGLITE}/" "${VER_LDVIEW}/" "${VER_POVRAY}/" && \
-    sha512sum "${LP3D_RENDERERS}" > "${LP3D_RENDERERS}.sha512" && \
+	sha512sum "${LP3D_RENDERERS}" > "${LP3D_RENDERERS}.sha512" && \
     mv -f "${LP3D_RENDERERS}" "${LP3D_RENDERERS}.sha512" \
-    "${LP3D_OUT_PATH}/" ) >$p.out 2>&1 && rm $p.out
+	"${LP3D_OUT_PATH}/" ) >$p.out 2>&1 && rm $p.out
     [ -f $p.out ] && echo "ERROR" && tail -80 $p.out || echo "Ok"
 }
 
@@ -1058,7 +1057,7 @@ for buildDir in ldglite ldview povray; do
         Info "------------------Build Log-------------------------"
         cat ${buildLog}
         Info "----------------End-Build Log-----------------------"
-        canPackageRenderers="false"
+        canPackageRenderers=false
       fi
     fi
     Msg="Build ${buildDir} finished."
@@ -1072,8 +1071,6 @@ done
 # Package renderers as a deliverable
 if [[ "${canPackageRenderers}" = "true"  ]]; then
   package_renderers
-else
-  Info "Cannot package renderers."
 fi
 # Restore ld_library_path
 export LD_LIBRARY_PATH=$LP3D_LD_LIBRARY_PATH_SAVED
