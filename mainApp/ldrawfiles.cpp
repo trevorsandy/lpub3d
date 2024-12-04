@@ -676,9 +676,8 @@ bool LDrawFile::isSingleSubfileLine(const QString &line)
 {
   QStringList tokens;
   split(line, tokens);
-  if (tokens[0] == "1" && tokens.size() == 15) {
+  if (tokens.size() == 15 && tokens[0] == "1")
     return isSubmodel(tokens[tokens.size()-1]);
-  }
   return false;
 }
 
