@@ -464,6 +464,7 @@ CycleDialog::CycleDialog(
         QString  question,
         bool isEditor,
         QWidget *parent) :
+        cycleResult(CycleNone),
         rememberEditorCycleChoice(false)
 {
   QLabel *label = new QLabel(question,parent);

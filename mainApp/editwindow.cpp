@@ -2667,7 +2667,7 @@ void EditWindow::preferences()
     // modelFileEdit() only
     bool editorPreviewOnDoubleClick = Preferences::editorPreviewOnDoubleClick;
 
-    bool editorCyclePagesOnUpdateDialog = Preferences::editorCyclePagesOnUpdateDialog;
+    bool editorCyclePagesOnUpdateDialog = Preferences::editorCyclePagesOnUpdateDialog && !Preferences::buildModEnabled;
 
     auto showMessage = [&windowTitle] (const QString change) {
         QMessageBoxResizable box;
@@ -2722,7 +2722,7 @@ void EditWindow::preferences()
     editorDecorationSubform->addRow(editorDecorationLabel, editorDecorationCombo);
 
     // options - buffered paging
-    QGroupBox *editorBufferedPagingGrpBox = new QGroupBox(tr("Buffered paging"));
+    QGroupBox *editorBufferedPagingGrpBox = new QGroupBox(tr("Buffered Paging"));
     editorBufferedPagingGrpBox->setCheckable(true);
     editorBufferedPagingGrpBox->setChecked(editorBufferedPaging);
     editorBufferedPagingGrpBox->setToolTip(tr("Set buffered paging. Improve the loading times for very large models"));
@@ -2742,10 +2742,25 @@ void EditWindow::preferences()
     QFormLayout *editorCyclePagesOnUpdateDialogSubform = new QFormLayout(editorCyclePagesOnUpdateDialogGrpBox);
 
     QCheckBox *editorCyclePagesOnUpdateDialogChkBox = nullptr;
-    editorCyclePagesOnUpdateDialogChkBox = new QCheckBox(tr("Show Cycle Pages On Update Dialog"), dialog);
-    editorCyclePagesOnUpdateDialogChkBox->setToolTip(tr("Check to display the dialog on page update."));
+    QString const tooltip = Preferences::buildModEnabled
+            ? tr("Cycle pages is always on when Build Modifications is enabled.")
+            : tr("Check to display the Cycle Pages dialog on page Update.");
+    editorCyclePagesOnUpdateDialogChkBox = new QCheckBox(tr("Show Cycle Pages Dialog On Update "), dialog);
+    editorCyclePagesOnUpdateDialogChkBox->setToolTip(tooltip);
+    editorCyclePagesOnUpdateDialogChkBox->setEnabled(!Preferences::buildModEnabled);
     editorCyclePagesOnUpdateDialogChkBox->setChecked(editorCyclePagesOnUpdateDialog);
     editorCyclePagesOnUpdateDialogSubform->addRow(editorCyclePagesOnUpdateDialogChkBox);
+    QObject::connect(editorCyclePagesOnUpdateDialogChkBox, &QCheckBox::stateChanged, [](int state) {
+        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Unchecked) {
+            QString const message = Preferences::editorCyclePagesOnUpdate
+                    ? tr("Keep cycle pages as the default action ?")
+                    : tr("Set cycle pages as the default action ?");
+            Preferences::setEditorCyclePagesOnUpdate(
+                        QMessageBox::question(nullptr,
+                                              tr("Cycle Pages"), message,
+                                              QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes);
+        }
+    });
 
     // options - selected lines
     QCheckBox *editorHighlightLinesBox = nullptr;

@@ -558,8 +558,6 @@ void Gui::openWith()
 
 void Gui::loadLastOpenedFile() {
   Gui::m_lastDisplayedPage = Preferences::loadLastDisplayedPage;
-  bool debug = m_lastDisplayedPage;
-  Q_UNUSED(debug)
   gui->updateRecentFileActions();
   int const fileIndex = 0;
   QAction *fileAction = recentFilesActs[fileIndex];

@@ -221,11 +221,10 @@ enum ActionModuleType { NO_ACTION,                 //  0
                         COMMANDS_TEXT_EDIT_ACTION, //  7
                         OTHER_ACTION               //  8
 };
-enum PageDirection { DIRECTION_NOT_SET,                 // 0
-                     FILE_DEFAULT  = DIRECTION_NOT_SET, // 0
+enum PageDirection { PAGE_NO_DIRECTION,                 // 0
+                     PAGE_DEFAULT  = PAGE_NO_DIRECTION, // 0
                      PAGE_NEXT,                         // 1
                      PAGE_FORWARD  = PAGE_NEXT,         // 1
-                     FILE_RELOAD   = PAGE_NEXT,         // 1
                      PAGE_JUMP_FORWARD,                 // 2
                      PAGE_BACKWARD,                     // 3
                      PAGE_PREVIOUS = PAGE_BACKWARD,     // 3

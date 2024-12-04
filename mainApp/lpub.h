@@ -1464,7 +1464,7 @@ public slots:
   static void setContinuousPage(bool b) { m_contPageProcessing = b; m_abort = m_contPageProcessing && !b ? true : m_abort; }
   static void cancelContinuousPage() { m_contPageProcessing = false; m_abort = m_contPageProcessing ? true : m_abort; }
   static void setContinuousPageAct(PageActType p = SET_DEFAULT_ACTION);
-  static void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
+  static void setPageContinuousIsRunning(bool b = true, PageDirection d = PAGE_NO_DIRECTION);
 
   static void restartApplication(bool changeLibrary = false, bool prompt = false);
   static void loadTheme();

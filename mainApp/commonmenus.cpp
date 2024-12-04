@@ -3860,11 +3860,14 @@ void CommonMenus::setWhatsThis()
             "  specified pages<br>"
             "  Select No to perform a direct jump to the the specified page.<br>"
             "  Select Cancel to abort the navigation action altogether.<br><br>"
-            "  If you do not wan to display this dialog at each Update,<br>"
+            "  If you do not want to display this dialog at each Update,<br>"
             "  you may elect to not show this dialog. When the cycle<br>"
             "  each page dialog is presented upon clicking Update,<br>"
-            "  The additional dialog to Remember your choice and do<br>"
-            "  not show this message again is presented.%1<br><br>"
+            "  an additional dialog to Remember your choice and do<br>"
+            "  not show this message again is presented.<br>"
+            "  When Build Modifications is enabled, the Cycle Pages dialog<br>"
+            "  is not displayed and the Preferences setting is disabled<br>"
+            "  because cycle pages is alway on when buildMods is enabled.<br>"
             "  You may reset the dialog display from the Command Editor<br>"
             "  dialog.%1<br>")
             .arg(

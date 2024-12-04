@@ -36,10 +36,10 @@
 #include <QElapsedTimer>
 #include <QFutureWatcher>
 #include <QFileSystemWatcher>
+#include <QAction>
 #include <atomic>
 
 #include "declarations.h"
-#include "qaction.h"
 
 class QAbstractItemModel;
 class QCompleter;

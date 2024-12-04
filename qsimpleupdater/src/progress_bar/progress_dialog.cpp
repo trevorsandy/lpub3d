@@ -26,7 +26,7 @@ ProgressDialog::ProgressDialog (QWidget *parent) : QDialog (parent), ui (new Ui:
     setWindowIcon (_blank);
     setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     autoHide = true;
-    pageDirection = DIRECTION_NOT_SET;
+    pageDirection = PAGE_NO_DIRECTION;
 
     // Close dialog when cancel button is clicked
     connect (ui->progressDlgCancelBtn, SIGNAL (clicked()), this, SLOT (cancel()));

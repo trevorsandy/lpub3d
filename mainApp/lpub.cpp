@@ -435,8 +435,10 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
     }
   }
 
-  PageDirection move = DIRECTION_NOT_SET;
-  int notAtStartOfPages = (Gui::displayPageNum > 1 + Gui::pa || goToPageNum > 1 + Gui::pa);
+  PageDirection move = PAGE_NO_DIRECTION;
+  bool saveCycleEachPage = Preferences::cycleEachPage;
+  bool cycleEachPage = saveCycleEachPage |= (fileReload || Preferences::buildModEnabled);
+  bool atStartOfPages = (Gui::displayPageNum == 1 + Gui::pa && goToPageNum == 1 + Gui::pa);
 
   auto setDirection = [&] (PageDirection &move)
   {
@@ -456,103 +458,93 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   auto cycleDisplay = [&] ()
   {
     if (Preferences::modeGUI && !Gui::exporting())
-        gui->enableNavigationActions(false);
+      gui->enableNavigationActions(false);
     bool savedDlgOpt = Preferences::doNotShowPageProcessDlg;
     int savedProc = Gui::pageProcessRunning;
     Gui::pageProcessRunning = PROC_NONE;
     Preferences::doNotShowPageProcessDlg = true;
     if (Gui::pageDirection < PAGE_BACKWARD)
-        gui->nextPageContinuousIsRunning = !gui->nextPageContinuousIsRunning;
+      gui->nextPageContinuousIsRunning = !gui->nextPageContinuousIsRunning;
     else
-        gui->previousPageContinuousIsRunning = !gui->previousPageContinuousIsRunning;
+      gui->previousPageContinuousIsRunning = !gui->previousPageContinuousIsRunning;
     Gui::continuousPageDialog(Gui::pageDirection < PAGE_BACKWARD ? PAGE_NEXT : PAGE_PREVIOUS);
     Preferences::doNotShowPageProcessDlg = savedDlgOpt;
     Gui::pageProcessRunning = savedProc;
   };
 
-  bool saveCycleEachPage = Preferences::cycleEachPage;
-  PageDirection operation = FILE_DEFAULT;
-
   if (!silent || fileReload) {
-    // if dialog or fileReload is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0) do not cycle
-    PageDirection cycleEachPage = DIRECTION_NOT_SET;
+    // if CycleDialog or Preference::cycleEachPage or fileReload, cycleEachPage is true, else false
     bool showCycleDialog = true;
     if (isEditor) {
-        showCycleDialog = Preferences::editorCyclePagesOnUpdateDialog;
-        if (!showCycleDialog)
-            cycleEachPage = Preferences::editorCyclePagesOnUpdate ? FILE_RELOAD : FILE_DEFAULT;
+      // editor preferences overrides Preference::cycleEachPage
+      showCycleDialog = Preferences::editorCyclePagesOnUpdateDialog && !Preferences::buildModEnabled;
+      if (!showCycleDialog)
+        cycleEachPage = Preferences::editorCyclePagesOnUpdate;
     }
-    if (notAtStartOfPages && !(Preferences::cycleEachPage || fileReload) && showCycleDialog) {
+
+    if (showCycleDialog || (!atStartOfPages && !cycleEachPage)) {
       const QString directionName[] = {
-        tr("Next"),
-        tr("Jump Forward"),
-        tr("Previous"),
-        tr("Jump Backward")
+        tr("Update"),        // move =  0
+        tr("Next"),          // move =  1
+        tr("Jump Forward"),  // move >  1
+        tr("Previous"),      // move = -1
+        tr("Jump Backward")  // move < -1
       };
 
       // On page update, (move = 0), subtract first page from displayPageNum.
       int movement = setDirection(move);
       int pages = movement ? qAbs(movement) : Gui::displayPageNum - (1 + Gui::pa);
       if (pages > 1) {
-          int pageDir = Gui::pageDirection;
-          const QString message = tr("Cycle each of the %1 pages for the model file %2 %3 ?")
-                  .arg(pages)
-                  .arg(directionName[pageDir].toLower())
-                  .arg(fileReload ? tr("reload") : tr("load"));
+        const QString message = tr("Cycle each of the %1 pages for the model file %2 ?")
+                                   .arg(pages)
+                                   .arg(directionName[move].toLower());
 
-          CyclePageDlgType result = CycleDialog::getCycle(tr("%1 Page %2")
-                                                          .arg(VER_PRODUCTNAME_STR)
-                                                          .arg(directionName[pageDir]), message, isEditor, nullptr);
-          if (result == CycleYes)
-              cycleEachPage = FILE_RELOAD;
-          else if (result == CycleNo)
-              cycleEachPage = FILE_DEFAULT;
-          else if (result == CycleCancel) {
-              editWindow->setUpdateEnabled(true);
-              return;
-          }
-      } else {
-          cycleEachPage = FILE_DEFAULT;
+        CyclePageDlgType result = CycleDialog::getCycle(tr("%1 Page %2")
+                                                           .arg(VER_PRODUCTNAME_STR)
+                                                           .arg(directionName[move]), message, isEditor, nullptr);
+        if (result == CycleYes)
+          cycleEachPage = true;
+        else if (result == CycleNo)
+          cycleEachPage = false;
+        else {
+          editWindow->setUpdateEnabled(true);
+          return;
+        }
       }
-    } // show dialog
-
-    if (cycleEachPage > FILE_DEFAULT) {
-      if (Preferences::buildModEnabled)
-        cycleEachPage = move;
-      Preferences::setCyclePageDisplay(cycleEachPage);
     }
 
-    operation = PageDirection(cycleEachPage);
+    if (fileReload)
+      fileReload = !Preferences::buildModEnabled;
   }
 
   QElapsedTimer t;
   t.start();
-  if (operation == FILE_RELOAD) {
-    int savePage = Gui::displayPageNum;
-    if (gui->openFile(Gui::curFile)) {
-      if (!Gui::m_lastDisplayedPage)
-          goToPageNum = Gui::pa ? savePage + Gui::pa : savePage;
-      Gui::displayPageNum = 1 + Gui::pa;
-      gui->setPageLineEdit->setText(QString("%1 of %2").arg(goToPageNum).arg(Gui::maxPages));
-      if (move == DIRECTION_NOT_SET)
-        setDirection(move);
-      if (move > PAGE_NEXT) {
-        cycleDisplay();
-        gui->enableActions();
-      } else {
-        Gui::displayPageNum = goToPageNum;
-        Gui::displayPage();
-      }
+
+  int saveCycleDisplayPageNum = Gui::displayPageNum;
+  if (fileReload) {
+    QString const saveCyclePageLineEdit = setPageLineEdit->text();
+    if (!gui->openFile(Gui::curFile)) {
+      Preferences::setCyclePageDisplay(saveCycleEachPage);
+      Gui::pageProcessRunning = PROC_NONE;
+      return;
     }
-  } else {
-    if (move == DIRECTION_NOT_SET)
+    gui->setPageLineEdit->setText(saveCyclePageLineEdit);
+  }
+
+  if (cycleEachPage && !atStartOfPages) {
+    if (!Gui::m_lastDisplayedPage)
+      goToPageNum = saveCycleDisplayPageNum;
+    Gui::displayPageNum = 1 + Gui::pa;
+    if (move == PAGE_NO_DIRECTION)
       setDirection(move);
-    if (move > PAGE_NEXT && (Preferences::cycleEachPage || Preferences::buildModEnabled)) {
+    if (move > PAGE_NEXT) {
       cycleDisplay();
-    } else {
-      Gui::displayPageNum = goToPageNum;
+      gui->enableActions();
+    } else
       Gui::displayPage();
-    }
+  } else {
+    Gui::displayPageNum = goToPageNum;
+    Gui::displayPage();
   }
 
   Preferences::setCyclePageDisplay(saveCycleEachPage);
@@ -813,7 +805,7 @@ void Gui::previousPageContinuous()
 
 void Gui::setPageContinuousIsRunning(bool b, PageDirection d) {
 
-    if (d != DIRECTION_NOT_SET) Gui::pageDirection = d;
+    if (d != PAGE_NO_DIRECTION) Gui::pageDirection = d;
 
     if (Gui::pageDirection == PAGE_NEXT) {
         gui->nextPageContinuousIsRunning = b;

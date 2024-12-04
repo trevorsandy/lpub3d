@@ -30,7 +30,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 
     static const QString directionNames[] =
     {
-      tr("Unspecified"), //DIRECTION_NOT_SET,
+      tr("Current"),     //PAGE_NO_DIRECTION,
       tr("Next"),        //PAGE_NEXT,
       tr("Forward"),     //PAGE_JUMP_FORWARD,
       tr("Previous"),    //PAGE_PREVIOUS,
