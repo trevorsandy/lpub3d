@@ -327,10 +327,6 @@ void lcPropertiesWidget::FloatChanged()
 		Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value);
 	}
 
-/*** LPub3D Mod - Camera Globe, camera name ***/
-	bool isDefault = Camera->GetName().isEmpty();
-/*** LPub3D Mod end ***/
-
 	if (PropertyId == lcObjectPropertyId::CameraPositionX || PropertyId == lcObjectPropertyId::CameraPositionY || PropertyId == lcObjectPropertyId::CameraPositionZ)
 	{
 		lcVector3 Center = Camera->mPosition;
@@ -348,7 +344,7 @@ void lcPropertiesWidget::FloatChanged()
 		lcVector3 Distance = Position - Center;
 
 /*** LPub3D Mod - Camera Globe  ***/
-		if (isDefault)
+		if (Camera->GetName().isEmpty())
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
 			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
@@ -370,8 +366,8 @@ void lcPropertiesWidget::FloatChanged()
 
 		lcVector3 Distance = Position - Center;
 
-/*** LPub3D Mod - Camera Globe  ***/
-		if (isDefault)
+/*** LPub3D Mod - Camera Globe, camera name ***/
+		if (Camera->GetName().isEmpty())
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
 			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
@@ -394,7 +390,7 @@ void lcPropertiesWidget::FloatChanged()
 		lcVector3 Distance = Position - Center;
 
 /*** LPub3D Mod - Camera Globe  ***/
-		if (isDefault)
+		if (Camera->GetName().isEmpty())
 			Model->MoveDefaultCamera(Camera, Distance);
 		else
 			Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
