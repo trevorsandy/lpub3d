@@ -459,12 +459,12 @@ bool LocalDialog::getLocal(
   }
 }
 
-int CycleDialog::cycleResult = CycleNone;
-
 CycleDialog::CycleDialog(
-  QString  title,
-  QString  question,
-  QWidget *parent)
+        QString  title,
+        QString  question,
+        bool isEditor,
+        QWidget *parent) :
+        rememberEditorCycleChoice(false)
 {
   QLabel *label = new QLabel(question,parent);
 
@@ -476,15 +476,23 @@ CycleDialog::CycleDialog(
 
   grid->addWidget(label);
 
-  QDialogButtonBox *buttonBox;
+  if (isEditor) {
+      QCheckBox *cb = new QCheckBox(tr("Remember Choice and do not show this again."));
+      grid->addWidget(cb);
+      QObject::connect(cb, &QCheckBox::stateChanged, [&](int state) {
+          if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
+             Preferences::setEditorCyclePagesOnUpdateDialog(false);
+             rememberEditorCycleChoice = true;
+          }
+      });
+  }
 
   buttonBox = new QDialogButtonBox(parent);
   buttonBox->addButton(QDialogButtonBox::Yes);
-  connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::No);
-  connect(buttonBox,SIGNAL(rejected()), this, SLOT(reject()));
   buttonBox->addButton(QDialogButtonBox::Cancel);
-  connect(buttonBox,SIGNAL(rejected()), this, SLOT(cancel()));
+  connect(buttonBox, SIGNAL(clicked(QAbstractButton*)),
+          this,      SLOT(buttonClicked(QAbstractButton*)));
 
   grid->addWidget(buttonBox);
 
@@ -498,31 +506,40 @@ CycleDialog::~CycleDialog()
 {
 }
 
-int CycleDialog::getCycle(
-  QString  title,
-  QString  question,
-  QWidget *parent)
+CyclePageDlgType CycleDialog::getCycle(
+        QString  title,
+        QString  question,
+        bool isEditor,
+        QWidget *parent)
 {
-  CycleDialog *dialog = new CycleDialog(title,question,parent);
-  if (dialog->exec() == QDialog::Accepted) {
-    cycleResult = CycleYes;
+  CycleDialog *dialog = new CycleDialog(title,question,isEditor,parent);
+  dialog->exec();
+  return dialog->cycleResult;
+}
+
+void CycleDialog::buttonClicked( QAbstractButton *button )
+{
+  switch (buttonBox->standardButton(button))
+  {
+    case QDialogButtonBox::Yes:
+      cycleResult = CycleYes;
+      if (rememberEditorCycleChoice)
+        Preferences::setEditorCyclePagesOnUpdate(true);
+      return QDialog::accept();
+    case QDialogButtonBox::No:
+      cycleResult = CycleNo;
+      if (rememberEditorCycleChoice)
+        Preferences::setEditorCyclePagesOnUpdate(false);
+      break;
+    case QDialogButtonBox::Cancel:
+      cycleResult = CycleCancel;
+      break;
+    default:
+      qDebug() << Q_FUNC_INFO << qPrintable("Cycle pages button not handled");
+      break;
   }
-  qDebug() << "DEBUG: Cycle Resule" << (cycleResult == CycleYes ? "Yes" : cycleResult == CycleNo ? "No" : "Cancel");
-  return cycleResult;
-}
-
-void CycleDialog::cancel()
-{
-  cycleResult = CycleCancel;
   QDialog::reject();
 }
-
-void CycleDialog::reject()
-{
-  cycleResult = CycleNo;
-  QDialog::reject();
-}
-
 
 OptionDialog::OptionDialog(
   QString  titles,
