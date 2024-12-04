@@ -432,6 +432,17 @@ void EditWindow::setOpenWithProgramAndArgs(QString &program, QStringList &argume
     }
 }
 
+void EditWindow::openWithChoice()
+{
+#ifdef Q_OS_WIN
+    QString const curFile = QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
+    TCHAR sysdir[MAX_PATH]{};
+    if (!GetSystemDirectory(sysdir, MAX_PATH)) return;
+    std::wstring argwstr = L"shell32.dll,OpenAs_RunDLL " + QDir::toNativeSeparators(curFile).toStdWString();
+    ShellExecute(::GetDesktopWindow(), 0, L"RUNDLL32.EXE", (LPCWSTR)argwstr.c_str(), sysdir, SW_SHOWNORMAL);
+#endif
+}
+
 void EditWindow::openWith()
 {   QString const filePath = QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
     QStringList arguments = QStringList() << filePath;
@@ -723,6 +734,12 @@ void EditWindow::createActions()
     editPartAct->setStatusTip(tr("Edit this part"));
     lpub->actions.insert(editPartAct->objectName(), Action(QStringLiteral("Tools.Change Part"), editPartAct));
     connect(editPartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
+
+    openWithChoiceAct = new QAction(QIcon(":/resources/openwithchoice.png"),tr("Choose Application..."), this);
+    openWithChoiceAct->setObjectName("openWithChoiceAct.2");
+    openWithChoiceAct->setStatusTip(tr("Receive the system prompt to choose the application to open the model file with"));
+    lpub->actions.insert(openWithChoiceAct->objectName(), Action(QStringLiteral("Tools.Open With Choice"), openWithChoiceAct));
+    connect(openWithChoiceAct, SIGNAL(triggered()), this, SLOT(openWithChoice()));
 
     substitutePartAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Substitute Part..."), this);
     substitutePartAct->setObjectName("substitutePartAct.2");
@@ -1224,6 +1241,10 @@ void EditWindow::showContextMenu(const QPoint &pt)
             QMenu *openWithMenu = new QMenu(tr("Open With..."), this);
             openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
             menu->addMenu(openWithMenu);
+#ifdef Q_OS_WIN
+            openWithMenu->addAction(openWithChoiceAct);
+            openWithMenu->addSeparator();
+#endif
             if (numOpenWithPrograms) {
                 for (int i = 0; i < numOpenWithPrograms; i++) {
                     QFileInfo fileInfo(programEntries.at(i).split("|").last());

@@ -151,6 +151,7 @@ public slots:
 
 private slots:
     void openWith();
+    void openWithChoice();
     void gotoLine();
     void contentsChange(int position, int charsRemoved, int charsAdded);
     bool saveFileCopy();
@@ -252,6 +253,7 @@ protected:
     QList<QAction *> openWithActList;
 
     QAction  *commandsDialogAct;
+    QAction  *openWithChoiceAct;
     QAction  *openWithToolbarAct;
     QAction  *editModelFileAct;
     QAction  *previewLineAct;
