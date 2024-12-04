@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 01, 2024
+rem  Last Update: December 02, 2024
 rem  Copyright (C) 2017 - 2024 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -108,6 +108,11 @@ ECHO.
 ECHO   WORKING_DIRECTORY_RENDERERS....[%ABS_WD%]
 ECHO   DISTRIBUTION DIRECTORY.........[%DIST_DIR:/=\%]
 ECHO   LDRAW LIBRARY FOLDER...........[%LDRAW_DIR%]
+
+rem List 'LP3D_*' environment variables
+rem ECHO   LIST LP3D_ ENVIRONMENT VARIABLES...
+rem ECHO.
+rem SET LP3D_
 
 IF NOT EXIST "%DIST_DIR%\" (
   MKDIR "%DIST_DIR%\"
@@ -440,36 +445,40 @@ EXIT /b
 IF "%LP3D_CONDA_BUILD%"=="True" ( EXIT /b )
 IF "%CAN_PACKAGE%" NEQ "True" (
   ECHO.
-  ECHO -WARNING: Cannot package %LP3D_RENDERS%.
+  ECHO -WARNING: Cannot package %LP3D_RENDERERS%.
   EXIT /b
 )
 IF %LP3D_VALID_7ZIP% NEQ 1 (
-  ECHO -WARNING: Cannot archive %LP3D_RENDERS%. 7zip not found.
+  ECHO -WARNING: Cannot archive %LP3D_RENDERERS%. 7zip not found.
   EXIT /b
 )
-SET LP3D_RENDERS=%PACKAGE%-renderers-win-%BUILD_ARCH%.zip
+SET LP3D_RENDERERS=%PACKAGE%-%LP3D_APP_VERSION%-renderers-win-%BUILD_ARCH%.zip
 ECHO.
-ECHO -Create renderer package %LP3D_RENDERS%...
+ECHO -Create renderer package %LP3D_RENDERERS%...
 PUSHD %DIST_DIR%
-ECHO -Archiving %LP3D_RENDERS%...
+ECHO -Archiving %LP3D_RENDERERS%...
 SETLOCAL DISABLEDELAYEDEXPANSION
-"%LP3D_7ZIP_WIN64%" a -tzip "%LP3D_RENDERS%" "%VER_POVRAY%" "%VER_LDGLITE%" "%VER_LDVIEW%" ^
+"%LP3D_7ZIP_WIN64%" a -tzip "%LP3D_RENDERERS%" "%VER_POVRAY%" "%VER_LDGLITE%" "%VER_LDVIEW%" ^
     "-x!%VER_LDVIEW%\lib" "-xr!%VER_LDVIEW%\include" "-xr!%VER_LDVIEW%\bin\*.exp"  ^
     "-xr!%VER_LDVIEW%\bin\*.lib" "-x!%VER_LDVIEW%\resources\*Messages.ini" >NUL 2>&1
-SET LP3D_RENDERS_OUT=%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERS%
-IF EXIST "%LP3D_RENDERS%" (
-  ECHO -Move %LP3D_RENDERS% to %LP3D_RENDERS_OUT%...
+IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
+  SET LP3D_RENDERERS_OUT=%LP3D_CALL_DIR%\%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERERS%
+) ELSE (
+  SET LP3D_RENDERERS_OUT=%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERERS%
+)
+IF EXIST "%LP3D_RENDERERS%" (
+  ECHO -Move %LP3D_RENDERERS% to %LP3D_RENDERERS_OUT%...
   IF NOT EXIST "%LP3D_CALL_DIR%\%LP3D_BUILDPKG_PATH%\Downloads\" (
     MKDIR "%LP3D_CALL_DIR%\%LP3D_BUILDPKG_PATH%\Downloads\"
   )
-  MOVE /Y "%LP3D_RENDERS%" "%LP3D_RENDERS_OUT%"
-  IF EXIST "%LP3D_RENDERS_OUT%" (
+  MOVE /Y "%LP3D_RENDERERS%" "%LP3D_RENDERERS_OUT%"
+  IF EXIST "%LP3D_RENDERERS_OUT%" (
     ECHO -Finished
   ) ELSE (
-    ECHO -WARNING: Failed to move %LP3D_RENDERS%.
+    ECHO -WARNING: Failed to move %LP3D_RENDERERS%.
   )
 ) ELSE (
-  ECHO -WARNING: Failed to create %LP3D_RENDERS%.
+  ECHO -WARNING: Failed to create %LP3D_RENDERERS%.
 )
 POPD
 EXIT /b

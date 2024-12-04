@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update December 01, 2024
+# Last Update December 02, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 
@@ -908,6 +908,10 @@ if [ "$OS_NAME" = "Darwin" ]; then
   BUILD_CPUs=$(sysctl -n hw.ncpu)
 fi
 
+# List 'LP3D_*' environment variables
+Info && Info "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line}; done
+Info
+
 # Package the renderers
 canPackageRenderers="true"
 declare -r p=Package
@@ -926,7 +930,7 @@ function package_renderers()
     fi
     LP3D_ARCH=${TARGET_CPU}
     LP3D_BASE=${platform_id}
-    LP3D_RENDERERS=${LPUB3D}-renderers-${LP3D_BASE}-${LP3D_ARCH}.tar.gz
+    LP3D_RENDERERS=LPub3D-${LP3D_APP_VERSION}-renderers-${LP3D_BASE}-${LP3D_ARCH}.tar.gz
     echo -n "-Create renderer package ${LP3D_OUT_PATH}/${LP3D_RENDERERS}..."
     ( cd "${DIST_PKG_DIR}/" || return && \
     tar -czf "${LP3D_RENDERERS}"  \
@@ -940,6 +944,7 @@ function package_renderers()
     mv -f "${LP3D_RENDERERS}" "${LP3D_RENDERERS}.sha512" \
     "${LP3D_OUT_PATH}/" ) >$p.out 2>&1 && rm $p.out
     [ -f $p.out ] && echo "ERROR" && tail -80 $p.out || echo "Ok"
+    Info
 }
 
 # =======================================

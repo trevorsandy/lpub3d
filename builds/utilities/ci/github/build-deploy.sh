@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 21, 2024
+# Last Update December 02, 2024
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -292,7 +292,7 @@ export LP3D_DOWNLOAD_ASSETS="${LP3D_BUILD_ASSETS}/downloads"
 for LP3D_ASSET in $(find "${LP3D_BUILD_ASSETS}"/*-download -type f); do
   export LP3D_ASSET_EXT=".${LP3D_ASSET##*.}"
   case ${LP3D_ASSET_EXT} in
-    ".exe"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage"|".html"|".txt")
+    ".exe"|".zip"|".gz"|".deb"|".rpm"|".zst"|".dmg"|".AppImage"|".html"|".txt")
     # Move assets to downloads folder
     export LP3D_RELEASE="${LP3D_DOWNLOAD_ASSETS}/$(basename ${LP3D_ASSET})"
     mv ${LP3D_ASSET} ${LP3D_DOWNLOAD_ASSETS}
