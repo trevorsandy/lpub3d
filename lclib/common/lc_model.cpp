@@ -5070,7 +5070,6 @@ void lcModel::EraserToolClicked(lcObject* Object)
 	mModAction = IsPiece;
 /*** LPub3D Mod end ***/
 
-	delete Object;
 	gMainWindow->UpdateTimeline(false, false);
 /*** LPub3D Mod - Build Modification ***/
 	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
