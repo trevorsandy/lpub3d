@@ -2831,8 +2831,13 @@ void lcMainWindow::UpdateDefaultCameraProperties()
 				{
 					bool CameraFound = false;
 					for (auto CameraIt = ActiveModel->GetCameras().begin(); CameraIt != ActiveModel->GetCameras().end(); )
+					{
 						if (Camera == CameraIt->get())
+						{
 							CameraFound = true;
+							break;
+						}
+					}
 
 					if (!CameraFound)
 					{
@@ -4129,10 +4134,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_ACTION_CAMERA:
-/*** LPub3D Mod - default camera properties freeze ***/
-		//*---*-SetTool(lcTool::Camera);
-		gui->applyCameraSettings();
-/*** LPub3D Mod end ***/
+		SetTool(lcTool::Camera);
 		break;
 
 	case LC_EDIT_ACTION_MOVE:
