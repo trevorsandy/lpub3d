@@ -28,7 +28,7 @@ trap FinishElapsedTime EXIT
 SignHashAndPublishToGitHub() {
   if [ -f "${LP3D_RELEASE}" ]; then
     case ${LP3D_ASSET_EXT} in
-      ".exe"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage")
+      ".exe"|".zip"|".gz"|".deb"|".rpm"|".zst"|".dmg"|".AppImage")
       if [ -f "${LP3D_RELEASE}.sha512" ]; then
         # Generate hash file signature
         if [ "${LP3D_USE_GPG}" = "true" ]; then
