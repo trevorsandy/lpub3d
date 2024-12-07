@@ -27,8 +27,6 @@
         <file alias="appendcoverpage.png">resources/appendcoverpage.png</file>
         <file alias="appendlastpage.png">resources/appendlastpage.png</file>
         <file alias="appendpage.png">resources/appendpage.png</file>
-        <file alias="applycamerasettings.png">resources/applycamerasettings.png</file>
-        <file alias="applycamerasettings_16.png">resources/applycamerasettings_16.png</file>
         <file alias="applycamerasettingsposition.png">resources/applycamerasettingsposition.png</file>
         <file alias="applycamerasettingsposition_16.png">resources/applycamerasettingsposition_16.png</file>
         <file alias="applylightsettings.png">resources/applylightsettings.png</file>
@@ -302,6 +300,8 @@
         <file alias="softwareupdate.png">resources/softwareupdate.png</file>
         <file alias="sortPli.png">resources/sortPli.png</file>
         <file alias="splitbom.png">resources/splitbom.png</file>
+		<file alias="snapshot.png">resources/snapshot.png</file>
+		<file alias="snapshot16.png">resources/snapshot16.png</file>
         <file alias="stepgroupsetup.png">resources/stepgroupsetup.png</file>
         <file alias="stl32.png">resources/stl32.png</file>
         <file alias="stretchimage.png">resources/stretchimage.png</file>

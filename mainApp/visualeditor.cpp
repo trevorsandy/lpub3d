@@ -357,15 +357,15 @@ void Gui::create3DActions()
     lpub->actions.insert(ApplyLightAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Lights.Save Light Settings"), ApplyLightAct));
     connect(ApplyLightAct, SIGNAL(triggered()), this, SLOT(applyLightSettings()));
 
-    QIcon ApplyCameraIcon;
-    ApplyCameraIcon.addFile(":/resources/applycamerasettings.png");
-    ApplyCameraIcon.addFile(":/resources/applycamerasettings_16.png");
-    ApplyCameraAct = new QAction(ApplyCameraIcon,tr("Save Camera Settings"),this);
-    ApplyCameraAct->setObjectName("ApplyCameraAct.4");
-    ApplyCameraAct->setStatusTip(tr("Save current camera settings to current step and regenerate image"));
-	ApplyCameraAct->setShortcut(QStringLiteral("Shift+A"));
-    lpub->actions.insert(ApplyCameraAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Camera.Save Camera Settings"), ApplyCameraAct));
-    connect(ApplyCameraAct, SIGNAL(triggered()), this, SLOT(applyCameraSettings()));
+    QIcon SnapshotIcon;
+    SnapshotIcon.addFile(":/resources/snapshot.png");
+    SnapshotIcon.addFile(":/resources/snapshot16.png");
+    SnapshotAct = new QAction(SnapshotIcon,tr("Snapshot"),this);
+    SnapshotAct->setObjectName("SnapshotAct.4");
+    SnapshotAct->setStatusTip(tr("Generate current image snapshot and save camera meta commands"));
+    SnapshotAct->setShortcut(QStringLiteral("Shift+A"));
+    lpub->actions.insert(SnapshotAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Camera.Snapshot"), SnapshotAct));
+    connect(SnapshotAct, SIGNAL(triggered()), this, SLOT(applyCameraSettings()));
 
     UseImageSizeAct = new QAction(tr("Use Image Size"),this);
     UseImageSizeAct->setObjectName("UseImageSizeAct.4");
@@ -802,6 +802,7 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
      gMainWindow->GetToolsMenu()->addAction(LightGroupAct);
+     gMainWindow->GetToolsMenu()->addAction(SnapshotAct);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(ResetViewerImageAct);
@@ -856,11 +857,12 @@ void Gui::create3DMenus()
      RotateStepActionMenu->addAction(EnableBuildModRotateAct);
      gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setMenu(RotateStepActionMenu);
 
+     SnapshotMenu = new QMenu(tr("Snapshot Settings"),this);
+     SnapshotMenu->addAction(UseImageSizeAct);
+     SnapshotMenu->addAction(AutoCenterSelectionAct);
+     SnapshotAct->setMenu(SnapshotMenu);
+
      CameraMenu = new QMenu(tr("Camera Settings"),this);
-     CameraMenu->addAction(ApplyCameraAct);
-     CameraMenu->addSeparator();
-     CameraMenu->addAction(UseImageSizeAct);
-     CameraMenu->addAction(AutoCenterSelectionAct);
      CameraMenu->addAction(DefaultCameraPropertiesAct);
      CameraMenu->addSeparator();
      CameraMenu->addMenu(gMainWindow->GetCameraMenu());
@@ -904,6 +906,7 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
     gMainWindow->GetToolsToolBar()->addAction(LightGroupAct);
+    gMainWindow->GetToolsToolBar()->addAction(SnapshotAct);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(ResetViewerImageAct);

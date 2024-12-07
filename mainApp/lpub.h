@@ -2071,6 +2071,7 @@ private:
   QMenu *viewMenu;
 
   // Visual Editor Menus
+  QMenu *SnapshotMenu;
   QMenu *CameraMenu;
   QMenu *LightMenu;
   QMenu *BuildModMenu;
@@ -2111,7 +2112,7 @@ private:
   QAction *blenderImportAct;
   QAction *povrayRenderAct;
 
-  QAction *ApplyCameraAct;
+  QAction *SnapshotAct;
   QAction *CreateBuildModAct;
   QAction *ApplyBuildModAct;
   QAction *RemoveBuildModAct;
