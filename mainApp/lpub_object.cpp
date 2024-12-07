@@ -653,11 +653,11 @@ bool LPub::setFadeStepsFromCommand()
   bool lpubFade = Gui::stepContains(topLevelModel,fadeRx,result,1);
   if (lpubFade) {
     if (result != QLatin1String("GLOBAL"))
-      emit lpub->messageSig(LOG_WARNING,tr("Top level LPUB_FADE command missing GLOBAL qualifier."),true/*Show Dialog*/);
+      emit lpub->messageSig(LOG_WARNING,tr("Top level LPUB_FADE command missing GLOBAL qualifier."),LOG_SHOW_DIALOG);
     if (!nativeRenderer) {
       emit lpub->messageSig(LOG_WARNING,tr("LPUB_FADE command IGNORED.<br>"
                                            "LPUB_FADE command requires preferred render RENDERER_NATIVE.<br>"
-                                           "PREFERRED_RENDERER command must precede LPUB_FADE."),true);
+                                           "PREFERRED_RENDERER command must precede LPUB_FADE."),LOG_SHOW_DIALOG);
       lpubFade = false;
     }
   }
@@ -670,7 +670,7 @@ bool LPub::setFadeStepsFromCommand()
     Preferences::enableFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (Preferences::enableFadeSteps) {
       if (result != QLatin1String("GLOBAL")) {
-        emit lpub->messageSig(LOG_WARNING,tr("Top level FADE_STEPS set to ENABLED but missing GLOBAL qualifier."),true);
+        emit lpub->messageSig(LOG_WARNING,tr("Top level FADE_STEPS set to ENABLED but missing GLOBAL qualifier."),LOG_SHOW_DIALOG);
       } else if (configureFadeSteps && !Preferences::finalModelEnabled) {
         result.clear();
         topLevelModel = top;
@@ -680,7 +680,7 @@ bool LPub::setFadeStepsFromCommand()
           emit lpub->messageSig(LOG_INFO, tr("Display Final Model is Enabled"));
         }
         if (result != QLatin1String("GLOBAL")) {
-          emit lpub->messageSig(LOG_WARNING,tr("FINAL_MODEL_ENABLED command should have GLOBAL qualifier."),true);
+          emit lpub->messageSig(LOG_WARNING,tr("FINAL_MODEL_ENABLED command should have GLOBAL qualifier."),LOG_SHOW_DIALOG);
         }
       }
     }
@@ -693,10 +693,10 @@ bool LPub::setFadeStepsFromCommand()
     fadeRx.setPattern("FADE_STEPS SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (setupFadeSteps && result != QLatin1String("GLOBAL"))
-      emit lpub->messageSig(LOG_WARNING,tr("Top level FADE_STEPS SETUP command missing GLOBAL qualifier."),true);
+      emit lpub->messageSig(LOG_WARNING,tr("Top level FADE_STEPS SETUP command missing GLOBAL qualifier."),LOG_SHOW_DIALOG);
     if (setupFadeSteps && Preferences::enableFadeSteps) {
       emit lpub->messageSig(LOG_WARNING,tr("Command FADE_STEPS SETUP %1 encountered but<br>FADE_STEPS %1 is ENABLED.<br><br>"
-                                           "Command FADE_STEPS SETUP %1 will be IGNORED.").arg(result),true);
+                                           "Command FADE_STEPS SETUP %1 will be IGNORED.").arg(result),LOG_SHOW_DIALOG);
       setupFadeSteps = false;
 
     }
@@ -758,11 +758,11 @@ bool LPub::setHighlightStepFromCommand()
   bool lpubHighlight = Gui::stepContains(topLevelModel,highlightRx,result,1);
   if (lpubHighlight) {
     if (result != QLatin1String("GLOBAL"))
-      emit lpub->messageSig(LOG_WARNING,tr("Top level LPUB_FADE command missing GLOBAL qualifier."),true/*Show Dialog*/);
+      emit lpub->messageSig(LOG_WARNING,tr("Top level LPUB_FADE command missing GLOBAL qualifier."),LOG_SHOW_DIALOG);
     if (!nativeRenderer) {
       emit lpub->messageSig(LOG_WARNING,tr("LPUB_HIGHLIGHT command IGNORED.<br>"
                                            "LPUB_HIGHLIGHT command requires preferred render RENDERER_NATIVE.<br>"
-                                           "PREFERRED_RENDERER command must precede LPUB_HIGHLIGHT."),true);
+                                           "PREFERRED_RENDERER command must precede LPUB_HIGHLIGHT."),LOG_SHOW_DIALOG);
       lpubHighlight = false;
     }
   }
@@ -775,7 +775,7 @@ bool LPub::setHighlightStepFromCommand()
     Preferences::enableHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (Preferences::enableHighlightStep) {
       if (result != QLatin1String("GLOBAL")) {
-        emit lpub->messageSig(LOG_WARNING,tr("Top level HIGHLIGHT_STEP set to ENABLED but missing GLOBAL qualifier."),true);
+        emit lpub->messageSig(LOG_WARNING,tr("Top level HIGHLIGHT_STEP set to ENABLED but missing GLOBAL qualifier."),LOG_SHOW_DIALOG);
       } else if (configureHighlightStep && !Preferences::finalModelEnabled) {
         result.clear();
         topLevelModel = top;
@@ -785,7 +785,7 @@ bool LPub::setHighlightStepFromCommand()
           emit lpub->messageSig(LOG_INFO,tr("Display Final Model is Enabled"));
         }
         if (result != QLatin1String("GLOBAL")) {
-          emit lpub->messageSig(LOG_WARNING,tr("FINAL_MODEL_ENABLED command should have GLOBAL qualifier."),true);
+          emit lpub->messageSig(LOG_WARNING,tr("FINAL_MODEL_ENABLED command should have GLOBAL qualifier."),LOG_SHOW_DIALOG);
         }
       }
     }
@@ -798,12 +798,12 @@ bool LPub::setHighlightStepFromCommand()
     highlightRx.setPattern("HIGHLIGHT_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (setupHighlightStep && result != QLatin1String("GLOBAL")) {
-      emit lpub->messageSig(LOG_WARNING,tr("Top level HIGHLIGHT_STEP SETUP command missing GLOBAL qualifier."),true);
+      emit lpub->messageSig(LOG_WARNING,tr("Top level HIGHLIGHT_STEP SETUP command missing GLOBAL qualifier."),LOG_SHOW_DIALOG);
     }
     if (setupHighlightStep) {
       if (Preferences::enableHighlightStep) {
         emit lpub->messageSig(LOG_WARNING,tr("Command HIGHLIGHT_STEP SETUP %1 encountered but<br>HIGHLIGHT_STEP %1 is ENABLED.<br><br>"
-                                             "Command HIGHLIGHT_STEP SETUP %1 will be IGNORED.").arg(result),true);
+                                             "Command HIGHLIGHT_STEP SETUP %1 will be IGNORED.").arg(result),LOG_SHOW_DIALOG);
         setupHighlightStep = false;
       }
     }
@@ -1020,7 +1020,7 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
           stepNumber = keyArgs[2].toInt(&ok[1]);
       }
       if (!ok[1]) {
-          emit lpub->messageSig(LOG_WARNING,tr("Step number is not an integer [%1]. Using 0").arg(keyArgs[2]), true);
+          emit lpub->messageSig(LOG_WARNING,tr("Step number is not an integer [%1]. Using 0").arg(keyArgs[2]), LOG_SHOW_DIALOG);
           stepNumber = 0;
       }
 /*

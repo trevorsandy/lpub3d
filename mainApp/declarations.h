@@ -172,6 +172,7 @@ enum DisplayType { DT_DEFAULT,
 
 enum LogType { LOG_STATUS,
                LOG_INFO_STATUS,
+               LOG_SHOW_DIALOG = LOG_INFO_STATUS,
                LOG_NOTICE,
                LOG_INFO,
                LOG_TRACE,
