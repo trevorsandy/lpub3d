@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update December 02, 2024
+# Last Update December 06, 2024
 # Copyright (C) 2017 - 2024 by Trevor SANDY
 #
 
@@ -929,8 +929,9 @@ function package_renderers()
         LP3D_OUT_PATH=${LP3D_LOG_PATH}
     fi
     LP3D_ARCH=${TARGET_CPU}
-    LP3D_BASE=${platform_id}
-    LP3D_RENDERERS=LPub3D-${LP3D_APP_VERSION}-renderers-${LP3D_BASE}-${LP3D_ARCH}.tar.gz
+    LP3D_BASE=${platform_id}-${platform_ver}
+    LP3D_RNDR_VERSION=${LP3D_VERSION}.${LP3D_VER_REVISION}.${LP3D_VER_BUILD}
+    LP3D_RENDERERS=LPub3D-${LP3D_RNDR_VERSION}-renderers-${LP3D_BASE}-${LP3D_ARCH}.tar.gz
     echo -n "-Create renderer package ${LP3D_OUT_PATH}/${LP3D_RENDERERS}..."
     ( cd "${DIST_PKG_DIR}/" || return && \
     tar -czf "${LP3D_RENDERERS}"  \

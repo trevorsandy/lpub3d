@@ -196,7 +196,6 @@ export LDRAWDIR=${LDRAWDIR}
 export LP3D_LOG_PATH=${LP3D_LOG_PATH}
 export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR}
 EOF
-
 chmod +x builds/utilities/CreateRenderers.sh && \
 ./builds/utilities/CreateRenderers.sh
 
