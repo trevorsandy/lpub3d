@@ -72,10 +72,11 @@ void SnippetCompleter::performCompletion(const QString &textUnderCursor, const Q
 
 void SnippetCompleter::loadModel() const
 {
-    for (int i = 0; i < snippetCollection->count(); ++i) {
-        Snippet snippet = snippetCollection->at(i);
-        emit snippetCollection->collectionChanged(SnippetCollection::ItemAdded, snippet);
-    }
+    if (snippetCollection)
+        for (int i = 0; i < snippetCollection->count(); ++i) {
+            Snippet snippet = snippetCollection->at(i);
+            emit snippetCollection->collectionChanged(SnippetCollection::ItemAdded, snippet);
+        }
 }
 
 bool SnippetCompleter::isPopupVisible() const

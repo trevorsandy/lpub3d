@@ -7082,6 +7082,11 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Add meta commands to your snippet as desired.<br><br>"
+            "  To apply a snippet in the command editor, after typing<br>"
+            "  the snippet shortcut - e.g. 'msb' for MULTI_STEP BEGIN,<br>"
+            "  use 'CTRL+Space' to trigger the snippet insert dialog.<br>"
+            "  When the desired snippet is highlighted, hit ENTER to<br>"
+            "  insert the snippet.<br><br>"
             "  Use '$|' to indicate where the cursor will be<br>"
             "  positioned when the snippet is inserted into your<br>"
             "  instruction document.<br><br>"
@@ -7099,7 +7104,7 @@ void CommonMenus::setWhatsThis()
             "  - Ok: accept all changes in the currnt session.<br><br>"
             "  - Cancel: discard all changes in the current session.<br><br>"
             "  User defined snippets are saved to an external file<br>"
-            "  which are loaded at application startup.%1<br>")
+            "  which is loaded at application startup.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_SNIPPETS_EDIT")

@@ -36,6 +36,7 @@
 #include <QElapsedTimer>
 #include <QFutureWatcher>
 #include <QFileSystemWatcher>
+#include <QSortFilterProxyModel>
 #include <QAction>
 #include <atomic>
 
@@ -55,6 +56,8 @@ class TextEditor;
 class LDrawFile;
 class WaitingSpinnerWidget;
 class LoadModelWorker;
+
+class SnippetCollection;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -100,6 +103,8 @@ public:
         updateAct->setEnabled(b);
     }
 
+    QToolBar *fileToolBar;
+    QToolBar *standardToolBar;
     QToolBar *editToolBar;
     QToolBar *toolsToolBar;
 
@@ -123,6 +128,8 @@ signals:
     void waitingSpinnerStopSig();
     void triggerUndoSig();
     void triggerRedoSig();
+
+    void comboFilterChanged();
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName, const StepLines& lineScope);
@@ -190,6 +197,11 @@ private slots:
     void undoKeySequence();
     void redoKeySequence();
 
+    void comboFilterTriggered();
+    void comboFilterTextChanged(const QString&);
+
+    void moveSelection();
+
 protected:
     void createActions();
     void createMenus();
@@ -212,6 +224,12 @@ protected:
 
     QAbstractItemModel *metaCommandModel(QObject *parent = nullptr);
 
+    void configureMpdCombo();
+    Qt::CaseSensitivity comboCaseSensitivity() const;
+    void setComboCaseSensitivity(Qt::CaseSensitivity);
+    QRegExp::PatternSyntax comboPatternSyntax() const;
+    void setComboPatternSyntax(QRegExp::PatternSyntax);
+
     void closeEvent(QCloseEvent*_event) override;
 
     WaitingSpinnerWidget *_waitingSpinner;
@@ -219,7 +237,14 @@ protected:
     LoadModelWorker   *loadModelWorker;
     Highlighter       *highlighter;
     HighlighterSimple *highlighterSimple;
+
     QComboBox         *mpdCombo;
+    QAction           *mComboCaseSensitivityAction;
+    QAction           *mComboFilterAction;
+    QActionGroup      *mComboPatternGroup;
+    QString            mComboDefaultText;
+    QSortFilterProxyModel *mComboFilterModel;
+
     QFutureWatcher<int> futureWatcher;
     QFileSystemWatcher fileWatcher;
     QElapsedTimer      displayTimer;
@@ -271,6 +296,8 @@ protected:
 #endif
     QAction  *topAct;
     QAction  *bottomAct;
+    QAction  *moveUpAct;
+    QAction  *moveDownAct;
     QAction  *cutAct;
     QAction  *copyAct;
     QAction  *pasteAct;

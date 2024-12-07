@@ -1,4 +1,4 @@
-LPub3D 2.4.8.243.3966 (07 12 2024 09:33:56)
+LPub3D 2.4.8.244.3967 (07 12 2024 09:34:59)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,6 +18,7 @@ Revisions:
 - Enhancement - Automatic restart #790
 - Enhancement - Change Local LEGO Elements to User-defined Elements #796
 - Enhancement - Enhanced extended subfile load path options #794
+- Enhancement - Expand command editor toolbars #800
 - Enhancement - Expand visual editor toolbars and menus #799
 - Enhancement - Expanded part filter options #786
 - Enhancement - Improve integration of BuildMods with fade steps and highlight step #776

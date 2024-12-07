@@ -113,16 +113,16 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     verticalScrollBar = _textEdit->verticalScrollBar();
 
-    lpub->snippetCollection = new SnippetCollection(this);
-
     _textEdit->setAutoCompleter(new QCompleter(metaCommandModel(this), this));
+
     _textEdit->setSnippetCompleter(new SnippetCompleter(lpub->snippetCollection, _textEdit));
 
     _textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
+
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    showLineType    = LINE_HIGHLIGHT;
-    isReadOnly      = false;
+    showLineType = LINE_HIGHLIGHT;
+    isReadOnly = false;
     visualEditorVisible = false;
     _isUndo = _isRedo = false;
 
@@ -613,6 +613,20 @@ void EditWindow::createActions()
     lpub->actions.insert(toggleCmmentAct->objectName(), Action(QStringLiteral("Edit.Toggle Line Comment"), toggleCmmentAct));
     connect(toggleCmmentAct, SIGNAL(triggered()), _textEdit, SLOT(toggleComment()));
 
+    moveUpAct = new QAction(QIcon(":/resources/movedirectoryup.png"), tr("Move Selected Line Up"), this);
+    moveUpAct->setObjectName("moveUpAct.2");
+    moveUpAct->setShortcut(QStringLiteral("Ctrl+H"));
+    moveUpAct->setStatusTip(tr("Move Line Up"));
+    lpub->actions.insert(moveUpAct->objectName(), Action(QStringLiteral("File.Move Selected Line Up"), moveUpAct));
+    connect(moveUpAct, SIGNAL(triggered()), this, SLOT(moveSelection()));
+
+    moveDownAct = new QAction(QIcon(":/resources/movedirectorydown.png"), tr("Move Selected Line Down"), this);
+    moveDownAct->setObjectName("moveDownAct.2");
+    moveDownAct->setShortcut(QStringLiteral("Ctrl+I"));
+    moveDownAct->setStatusTip(tr("Move Line Down"));
+    lpub->actions.insert(moveDownAct->objectName(), Action(QStringLiteral("File.Move Selected Line Down"), moveDownAct));
+    connect(moveDownAct, SIGNAL(triggered()), this, SLOT(moveSelection()));
+
     topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of Document"), this);
     topAct->setObjectName("topAct.2");
     topAct->setShortcut(QStringLiteral("Ctrl+T"));
@@ -713,7 +727,7 @@ void EditWindow::createActions()
     }
     commandsDialogAct = new QAction(commandsDialogIcon,tr("Manage &LPub Metacommands"), this);
     commandsDialogAct->setObjectName("commandsDialogAct.2");
-    commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions"));
+    commandsDialogAct->setStatusTip(tr("View LPub meta commands, customize command descriptions, and define command snippets"));
     commandsDialogAct->setShortcut(QStringLiteral("Ctrl+K"));
     lpub->actions.insert(commandsDialogAct->objectName(), Action(QStringLiteral("Help.Manage LPub Metacommands"), commandsDialogAct));
     connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
@@ -823,7 +837,8 @@ void EditWindow::disableActions()
     toggleCmmentAct->setEnabled(false);
     bottomAct->setEnabled(false);
     showAllCharsAct->setEnabled(false);
-
+    moveUpAct->setEnabled(false);
+    moveDownAct->setEnabled(false);
     openFolderAct->setEnabled(false);
     copyFullPathToClipboardAct->setEnabled(false);
     copyFileNameToClipboardAct->setEnabled(false);
@@ -862,6 +877,8 @@ void EditWindow::enableActions()
     bottomAct->setEnabled(true);
     showAllCharsAct->setEnabled(true);
     openFolderAct->setEnabled(true);
+    moveUpAct->setEnabled(true);
+    moveDownAct->setEnabled(true);
 }
 
 void EditWindow::clearEditorWindow()
@@ -872,6 +889,42 @@ void EditWindow::clearEditorWindow()
 
 void EditWindow::createToolBars()
 {
+    if (modelFileEdit()) {
+        fileToolBar = addToolBar(tr("Editor File Toolbar"));
+        fileToolBar->setObjectName("editorFileToolbar");
+        fileToolBar->addSeparator();
+        fileToolBar->addAction(exitAct);
+        fileToolBar->addAction(saveAct);
+        fileToolBar->addAction(saveCopyAct);
+        fileToolBar->addSeparator();
+        fileToolBar->addAction(undoAct);
+        fileToolBar->addAction(redoAct);
+
+#ifndef QT_NO_CLIPBOARD
+        fileToolBar->addSeparator();
+        fileToolBar->addAction(copyFileNameToClipboardAct);
+        fileToolBar->addAction(copyFullPathToClipboardAct);
+#endif
+        fileToolBar->addSeparator();
+        fileToolBar->addAction(openFolderAct);
+        QMenu *openWithMenu = new QMenu(tr("Open With Menu"), this);
+#ifdef Q_OS_WIN
+        openWithMenu->addAction(openWithChoiceAct);
+#endif
+        openWithToolbarAct->setMenu(openWithMenu);
+        if (numOpenWithPrograms) {
+            openWithMenu->addSeparator();
+            const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
+            const int maxOpenWithPrograms = Preferences::maxOpenWithPrograms + systemEditor;
+            for (int i = 0; i < maxOpenWithPrograms; i++) {
+                if (i == Preferences::maxOpenWithPrograms)
+                    openWithMenu->addSeparator();
+                openWithMenu->addAction(openWithActList.at(i));
+            }
+        }
+        fileToolBar->addAction(openWithToolbarAct);
+    }
+
     editToolBar = addToolBar(tr("Editor Edit Toolbar"));
     editToolBar->setObjectName("editorEditToolbar");
     if (modelFileEdit()) {
@@ -883,14 +936,6 @@ void EditWindow::createToolBars()
         mpdCombo->setStatusTip("Use dropdown to go to submodel");
         connect(mpdCombo,SIGNAL(activated(int)),
                 this,    SLOT(mpdComboChanged(int)));
-        editToolBar->addSeparator();
-        editToolBar->addAction(exitAct);
-        editToolBar->addAction(saveAct);
-        editToolBar->addAction(saveCopyAct);
-        editToolBar->addSeparator();
-        editToolBar->addAction(undoAct);
-        editToolBar->addAction(redoAct);
-
         mpdComboSeparatorAct = editToolBar->addSeparator();
         mpdComboSeparatorAct->setObjectName("mpdComboSeparatorAct.2");
         lpub->actions.insert(mpdComboSeparatorAct->objectName(), Action(QStringLiteral(""), mpdComboSeparatorAct));
@@ -898,29 +943,7 @@ void EditWindow::createToolBars()
         mpdComboAct = editToolBar->addWidget(mpdCombo);
         mpdComboAct->setObjectName("mpdComboAct.2");
         lpub->actions.insert(mpdComboAct->objectName(), Action(QStringLiteral(""), mpdComboAct));
-
-#ifndef QT_NO_CLIPBOARD
-        editToolBar->addSeparator();
-        editToolBar->addAction(copyFileNameToClipboardAct);
-        editToolBar->addAction(copyFullPathToClipboardAct);
-#endif
-        editToolBar->addSeparator();
-        editToolBar->addAction(openFolderAct);
-        QMenu *openWithMenu = new QMenu(tr("Open With Menu"), this);
-        openWithMenu->setEnabled(false);
-        openWithToolbarAct->setMenu(openWithMenu);
-        if (numOpenWithPrograms) {
-            openWithMenu->setEnabled(true);
-            const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
-            const int maxOpenWithPrograms = Preferences::maxOpenWithPrograms + systemEditor;
-            for (int i = 0; i < maxOpenWithPrograms; i++) {
-                if (i == Preferences::maxOpenWithPrograms)
-                    openWithMenu->addSeparator();
-                openWithMenu->addAction(openWithActList.at(i));
-            }
-        }
-        editToolBar->addAction(openWithToolbarAct);
-        editToolBar->addSeparator();
+        editToolBar->addAction(updateAct);
     } else {
         editToolBar->addAction(editorTabLockAct);
         editToolBar->addSeparator();
@@ -928,17 +951,25 @@ void EditWindow::createToolBars()
     editToolBar->addAction(updateAct);
     editToolBar->addAction(redrawAct);
     editToolBar->addAction(toggleCmmentAct);
-    //editToolBar->addAction(showAllCharsAct);
-    editToolBar->addAction(selAllAct);
-    editToolBar->addAction(cutAct);
-    editToolBar->addAction(copyAct);
-    editToolBar->addAction(pasteAct);
-    editToolBar->addAction(findAct);
     editToolBar->addAction(gotoLineAct);
     editToolBar->addAction(delAct);
+    if (!isReadOnly) {
+        editToolBar->addAction(moveUpAct);
+        editToolBar->addAction(moveDownAct);
+    }
     editToolBar->addAction(topAct);
     editToolBar->addAction(bottomAct);
-    editToolBar->addAction(preferencesAct);
+    editToolBar->addAction(commandsDialogAct);
+
+    standardToolBar = addToolBar(tr("Editor Standard Toolbar"));
+    standardToolBar->setObjectName("editorStandardToolbar");
+    standardToolBar->addAction(cutAct);
+    standardToolBar->addAction(copyAct);
+    standardToolBar->addAction(pasteAct);
+    standardToolBar->addAction(findAct);
+    standardToolBar->addAction(selAllAct);
+    standardToolBar->addAction(showAllCharsAct);
+    standardToolBar->addAction(preferencesAct);
 
     toolsToolBar = addToolBar(tr("Editor Tools Toolbar"));
     toolsToolBar->setObjectName("editorToolsToolbar");
@@ -982,6 +1013,8 @@ void EditWindow::setReadOnly(bool enabled)
         cutAct->setVisible(         !isReadOnly);
         pasteAct->setVisible(       !isReadOnly);
         delAct->setVisible(         !isReadOnly);
+        moveUpAct->setVisible(      !isReadOnly);
+        moveDownAct->setVisible(    !isReadOnly);
     }
 
     setWindowTitle(title);
@@ -1037,6 +1070,45 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
 #endif
 //*/
     return INVALID_CURRENT_STEP;
+}
+
+void EditWindow::moveSelection()
+{
+    int origPosition = 0, numChars = 0;
+    QTextCursor cursor = _textEdit->textCursor();
+    cursor.beginEditBlock();
+    origPosition = cursor.position();
+    cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+    numChars = origPosition - cursor.position();
+    if (sender() == moveUpAct) {
+      if (cursor.atStart()) {
+        cursor.endEditBlock();
+        return;
+      }
+    } else if (sender() == moveDownAct) {
+      cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
+      if (cursor.atEnd()) {
+        cursor.endEditBlock();
+        return;
+      }
+      cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+      cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor);
+    }
+
+    cursor.select(QTextCursor::LineUnderCursor);
+    QTextDocumentFragment selection = cursor.selection();
+    if (selection.isEmpty()) {
+      cursor.endEditBlock();
+      return;
+    }
+    cursor.removeSelectedText();
+    cursor.deleteChar(); // clean up new line
+    cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor);
+    cursor.insertText(selection.toPlainText()+QChar('\n'));
+    cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, numChars);
+    cursor.endEditBlock();
+    _textEdit->setTextCursor(cursor);
 }
 
 bool EditWindow::setValidPartLine()
@@ -1278,6 +1350,8 @@ void EditWindow::showContextMenu(const QPoint &pt)
     menu->addAction(toggleCmmentAct);
     menu->addAction(findAct);
     menu->addAction(gotoLineAct);
+    menu->addAction(moveUpAct);
+    menu->addAction(moveDownAct);
     menu->addAction(topAct);
     menu->addAction(bottomAct);
     menu->addAction(showAllCharsAct);
@@ -2296,6 +2370,151 @@ void EditWindow::showLine(int lineNumber, int lineType)
   pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
 }
 
+void EditWindow::configureMpdCombo()
+{
+    mpdCombo->clear();
+
+    mpdCombo->setMaxCount(0);
+    mpdCombo->setMaxCount(1000);
+    for (int i = 0; i < _subFileList.count(); i++) {
+        const QString &subFile = _subFileList.at(i);
+        mpdCombo->addItem(subFile);
+        if (lpub->ldrawFile.isUnofficialPart(subFile) == UNOFFICIAL_DATA)
+            mpdCombo->setItemData(i, QBrush(Preferences::darkTheme ? Qt::magenta : Qt::green), Qt::TextColorRole);
+    }
+    if(_saveSubfileIndex) {
+        mpdCombo->setCurrentIndex(_saveSubfileIndex);
+        _saveSubfileIndex = 0;
+    }
+
+    mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
+
+    if (mpdCombo->count() < 6)
+        return;
+
+    mComboDefaultText = mpdCombo->currentText();
+
+    mpdCombo->setFocusPolicy(Qt::StrongFocus);
+    mpdCombo->setEditable(true);
+    mpdCombo->setInsertPolicy(QComboBox::NoInsert);
+
+    QLineEdit *comboFilterEdit = mpdCombo->lineEdit();
+
+    mComboPatternGroup = new QActionGroup(comboFilterEdit);
+    mComboFilterAction = comboFilterEdit->addAction(QIcon(":/resources/filter.png"), QLineEdit::TrailingPosition);
+    mComboFilterAction->setCheckable(true);
+    mComboFilterAction->setChecked(false);
+    connect(mComboFilterAction, &QAction::triggered, this, &EditWindow::comboFilterTriggered);
+
+    QMenu *comboFilterMenu = new QMenu(comboFilterEdit);
+
+    mComboCaseSensitivityAction = comboFilterMenu->addAction(tr("Match Case"));
+    mComboCaseSensitivityAction->setCheckable(true);
+    connect(mComboCaseSensitivityAction, &QAction::toggled, this, &EditWindow::comboFilterChanged);
+
+    comboFilterMenu->addSeparator();
+    mComboPatternGroup->setExclusive(true);
+    QAction *patternAction = comboFilterMenu->addAction("Fixed String");
+    patternAction->setData(QVariant(int(QRegExp::FixedString)));
+    patternAction->setCheckable(true);
+    patternAction->setChecked(true);
+    mComboPatternGroup->addAction(patternAction);
+    patternAction = comboFilterMenu->addAction("Regular Expression");
+    patternAction->setCheckable(true);
+    patternAction->setData(QVariant(int(QRegExp::RegExp2)));
+    mComboPatternGroup->addAction(patternAction);
+    patternAction = comboFilterMenu->addAction("Wildcard");
+    patternAction->setCheckable(true);
+    patternAction->setData(QVariant(int(QRegExp::Wildcard)));
+    mComboPatternGroup->addAction(patternAction);
+    connect(mComboPatternGroup, &QActionGroup::triggered, this, &EditWindow::comboFilterChanged);
+
+    QToolButton *optionsButton = new QToolButton;
+#ifndef QT_NO_CURSOR
+    optionsButton->setCursor(Qt::ArrowCursor);
+#endif
+    optionsButton->setFocusPolicy(Qt::NoFocus);
+    optionsButton->setStyleSheet("* { border: none; }");
+    optionsButton->setIcon(QIcon(":/resources/gear_in.png"));
+    optionsButton->setToolTip(tr("Filter Options..."));
+    optionsButton->setMenu(comboFilterMenu);
+    optionsButton->setPopupMode(QToolButton::InstantPopup);
+
+    QWidgetAction *optionsAction = new QWidgetAction(this);
+    optionsAction->setDefaultWidget(optionsButton);
+    comboFilterEdit->addAction(optionsAction, QLineEdit::LeadingPosition);
+    connect(comboFilterEdit, &QLineEdit::textChanged, this, &EditWindow::comboFilterTextChanged);
+
+    mComboFilterModel = new QSortFilterProxyModel(mpdCombo);
+    mComboFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    mComboFilterModel->setSourceModel(mpdCombo->model());
+
+    mpdCombo->setCompleter(new QCompleter(mComboFilterModel, mpdCombo));
+    mpdCombo->completer()->setFilterMode(Qt::MatchContains);
+    mpdCombo->completer()->setCompletionMode(QCompleter::PopupCompletion);
+
+    connect(mpdCombo,SIGNAL(activated(int)), this, SLOT(mpdComboChanged(int)));
+}
+
+void EditWindow::comboFilterTextChanged(const QString& Text)
+{
+    if (mComboFilterAction) {
+        if (Text != mComboDefaultText) {
+            mComboFilterAction->setIcon(QIcon(":/resources/resetaction.png"));
+            mComboFilterAction->setToolTip(tr("Reset"));
+        } else {
+            mComboFilterAction->setIcon(QIcon(":/resources/filter.png"));
+            mComboFilterAction->setToolTip(tr(""));
+        }
+        QRegExp comboFilterRx(mpdCombo->lineEdit()->text(),
+                              comboCaseSensitivity(),
+                              comboPatternSyntax());
+        mComboFilterModel->setFilterRegExp(comboFilterRx);
+    }
+}
+
+void EditWindow::comboFilterTriggered()
+{
+    int index = mpdCombo->currentIndex();
+    mpdCombo->setCurrentIndex(0);
+    mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
+    mComboFilterAction->setIcon(QIcon(":/resources/filter.png"));
+    mComboFilterAction->setToolTip(tr(""));
+    if (index)
+        mpdComboChanged(index);
+}
+
+Qt::CaseSensitivity EditWindow::comboCaseSensitivity() const
+{
+    return mComboCaseSensitivityAction->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive;
+}
+
+void EditWindow::setComboCaseSensitivity(Qt::CaseSensitivity cs)
+{
+    mComboCaseSensitivityAction->setChecked(cs == Qt::CaseSensitive);
+}
+
+static inline QRegExp::PatternSyntax patternSyntaxFromAction(const QAction *a)
+{
+    return static_cast<QRegExp::PatternSyntax>(a->data().toInt());
+}
+
+QRegExp::PatternSyntax EditWindow::comboPatternSyntax() const
+{
+    return patternSyntaxFromAction(mComboPatternGroup->checkedAction());
+}
+
+void EditWindow::setComboPatternSyntax(QRegExp::PatternSyntax s)
+{
+    const QList<QAction*> actions = mComboPatternGroup->actions();
+    for (QAction *a : actions) {
+        if (patternSyntaxFromAction(a) == s) {
+            a->setChecked(true);
+            break;
+        }
+    }
+}
+
 void EditWindow::updateDisabled(bool state)
 {
     if (sender() == saveAct) {
@@ -2479,13 +2698,7 @@ void EditWindow::loadFinished()
                 if ((mpdComboActionFound = action == mpdComboSeparatorAct))
                     break;
             }
-            mpdCombo->setMaxCount(0);
-            mpdCombo->setMaxCount(1000);
-            mpdCombo->addItems(_subFileList);
-            if(_saveSubfileIndex) {
-                mpdCombo->setCurrentIndex(_saveSubfileIndex);
-                _saveSubfileIndex = 0;
-            }
+            configureMpdCombo();
             if (!mpdComboActionFound) {
                 int index = editToolBar->actions().indexOf(redoAct) + 1;
                 editToolBar->insertAction(editToolBar->actions().at(index), mpdComboAct);

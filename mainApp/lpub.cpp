@@ -3385,8 +3385,10 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     selectedItemObj   = UndefinedObj;
     mViewerZoomLevel  = 50;
 
-    if (lpub && Preferences::modeGUI)
+    if (lpub && Preferences::modeGUI) {
         lpub->meta.metaKeywords(lpub->metaKeywords);
+        lpub->loadSnippetCollection();
+    }
 
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
     editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window
@@ -3751,11 +3753,9 @@ void Gui::initialize()
   if (Preferences::modeGUI) {
       commonMenus.setWhatsThis();
 
-      lpub->setupChangeLogUpdate();
-
       lpub->loadCommandCollection();
 
-      lpub->loadSnippetCollection();
+      lpub->setupChangeLogUpdate();
 
       lpub->loadDialogs();
   }
@@ -6139,17 +6139,17 @@ void Gui::createActions()
         commandsDialogIcon.addFile(":/resources/command32.png");
         commandsDialogIcon.addFile(":/resources/command16.png");
     }
-    QAction *commandsDialogAct = new QAction(commandsDialogIcon,tr("Manage &LPub Metacommands..."), gui);
+    QAction *commandsDialogAct = new QAction(commandsDialogIcon,tr("Manage &LPUB Metacommands..."), gui);
     commandsDialogAct->setObjectName("commandsDialogAct.1");
-    commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions"));
+    commandsDialogAct->setStatusTip(tr("View LPUB meta commands, customize command descriptions, and define command snippets"));
     commandsDialogAct->setShortcut(QStringLiteral("Ctrl+K"));
-    lpub->actions.insert(commandsDialogAct->objectName(), Action(QStringLiteral("Help.Manage LPub Metacommands"), commandsDialogAct));
+    lpub->actions.insert(commandsDialogAct->objectName(), Action(QStringLiteral("Help.Manage LPUB Metacommands"), commandsDialogAct));
     connect(commandsDialogAct, SIGNAL(triggered()), gui, SLOT(commandsDialog()));
 
-    QAction *exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPub Metacommands..."), gui);
+    QAction *exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPUB Metacommands..."), gui);
     exportMetaCommandsAct->setObjectName("exportMetaCommandsAct.1");
-    exportMetaCommandsAct->setStatusTip(tr("Export a list of the LPub meta commands to a text file"));
-    lpub->actions.insert(exportMetaCommandsAct->objectName(), Action(QStringLiteral("Help.Export LPub Metacommands"), exportMetaCommandsAct));
+    exportMetaCommandsAct->setStatusTip(tr("Export a list of the LPUB meta commands to a text file"));
+    lpub->actions.insert(exportMetaCommandsAct->objectName(), Action(QStringLiteral("Help.Export LPUB Metacommands"), exportMetaCommandsAct));
     connect(exportMetaCommandsAct, SIGNAL(triggered()), gui, SLOT(exportMetaCommands()));
 
     QAction *updateAppAct = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check For &Updates..."), gui);

@@ -78,14 +78,15 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.8.3966" date="2024-12-07">
+            <release version="2.4.8.3967" date="2024-12-07">
                 <description>
-                    <p>LPub3D 07.12.2024 v2.4.8 r243 Continuous Build.
+                    <p>LPub3D 07.12.2024 v2.4.8 r244 Continuous Build.
                         Feature - Increase the capability to change Edge Lines size #772
                         Enhancement - Add renderer arguments and environment vars to global settings #775
                         Enhancement - Automatic restart #790
                         Enhancement - Change Local LEGO Elements to User-defined Elements #796
                         Enhancement - Enhanced extended subfile load path options #794
+                        Enhancement - Expand command editor toolbars #800
                         Enhancement - Expand visual editor toolbars and menus #799
                         Enhancement - Expanded part filter options #786
                         Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
