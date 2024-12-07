@@ -2929,10 +2929,13 @@ void Preferences::rendererPreferences()
                 if (items.size()) {
                     blenderVersion = items.first();
                     blenderInstalled = true;
-                    if (items.size() > 1) {
+                    if (items.size() > 1)
                         blenderAddonVersion = items.last();
-                    }
-                    logInfo() << qUtf8Printable(QObject::tr("Blender version: %1%2").arg(blenderVersion).arg(blenderAddonVersion));
+                    logInfo() << qUtf8Printable(QObject::tr("Blender version: %1%2")
+                                                            .arg(blenderVersion)
+                                                            .arg(blenderAddonVersion.isEmpty()
+                                                                 ? QString()
+                                                                 : QObject::tr(", %1 Blender addon version: %2").arg(VER_PRODUCTNAME_STR).arg(blenderAddonVersion)));
                 }
                 logInfo() << qUtf8Printable(QObject::tr("Blender executable: %1").arg(blenderExe));
                 QFileInfo blendFileInfo(QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_DEFAULT_BLEND_FILE));
