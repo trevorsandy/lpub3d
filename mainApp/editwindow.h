@@ -172,9 +172,10 @@ private slots:
     void previewLine();
     void editorTabLock();
 #ifdef QT_DEBUG_MODE
-    void previewViewerFile();
+    void previewCurrentModel();
 #endif
     void commandsDialog();
+    void applyCommandSnippet(const QString &, bool);
     void bottomOfDocument();
     void showAllCharacters();
     void mpdComboChanged(int index);
@@ -200,7 +201,9 @@ private slots:
     void comboFilterTriggered();
     void comboFilterTextChanged(const QString&);
 
-    void moveSelection();
+    void moveSelection(bool = true);
+    void moveLineUp() { moveSelection(); }
+    void moveLineDown() { moveSelection(false); }
 
 protected:
     void createActions();
@@ -216,6 +219,7 @@ protected:
     void updateOpenWithActions();
     void disableActions();
     void enableActions();
+    void enablePartLineTools(bool b);
 
     int setCurrentStep(const int lineNumber, bool inScope = true);
 
@@ -277,11 +281,11 @@ protected:
     QScrollBar    *verticalScrollBar;
     QList<QAction *> openWithActList;
 
-    QAction  *commandsDialogAct;
     QAction  *openWithChoiceAct;
     QAction  *openWithToolbarAct;
     QAction  *editModelFileAct;
     QAction  *previewLineAct;
+    QAction  *editCommandAct;
     QAction  *editColorAct;
     QAction  *editPartAct;
 
@@ -292,7 +296,7 @@ protected:
     QAction  *removeSubstitutePartAct;
 
 #ifdef QT_DEBUG_MODE
-    QAction  *previewViewerFileAct;
+    QAction  *previewCurrentModelAct;
 #endif
     QAction  *topAct;
     QAction  *bottomAct;

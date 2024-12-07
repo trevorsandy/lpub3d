@@ -166,7 +166,21 @@ EditWindow::~EditWindow()
 
 void EditWindow::commandsDialog()
 {
+    CommandsDialog::setCommandEdit(true);
     CommandsDialog::showCommandsDialog();
+    CommandsDialog::setCommandEdit(false);
+}
+
+void EditWindow::applyCommandSnippet(const QString &snippet, bool insertAfter)
+{
+    QTextCursor cursor = _textEdit->textCursor();
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+    if (insertAfter)
+        cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor);
+    cursor.insertText(snippet+QChar('\n'));
+    cursor.endEditBlock();
+    _textEdit->setTextCursor(cursor);
 }
 
 void EditWindow::gotoLine()
@@ -305,7 +319,7 @@ void EditWindow::editorTabLock()
 }
 
 #ifdef QT_DEBUG_MODE
-void EditWindow::previewViewerFile()
+void EditWindow::previewCurrentModel()
 {
     lcPreferences& Preferences = lcGetPreferences();
     if (Preferences.mPreviewEnabled && !isIncludeFile) {
@@ -527,11 +541,11 @@ void EditWindow::createActions()
     connect(editorTabLockAct, SIGNAL(triggered()), this, SLOT(editorTabLock()));
 
 #ifdef QT_DEBUG_MODE
-    previewViewerFileAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview Current Model..."), this);
-    previewViewerFileAct->setObjectName("previewViewerFileAct.2");
-    previewViewerFileAct->setStatusTip(tr("Display Visual Editor file in a popup 3D viewer"));
-    lpub->actions.insert(previewViewerFileAct->objectName(), Action(QStringLiteral("Edit.Preview Current Model"), previewViewerFileAct));
-    connect(previewViewerFileAct, SIGNAL(triggered()), this, SLOT(previewViewerFile()));
+    previewCurrentModelAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview Current Model..."), this);
+    previewCurrentModelAct->setObjectName("previewCurrentModelAct.2");
+    previewCurrentModelAct->setStatusTip(tr("Display current model in a popup 3D Viewer window."));
+    lpub->actions.insert(previewCurrentModelAct->objectName(), Action(QStringLiteral("Edit.Preview Current Model"), previewCurrentModelAct));
+    connect(previewCurrentModelAct, SIGNAL(triggered()), this, SLOT(previewCurrentModel()));
 #endif
 
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
@@ -725,12 +739,12 @@ void EditWindow::createActions()
         commandsDialogIcon.addFile(":/resources/command32.png");
         commandsDialogIcon.addFile(":/resources/command16.png");
     }
-    commandsDialogAct = new QAction(commandsDialogIcon,tr("Manage &LPub Metacommands"), this);
-    commandsDialogAct->setObjectName("commandsDialogAct.2");
-    commandsDialogAct->setStatusTip(tr("View LPUB meta commands, customize command descriptions, and define command snippets"));
-    commandsDialogAct->setShortcut(QStringLiteral("Ctrl+K"));
-    lpub->actions.insert(commandsDialogAct->objectName(), Action(QStringLiteral("Help.Manage LPub Metacommands"), commandsDialogAct));
-    connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
+    editCommandAct = new QAction(commandsDialogIcon,tr("Manage &LPUB Metacommands"), this);
+    editCommandAct->setObjectName("editCommandAct.2");
+    editCommandAct->setStatusTip(tr("View LPUB meta commands, customize command descriptions, and define command snippets"));
+    editCommandAct->setShortcut(QStringLiteral("Ctrl+K"));
+    lpub->actions.insert(editCommandAct->objectName(), Action(QStringLiteral("Help.Manage LPub Metacommands"), editCommandAct));
+    connect(editCommandAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
 
     openWithToolbarAct = new QAction(QIcon(":/resources/openwith.png"), tr("Open With..."), this);
     openWithToolbarAct->setObjectName("openWithToolbarAct.2");
@@ -852,7 +866,7 @@ void EditWindow::disableActions()
     if (modelFileEdit())
         previewLineAct->setEnabled(false);
 #ifdef QT_DEBUG_MODE
-    previewViewerFileAct->setEnabled(false);
+    previewCurrentModelAct->setEnabled(false);
 #endif
     editColorAct->setEnabled(false);
     editPartAct->setEnabled(false);
@@ -861,6 +875,7 @@ void EditWindow::disableActions()
         removeMenu = nullptr;
     substitutePartAct->setEnabled(false);
     removeSubstitutePartAct->setEnabled(false);
+    editCommandAct->setEnabled(false);
 }
 
 void EditWindow::enableActions()
@@ -879,6 +894,16 @@ void EditWindow::enableActions()
     openFolderAct->setEnabled(true);
     moveUpAct->setEnabled(true);
     moveDownAct->setEnabled(true);
+    editCommandAct->setEnabled(true);
+}
+
+void EditWindow::enablePartLineTools(bool b)
+{
+    editColorAct->setEnabled(b);
+    editPartAct->setEnabled(b);
+    substitutePartAct->setEnabled(b);
+    if (modelFileEdit())
+        previewLineAct->setEnabled(b);
 }
 
 void EditWindow::clearEditorWindow()
@@ -959,7 +984,6 @@ void EditWindow::createToolBars()
     }
     editToolBar->addAction(topAct);
     editToolBar->addAction(bottomAct);
-    editToolBar->addAction(commandsDialogAct);
 
     standardToolBar = addToolBar(tr("Editor Standard Toolbar"));
     standardToolBar->setObjectName("editorStandardToolbar");
@@ -973,9 +997,9 @@ void EditWindow::createToolBars()
 
     toolsToolBar = addToolBar(tr("Editor Tools Toolbar"));
     toolsToolBar->setObjectName("editorToolsToolbar");
-    toolsToolBar->setEnabled(false);
 
     if (!isReadOnly) {
+        toolsToolBar->addAction(editCommandAct);
         toolsToolBar->addAction(editColorAct);
         toolsToolBar->addAction(editPartAct);
         toolsToolBar->addAction(substitutePartAct);
@@ -985,7 +1009,7 @@ void EditWindow::createToolBars()
         toolsToolBar->addAction(previewLineAct);
 #ifdef QT_DEBUG_MODE
     toolsToolBar->addSeparator();
-    toolsToolBar->addAction(previewViewerFileAct);
+    toolsToolBar->addAction(previewCurrentModelAct);
 #endif
 
     disableActions();
@@ -1072,20 +1096,23 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
     return INVALID_CURRENT_STEP;
 }
 
-void EditWindow::moveSelection()
+void EditWindow::moveSelection(bool moveUp)
 {
+    if(sender() == moveDownAct)
+        moveUp = false;
+
     int origPosition = 0, numChars = 0;
     QTextCursor cursor = _textEdit->textCursor();
     cursor.beginEditBlock();
     origPosition = cursor.position();
     cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
     numChars = origPosition - cursor.position();
-    if (sender() == moveUpAct) {
+    if (moveUp) {
       if (cursor.atStart()) {
         cursor.endEditBlock();
         return;
       }
-    } else if (sender() == moveDownAct) {
+    } else {
       cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
       if (cursor.atEnd()) {
         cursor.endEditBlock();
@@ -1127,20 +1154,23 @@ bool EditWindow::setValidPartLine()
     bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
     if (lpub->currentStep) isDisplayType = lpub->currentStep->displayStep != DT_DEFAULT;
 
-    toolsToolBar->setEnabled(false);
+    enablePartLineTools(false);
     if (isReadOnly) {
         editColorAct->setVisible(false);
         editPartAct->setVisible(false);
         substitutePartAct->setVisible(false);
+        editCommandAct->setVisible(false);
     } else {
         editColorAct->setText(tr("Edit Color"));
         editPartAct->setText(tr("Edit Part"));
-        if (isPliControlFile)
+        if (isPliControlFile) {
             substitutePartAct->setEnabled(false);
-        else if (isDisplayType)
+        } else if (isDisplayType) {
             substitutePartAct->setEnabled(false);
-        else
+        } else {
             substitutePartAct->setText(tr("Substitute Part"));
+        }
+        editCommandAct->setText(tr("Add Metacommands"));
     }
 
     if (!isPliControlFile)
@@ -1209,7 +1239,7 @@ bool EditWindow::setValidPartLine()
 //*/
 
     // partType is valid if we get here so check color to enable tools
-    //toolsToolBar->setEnabled(true);
+    //enablePartLineTools(true);
 
     const QString elidedPartType = partType.size() > 20 ? QString(partType.left(17) + "..." + partType.right(3)) : partType;
 
@@ -1240,7 +1270,6 @@ bool EditWindow::setValidPartLine()
     copyFileNameToClipboardAct->setData(partType);
 
     if (!isReadOnly) {
-
         if (colorCode != LDRAW_MATERIAL_COLOUR) {
             editColorAct->setText(tr("Edit Color %1 (%2)...").arg(gColorList[lcGetColorIndex(colorCode)].Name).arg(colorCode));
             editColorAct->setData(QString("%1|%2").arg(colorCode).arg(selection));
@@ -1332,7 +1361,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
         QMenu *toolsMenu = new QMenu(tr("Tools..."), this);
         toolsMenu->setIcon(QIcon(":/resources/tools.png"));
         menu->addMenu(toolsMenu);
-        toolsMenu->addAction(commandsDialogAct);
+        toolsMenu->addAction(editCommandAct);
 
         if (setValidPartLine()) {
             toolsMenu->addAction(editColorAct);
@@ -1969,7 +1998,7 @@ void EditWindow::highlightSelectedParts() {
     if (isIncludeFile || isReadOnly)
         return;
 
-    toolsToolBar->setEnabled(setValidPartLine());
+    enablePartLineTools(setValidPartLine());
 
     // stop here if in detached editor
     if (modelFileEdit())
@@ -2625,6 +2654,7 @@ void EditWindow::displayFile(
         redrawAct->setVisible(false);
         updateAct->setVisible(false);
         substitutePartAct->setVisible(false);
+        editCommandAct->setVisible(false);
     }
 
     if (!ldrawFile && !QFileInfo(fileName).exists()) {
@@ -2730,10 +2760,19 @@ void EditWindow::loadFinished()
     connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
             this,                  SLOT(  contentsChange(int,int,int)));
 
+    connect(lpub->commandsDialog, SIGNAL(commandSnippet(const QString &,bool)),
+            this,                 SLOT(applyCommandSnippet(const QString &, bool)));
+
+    connect(lpub->commandsDialog, SIGNAL(moveLineUp()),
+           this,                  SLOT(moveLineUp()));
+
+    connect(lpub->commandsDialog, SIGNAL(moveLineDown()),
+    this,                         SLOT(moveLineDown()));
+
     enableActions();
 
 #ifdef QT_DEBUG_MODE
-    previewViewerFileAct->setEnabled(true);
+    previewCurrentModelAct->setEnabled(true);
     emit lpub->messageSig(LOG_DEBUG,QString("5. %1").arg(message));
 #endif
 }
@@ -2745,7 +2784,7 @@ void EditWindow::contentLoaded()
         _textEdit->document()->setModified(false);
 
         connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-                this,                  SLOT(  contentsChange(int,int,int)));
+                this,                  SLOT(  contentsChange(int,int,int)));;
 
         waitingSpinnerStop();
 

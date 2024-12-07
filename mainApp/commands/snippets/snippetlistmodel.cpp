@@ -34,6 +34,7 @@ int SnippetListModel::rowCount(const QModelIndex &parent) const
 
 QVariant SnippetListModel::data(const QModelIndex &index, int role) const
 {
+    Qt::ItemDataRole dataRole = static_cast<Qt::ItemDataRole>(role);
     if (!index.isValid())
         return QVariant();
 
@@ -47,7 +48,7 @@ QVariant SnippetListModel::data(const QModelIndex &index, int role) const
         if (Application::instance()->getTheme() == THEME_DARK)
             commandIcon = QStringLiteral(":/resources/command_dark16.png");
 
-        switch (role) {
+        switch (dataRole) {
             case Qt::DecorationRole:
                 return QIcon(commandIcon);
 
@@ -68,6 +69,8 @@ QVariant SnippetListModel::data(const QModelIndex &index, int role) const
                 }
                 break;
 //*/
+            default:
+               break;
         }
     } else {
         switch (role) {
@@ -93,10 +96,12 @@ void SnippetListModel::snippetCollectionChanged(SnippetCollection::CollectionCha
     case SnippetCollection::ItemAdded:
         {
             QList<Snippet>::iterator it = std::lower_bound(snippets.begin(), snippets.end(), snippet);
-            int row = std::distance(snippets.begin(), it);
-            beginInsertRows(QModelIndex(), row, row);
-            snippets.insert(it, snippet);
-            endInsertRows();
+            if (!snippets.contains(snippet)) {
+                int row = std::distance(snippets.begin(), it);
+                beginInsertRows(QModelIndex(), row, row);
+                snippets.insert(it, snippet);
+                endInsertRows();
+            }
         }
         break;
     case SnippetCollection::ItemChanged:

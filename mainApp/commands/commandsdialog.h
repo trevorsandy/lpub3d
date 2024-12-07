@@ -30,6 +30,7 @@
 #include <QDialog>
 
 class Meta;
+class QLabel;
 class QTabWidget;
 class QTableView;
 class QListView;
@@ -51,6 +52,12 @@ public:
 
   static void showCommandsDialog(QWidget *parent = nullptr);
 
+  static void setCommandEdit(bool b);
+
+  static void showCommandEditButtons(bool b);
+
+  static void enableCommandEditButtons(bool b);
+
 private:
   void readSettings();
   void writeSettings();
@@ -66,7 +73,7 @@ private:
 
   QTableView       *commandTableView;
   CommandsTextEdit *commandTextEdit;
-  QPushButton      *updateCommandButton;
+  QPushButton      *editCommandButton;
   QPushButton      *resetCommandButton;
 
   FilterLineEdit        *snippetFilterEdit;
@@ -80,13 +87,27 @@ private:
   QPushButton      *addSnippetButton;
   QPushButton      *removeSnippetButton;
 
+  QPushButton      *insertCommandBeforeButton;
+  QPushButton      *insertCommandAfterButton;
+  QPushButton      *moveLineUpButton;
+  QPushButton      *moveLineDownButton;
+  QLabel           *commandUsageLabel;
+  QLabel           *snippetUsageLabel;
+
+  bool              commandEdit;
+
+signals:
+  void commandSnippet(const QString &, bool);
+  void moveLineUp();
+  void moveLineDown();
+
 private slots:
   void customMenuRequested(QPoint pos);
   void currentCommandChanged(const QModelIndex &current, const QModelIndex &previous);
   void commandFilterEditChanged();
   void commandTextChanged();
   void resetCommandButtonClicked();
-  void updateCommandButtonClicked();
+  void editCommandButtonClicked(bool clicked);
 
   void currentSnippetChanged(const QModelIndex &current, const QModelIndex &previous);
   void snippetFilterEditChanged();
@@ -96,6 +117,8 @@ private slots:
   void copyToClipboard();
   void closeEvent(QCloseEvent *event) override;
   bool maybeSave();
+  void applyCommandEdit();
+  void moveLine();
 
 public slots:
   void accept() override;

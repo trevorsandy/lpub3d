@@ -1426,7 +1426,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
     doc.prepend(tr("  selected to enable LPub syntax highlighting."));
     doc.prepend(tr("  Install LPub3D_Npp_UDL.xml and open this file in Notepad++ with 'LPUB3D' UDL"));
     doc.prepend(tr("  available in the 'extras' folder or at the %1 homepage.").arg(VER_PRODUCTNAME_STR));
-    doc.prepend(tr("  %1 has an LPub User Defined Language (UDL) configuration file for Notepad++").arg(VER_PRODUCTNAME_STR));
+    doc.prepend(tr("  %1 has an LPub3D User Defined Language (UDL) configuration file for Notepad++").arg(VER_PRODUCTNAME_STR));
     doc.prepend(tr("  Best viewed on Windows with Notepad++ <https://notepad-plus-plus.org>."));
     doc.prepend(QString());
 #endif
