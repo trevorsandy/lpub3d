@@ -3345,12 +3345,12 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     Preferences::exportPreferences();
     Preferences::keyboardShortcutPreferences();
 
-    sa                 = 0;
-    pa                 = 0;
-    saveDisplayPageNum = 0;
-    displayPageNum     = 1 + pa;
-    numPrograms        = 0;
-    previewDockWindow  = nullptr;
+    sa                              = 0;
+    pa                              = 0;
+    saveDisplayPageNum              = 0;
+    displayPageNum                  = 1 + pa;
+    numPrograms                     = 0;
+    previewDockWindow               = nullptr;
 
     pageProcessRunning              = PROC_NONE;        // display page process
     pageProcessParent               = PROC_NONE;        // display page porcess
@@ -3374,25 +3374,16 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     m_fadeStepsSetup                = Preferences::enableFadeSteps;
     m_highlightStepSetup            = Preferences::enableHighlightStep;
 
-    mBuildModRange    = { 0, 0, -1 };
-    mStepRotation     = { 0.0f, 0.0f, 0.0f };
-    mRotStepAngleX    = 0.0f;
-    mRotStepAngleY    = 0.0f;
-    mRotStepAngleZ    = 0.0f;
-    mRotStepType = QString();
+    mBuildModRange                  = { 0, 0, -1 };
+    mStepRotation                   = { 0.0f, 0.0f, 0.0f };
+    mRotStepAngleX                  = 0.0f;
+    mRotStepAngleY                  = 0.0f;
+    mRotStepAngleZ                  = 0.0f;
+    mRotStepType                    = QString();
     mPliIconsPath.clear();
 
-    selectedItemObj   = UndefinedObj;
-    mViewerZoomLevel  = 50;
-
-    if (lpub && Preferences::modeGUI) {
-        lpub->meta.metaKeywords(lpub->metaKeywords);
-        lpub->loadSnippetCollection();
-    }
-
-    editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
-    editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window
-    parmsWindow   = new ParmsWindow();
+    selectedItemObj                 = UndefinedObj;
+    mViewerZoomLevel                = 50;
 
     KpageScene    = new LGraphicsScene(this);
     KpageView     = new LGraphicsView(KpageScene);
@@ -3402,10 +3393,20 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
                               QPainter::TextAntialiasing |
                               QPainter::SmoothPixmapTransform);
     KpageView->setResolution(resolution());
-
     KexportView = LGraphicsView(&KexportScene);
 
+    setCentralWidget(KpageView);
+
     if (Preferences::modeGUI) {
+        if (lpub) {
+            lpub->meta.metaKeywords(lpub->metaKeywords);
+            lpub->loadSnippetCollection();
+        }
+
+        editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
+        editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window
+        parmsWindow   = new ParmsWindow();
+
         QColor spinnerColor(
                Preferences::darkTheme ?
                Preferences::themeColors[THEME_DARK_PALETTE_TEXT] : LPUB3D_DEFAULT_COLOUR);
@@ -3419,25 +3420,35 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
         waitingSpinner->setLineWidth(5);
         waitingSpinner->setInnerRadius(10);
         waitingSpinner->setRevolutionsPerSecond(1);
+
+        mpdCombo = new SeparatorComboBox(this);
+        mpdCombo->setMinimumContentsLength(MPD_COMBO_MIN_ITEMS_DEFAULT);
+        mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
+        mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+        mpdCombo->setToolTip(tr("Current Submodel"));
+        mpdCombo->setStatusTip("Use dropdown to select submodel");
+        mpdCombo->setEnabled(false);
+
+        setGoToPageCombo = new QComboBox(this);
+        setGoToPageCombo->setMinimumContentsLength(GO_TO_PAGE_MIN_ITEMS_DEFAULT);
+        setGoToPageCombo->setInsertPolicy(QComboBox::InsertAtBottom);
+        setGoToPageCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+        setGoToPageCombo->setToolTip(tr("Current Page"));
+        setGoToPageCombo->setStatusTip("Use dropdown to select page");
+        setGoToPageCombo->setEnabled(false);
+
+        progressLabel = new QLabel(this);
+        progressLabel->setMinimumWidth(200);
+        progressBar = new QProgressBar();
+        progressBar->setMaximumWidth(300);
+
+        progressLabelPerm = new QLabel();
+        progressLabelPerm->setMinimumWidth(200);
+        progressBarPerm = new QProgressBar();
+        progressBarPerm->setMaximumWidth(300);
+
+        m_progressDialog = new ProgressDialog();
     }
-
-    setCentralWidget(KpageView);
-
-    mpdCombo = new SeparatorComboBox(this);
-    mpdCombo->setMinimumContentsLength(MPD_COMBO_MIN_ITEMS_DEFAULT);
-    mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
-    mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-    mpdCombo->setToolTip(tr("Current Submodel"));
-    mpdCombo->setStatusTip("Use dropdown to select submodel");
-    mpdCombo->setEnabled(false);
-
-    setGoToPageCombo = new QComboBox(this);
-    setGoToPageCombo->setMinimumContentsLength(GO_TO_PAGE_MIN_ITEMS_DEFAULT);
-    setGoToPageCombo->setInsertPolicy(QComboBox::InsertAtBottom);
-    setGoToPageCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-    setGoToPageCombo->setToolTip(tr("Current Page"));
-    setGoToPageCombo->setStatusTip("Use dropdown to select page");
-    setGoToPageCombo->setEnabled(false);
 
     undoStack = new QUndoStack();
     macroNesting = 0;
@@ -3449,6 +3460,128 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
         Preferences::systemEditor = QString("");
 #endif
 
+    if (Preferences::modeGUI) {
+        // Gui - 
+        connect(this,           SIGNAL(showLineSig(const Where &, int)),
+                this,           SLOT(  showLine(   const Where &, int)));
+
+        connect(this,           SIGNAL(setMpdComboSig(const QString &)),
+                this,           SLOT(  setMpdCombo(   const QString &)));
+
+        connect (m_progressDialog, SIGNAL (cancelClicked()),
+                this,             SLOT (  cancelExporting()));
+
+        connect(this, SIGNAL(progressBarInitSig()),
+                this, SLOT(  progressBarInit()));
+        connect(this, SIGNAL(progressMessageSig(const QString &)),
+                this, SLOT(  progressBarSetText(const QString &)));
+        connect(this, SIGNAL(progressRangeSig(int,int)),
+                this, SLOT(  progressBarSetRange(int,int)));
+        connect(this, SIGNAL(progressSetValueSig(int)),
+                this, SLOT(  progressBarSetValue(int)));
+        connect(this, SIGNAL(progressResetSig()),
+                this, SLOT(  progressBarReset()));
+        connect(this, SIGNAL(progressStatusRemoveSig()),
+                this, SLOT(  progressStatusRemove()));
+
+        connect(this, SIGNAL(progressBarPermInitSig()),
+                this, SLOT(  progressBarPermInit()));
+        connect(this, SIGNAL(progressPermMessageSig(const QString &)),
+                this, SLOT(  progressBarPermSetText(const QString &)));
+        connect(this, SIGNAL(progressPermRangeSig(int,int)),
+                this, SLOT(  progressBarPermSetRange(int,int)));
+        connect(this, SIGNAL(progressPermSetValueSig(int)),
+                this, SLOT(  progressBarPermSetValue(int)));
+        connect(this, SIGNAL(progressPermResetSig()),
+                this, SLOT(  progressBarPermReset()));
+        connect(this, SIGNAL(progressPermStatusRemoveSig()),
+                this, SLOT(  progressPermStatusRemove()));
+
+        // Gui - ParmsWindow
+        connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
+                parmsWindow,    SLOT( displayParmsFile(    const QString &)));
+
+        // Gui - EditWindow
+        connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &, const StepLines &)),
+                editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &, const StepLines &)));
+
+        connect(this,           SIGNAL(setLineScopeSig(const StepLines &)),
+                editWindow,     SLOT(  setLineScope(   const StepLines &)));
+
+        connect(this,           SIGNAL(showLineSig(int, int)),
+                editWindow,     SLOT(  showLine(   int, int)));
+
+        connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
+                editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));
+
+        connect(this,           SIGNAL(clearEditorWindowSig()),
+                editWindow,     SLOT(  clearEditorWindow()));
+
+        connect(this,           SIGNAL(setTextEditHighlighterSig()),
+                editWindow,     SLOT(  setTextEditHighlighter()));
+
+        connect(this,           SIGNAL(setSubFilesSig(const QStringList &)),
+                editWindow,     SLOT(  setSubFiles(   const QStringList &)));
+
+        connect(this,           SIGNAL(visualEditorVisibleSig(bool)),
+                editWindow,     SLOT(setVisualEditorVisible(bool)));
+
+        // Edit Window - Gui
+        connect(editWindow,     SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
+                this,           SLOT(SelectedPartLines(     QVector<TypeLine>&,PartSource)));
+
+        connect(editWindow,     SIGNAL(redrawSig()),
+                this,           SLOT(  clearAndReloadModelFile()));
+
+        connect(editWindow,     SIGNAL(updateSig()),
+                this,           SLOT(  reloadCurrentPage()));
+
+        connect(editWindow,     SIGNAL(contentsChangeSig(const QString &,bool,bool,int,int,const QString &)),
+                this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
+
+        connect(editWindow,     SIGNAL(setStepForLineSig()),
+                this,           SLOT(  setStepForLine()));
+
+        connect(editWindow,     SIGNAL(editModelFileSig()),
+                this,           SLOT(  editModelFile()));
+
+        connect(editWindow,     SIGNAL(getSubFileListSig()),
+                this,           SLOT(  getSubFileList()));
+
+        // Edit Window - Edit Model Window
+        connect(editWindow,     SIGNAL(updateDisabledSig(bool)),
+                editModeWindow, SLOT(  updateDisabled(bool)));
+
+        // Edit Model Window
+        connect(this,           SIGNAL(setTextEditHighlighterSig()),
+                editModeWindow, SLOT(  setTextEditHighlighter()));
+
+        connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),
+                editModeWindow, SLOT(  displayFile(        LDrawFile *, const QString &)));
+
+        connect(editModeWindow, SIGNAL(refreshModelFileSig()),
+                this,           SLOT(  refreshModelFile()));
+
+        connect(editModeWindow, SIGNAL(redrawSig()),
+                this,           SLOT(  clearAndRedrawModelFile()));
+
+        connect(editModeWindow, SIGNAL(updateSig()),
+                this,           SLOT(  reloadCurrentModelFile()));
+
+        connect(this,           SIGNAL(clearEditorWindowSig()),
+                editModeWindow, SLOT(  clearEditorWindow()));
+
+        connect(editModeWindow, SIGNAL(contentsChangeSig(const QString &,bool,bool,int,int,const QString &)),
+                this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
+
+        // Undo Stack
+        connect(undoStack,      SIGNAL(cleanChanged(bool)),
+                editModeWindow, SLOT(  updateDisabled(bool)));
+
+        connect(undoStack,      SIGNAL(cleanChanged(bool)),
+                editWindow,     SLOT(  updateDisabled(bool)));
+    }
+        
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::finishedCountingPages);
 
     // LPub - Object connection is Qt::AutoConnection so it will trigger without an active event loop
@@ -3460,12 +3593,6 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
             this,           SLOT(statusMessage(LogType,const QString &,int)),
             Qt::QueuedConnection); // this connection will only trigger when the Main thread event loop, m_application.exec(), is active
 
-    connect(this,           SIGNAL(showLineSig(const Where &, int)),
-            this,           SLOT(  showLine(   const Where &, int)));
-
-    connect(this,           SIGNAL(setMpdComboSig(const QString &)),
-            this,           SLOT(  setMpdCombo(   const QString &)));
-
     connect(this,           SIGNAL(setExportingSig(bool)),
             this,           SLOT(  setExporting(   bool)));
 
@@ -3474,83 +3601,6 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
 
     connect(this,           SIGNAL(setContinuousPageSig(bool)),
             this,           SLOT(  setContinuousPage(   bool)));
-
-    // Gui - ParmsWindow
-    connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
-            parmsWindow,    SLOT( displayParmsFile(    const QString &)));
-
-    // Gui - EditWindow
-    connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &, const StepLines &)),
-            editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &, const StepLines &)));
-
-    connect(this,           SIGNAL(setLineScopeSig(const StepLines &)),
-            editWindow,     SLOT(  setLineScope(   const StepLines &)));
-
-    connect(this,           SIGNAL(showLineSig(int, int)),
-            editWindow,     SLOT(  showLine(   int, int)));
-
-    connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
-            editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));
-
-    connect(this,           SIGNAL(clearEditorWindowSig()),
-            editWindow,     SLOT(  clearEditorWindow()));
-
-    connect(this,           SIGNAL(setTextEditHighlighterSig()),
-            editWindow,     SLOT(  setTextEditHighlighter()));
-
-    connect(this,           SIGNAL(setSubFilesSig(const QStringList &)),
-            editWindow,     SLOT(  setSubFiles(   const QStringList &)));
-
-    connect(this,           SIGNAL(visualEditorVisibleSig(bool)),
-            editWindow,     SLOT(setVisualEditorVisible(bool)));
-
-    // Edit Window - Gui
-    connect(editWindow,     SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
-            this,           SLOT(SelectedPartLines(     QVector<TypeLine>&,PartSource)));
-
-    connect(editWindow,     SIGNAL(redrawSig()),
-            this,           SLOT(  clearAndReloadModelFile()));
-
-    connect(editWindow,     SIGNAL(updateSig()),
-            this,           SLOT(  reloadCurrentPage()));
-
-    connect(editWindow,     SIGNAL(contentsChangeSig(const QString &,bool,bool,int,int,const QString &)),
-            this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
-
-    connect(editWindow,     SIGNAL(setStepForLineSig()),
-            this,           SLOT(  setStepForLine()));
-
-    connect(editWindow,     SIGNAL(editModelFileSig()),
-            this,           SLOT(  editModelFile()));
-
-    connect(editWindow,     SIGNAL(getSubFileListSig()),
-            this,           SLOT(  getSubFileList()));
-
-    // Edit Window - Edit Model Window
-    connect(editWindow,     SIGNAL(updateDisabledSig(bool)),
-            editModeWindow, SLOT(  updateDisabled(bool)));
-
-    // Edit Model Window
-    connect(this,           SIGNAL(setTextEditHighlighterSig()),
-            editModeWindow, SLOT(  setTextEditHighlighter()));
-
-    connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),
-            editModeWindow, SLOT(  displayFile(        LDrawFile *, const QString &)));
-
-    connect(editModeWindow, SIGNAL(refreshModelFileSig()),
-            this,           SLOT(  refreshModelFile()));
-
-    connect(editModeWindow, SIGNAL(redrawSig()),
-            this,           SLOT(  clearAndRedrawModelFile()));
-
-    connect(editModeWindow, SIGNAL(updateSig()),
-            this,           SLOT(  reloadCurrentModelFile()));
-
-    connect(this,           SIGNAL(clearEditorWindowSig()),
-            editModeWindow, SLOT(  clearEditorWindow()));
-
-    connect(editModeWindow, SIGNAL(contentsChangeSig(const QString &,bool,bool,int,int,const QString &)),
-            this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
 
     // cache management
     connect(this,           SIGNAL(clearStepCacheSig(Step*, int)),
@@ -3590,12 +3640,6 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
             this,           SLOT(  restartApplication(bool, bool)));
 
     // Undo Stack
-    connect(undoStack,      SIGNAL(cleanChanged(bool)),
-            editModeWindow, SLOT(  updateDisabled(bool)));
-
-    connect(undoStack,      SIGNAL(cleanChanged(bool)),
-            editWindow,     SLOT(  updateDisabled(bool)));
-
     connect(undoStack,      SIGNAL(canRedoChanged(bool)),
             this,           SLOT(  canRedoChanged(bool)));
 
@@ -3608,47 +3652,6 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     // Fade and Highlight
     connect(this,           SIGNAL(enableLPubFadeOrHighlightSig(bool,bool,bool)),
             this,           SLOT(  enableLPubFadeOrHighlight(bool,bool,bool)));
-
-    progressLabel = new QLabel(this);
-    progressLabel->setMinimumWidth(200);
-    progressBar = new QProgressBar();
-    progressBar->setMaximumWidth(300);
-
-    progressLabelPerm = new QLabel();
-    progressLabelPerm->setMinimumWidth(200);
-    progressBarPerm = new QProgressBar();
-    progressBarPerm->setMaximumWidth(300);
-
-    m_progressDialog         = new ProgressDialog();
-
-    connect (m_progressDialog, SIGNAL (cancelClicked()),
-             this,             SLOT (  cancelExporting()));
-
-    connect(this, SIGNAL(progressBarInitSig()),
-            this, SLOT(  progressBarInit()));
-    connect(this, SIGNAL(progressMessageSig(const QString &)),
-            this, SLOT(  progressBarSetText(const QString &)));
-    connect(this, SIGNAL(progressRangeSig(int,int)),
-            this, SLOT(  progressBarSetRange(int,int)));
-    connect(this, SIGNAL(progressSetValueSig(int)),
-            this, SLOT(  progressBarSetValue(int)));
-    connect(this, SIGNAL(progressResetSig()),
-            this, SLOT(  progressBarReset()));
-    connect(this, SIGNAL(progressStatusRemoveSig()),
-            this, SLOT(  progressStatusRemove()));
-
-    connect(this, SIGNAL(progressBarPermInitSig()),
-            this, SLOT(  progressBarPermInit()));
-    connect(this, SIGNAL(progressPermMessageSig(const QString &)),
-            this, SLOT(  progressBarPermSetText(const QString &)));
-    connect(this, SIGNAL(progressPermRangeSig(int,int)),
-            this, SLOT(  progressBarPermSetRange(int,int)));
-    connect(this, SIGNAL(progressPermSetValueSig(int)),
-            this, SLOT(  progressBarPermSetValue(int)));
-    connect(this, SIGNAL(progressPermResetSig()),
-            this, SLOT(  progressBarPermReset()));
-    connect(this, SIGNAL(progressPermStatusRemoveSig()),
-            this, SLOT(  progressPermStatusRemove()));
 
 #ifdef WATCHER
     connect(&watcher,       SIGNAL(fileChanged(const QString &)),
@@ -3665,17 +3668,18 @@ Gui::~Gui()
 {
   delete KpageScene;
   delete KpageView;
-  delete editWindow;
-  delete parmsWindow;
-  delete editModeWindow;
   delete undoStack;
-  delete mpdCombo;
-  delete setGoToPageCombo;
-
-  delete progressBar;
-  delete m_progressDialog;
-  delete progressLabelPerm;
-  delete progressBarPerm;
+  if (Preferences::modeGUI) {
+    delete editWindow;
+    delete parmsWindow;
+    delete editModeWindow;
+    delete mpdCombo;
+    delete setGoToPageCombo;
+    delete progressBar;
+    delete m_progressDialog;
+    delete progressLabelPerm;
+    delete progressBarPerm;
+  }
 }
 
 void Gui::closeEvent(QCloseEvent *event)
@@ -3684,9 +3688,9 @@ void Gui::closeEvent(QCloseEvent *event)
   {
     emit requestEndThreadNowSig();
 
-    if (parmsWindow->isVisible()) {
+    if (Preferences::modeGUI)
+      if (parmsWindow->isVisible())
         parmsWindow->close();
-    }
 
     Preferences::resetFadeSteps();
     Preferences::resetHighlightStep();
@@ -3729,28 +3733,22 @@ void Gui::initialize()
           this, SLOT(  consoleCommand(int, int*)), Qt::BlockingQueuedConnection);
   connect(this, SIGNAL(countPagesSig()),
           this, SLOT(  countPages()));
-  connect(this, SIGNAL(setGeneratingBomSig(bool)),
-          this, SLOT(  deployBanner(bool)));
-  connect(this, SIGNAL(setExportingSig(bool)),
-          this, SLOT(  deployBanner(bool)));
   connect(this, SIGNAL(setExportingSig(bool)),
           this, SLOT(  halt3DViewer(bool)));
   connect(this, SIGNAL(updateAllViewsSig()),
           this, SLOT(  UpdateAllViews()));
   connect(this, SIGNAL(previewModelSig(QString const &)),
           this, SLOT(  previewModel(QString const &)));
-  connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
-          this, SLOT(  setPliIconPath(QString&,QString&)));
   connect(this, SIGNAL(parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)),
           this, SLOT(  parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool, int, const QString &, const QString &)));
-
-/* Moved to PartWorker::ldsearchDirPreferences()  */
-//  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
-//      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
-
-  emit Application::instance()->splashMsgSig(tr("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
-
   if (Preferences::modeGUI) {
+      connect(this, SIGNAL(setGeneratingBomSig(bool)),
+              this, SLOT(  deployBanner(bool)));
+      connect(this, SIGNAL(setExportingSig(bool)),
+              this, SLOT(  deployBanner(bool)));
+      connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
+              this, SLOT(  setPliIconPath(QString&,QString&)));
+
       commonMenus.setWhatsThis();
 
       lpub->loadCommandCollection();
@@ -3759,6 +3757,12 @@ void Gui::initialize()
 
       lpub->loadDialogs();
   }
+
+/* Moved to PartWorker::ldsearchDirPreferences()  */
+//  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+//      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+
+  emit Application::instance()->splashMsgSig(tr("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
 
   createActions();
   createMenus();
@@ -6907,8 +6911,10 @@ QMenu *Gui::getMenu(const QString &objectName)
 
 void Gui::createMenus()
 {
-    // Editor Menus
+    if (!Preferences::modeGUI)
+        return;
 
+    // Editor Menus
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->setObjectName("fileMenu");
     gui->menus.insert(fileMenu->objectName(), fileMenu);
@@ -7260,6 +7266,9 @@ QToolBar *Gui::getToolBar(const QString &objectName)
 
 void Gui::createToolBars()
 {
+    if (!Preferences::modeGUI)
+        return;
+
     QSettings Settings;
 
     QToolBar *fileToolBar = addToolBar(tr("File Toolbar"));
@@ -7516,17 +7525,21 @@ void Gui::createToolBars()
     zoomToolBar->addSeparator();
     zoomToolBar->addAction(gui->getAct("fullScreenViewAct.1"));
 
-    if (Preferences::modeGUI)
-        gui->create3DToolBars();
+    gui->create3DToolBars();
 }
 
 void Gui::statusBarMsg(QString msg)
 {
-  gui->statusBar()->showMessage(msg);
+    if (!Preferences::modeGUI)
+        return;
+    gui->statusBar()->showMessage(msg);
 }
 
 void Gui::createDockWindows()
 {
+    if (!Preferences::modeGUI)
+        return;
+
     gui->commandEditDockWindow = new QDockWidget(tr("Command Editor"), gui);
     gui->commandEditDockWindow->setObjectName("CommandEditorDockWindow");
     gui->commandEditDockWindow->setAllowedAreas(
@@ -7538,8 +7551,7 @@ void Gui::createDockWindows()
 
     gui->connect(gui->commandEditDockWindow, SIGNAL (topLevelChanged(bool)), gui, SLOT (enableWindowFlags(bool)));
 
-    if (Preferences::modeGUI)
-        gui->create3DDockWindows();
+    gui->create3DDockWindows();
 }
 
 void Gui::importToolBarVisibilityChanged(bool visible)

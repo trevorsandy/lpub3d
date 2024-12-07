@@ -1256,7 +1256,8 @@ int Pli::createPartImage(
             imageKey = QString("%1_%2").arg(ia.baseName[pT]).arg(colourCode);
         }
 
-        emit gui->setPliIconPathSig(imageKey,imageName);
+        if (Preferences::modeGUI)
+            emit gui->setPliIconPathSig(imageKey,imageName);
 
         if (pixmap && (pT == NORMAL_PART))
             pixmap->load(imageName);
@@ -2800,9 +2801,10 @@ int Pli::partSizeLDViewSCall() {
             continue;
         }
 
-        for (int i = 0; i < ia.imageKeys[pT].size() && displayIcons; i++) {                      // normal, fade, highlight image full paths
-            emit gui->setPliIconPathSig(ia.imageKeys[pT][i],ia.imageNames[pT][i]);
-        }
+        if (Preferences::modeGUI)
+            for (int i = 0; i < ia.imageKeys[pT].size() && displayIcons; i++) {                      // normal, fade, highlight image full paths
+                emit gui->setPliIconPathSig(ia.imageKeys[pT][i],ia.imageNames[pT][i]);
+            }
 
         if (!ia.ldrNames[pT].isEmpty()) {
             if (!ptRc) {
@@ -2820,7 +2822,7 @@ int Pli::partSizeLDViewSCall() {
     } // for every part type
 
     if (isSubModel) {
-      emit gui->progressPermSetValueSig(ptn.size());
+        emit gui->progressPermSetValueSig(ptn.size());
     }
 
     return rc;
