@@ -229,6 +229,7 @@
         <file alias="preferredrenderer.png">resources/preferredrenderer.png</file>
         <file alias="prev.png">resources/prev.png</file>
         <file alias="previewpart.png">resources/previewpart.png</file>
+		<file alias="previewpart16.png">resources/previewpart16.png</file>
         <file alias="previousstep.png">resources/previousstep.png</file>
         <file alias="prevpagecontinuous.png">resources/prevpagecontinuous.png</file>
         <file alias="prevpagecontinuousstop.png">resources/prevpagecontinuousstop.png</file>
@@ -264,6 +265,8 @@
         <file alias="resetcache.png">resources/resetcache.png</file>
         <file alias="resetlineattributes.png">resources/resetlineattributes.png</file>
         <file alias="resetlineedit.png">resources/resetlineedit.png</file>
+		<file alias="resetpivotpoint.png">resources/resetpivotpoint.png</file>
+		<file alias="resetpivotpoint16.png">resources/resetpivotpoint16.png</file>
         <file alias="resetsetting.png">resources/resetsetting.png</file>
         <file alias="resettipattributes.png">resources/resettipattributes.png</file>
         <file alias="richtext.png">resources/richtext.png</file>

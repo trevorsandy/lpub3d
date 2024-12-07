@@ -199,6 +199,18 @@ public:
 		return mToolsMenu;
 	}
 
+/*** LPub3D Mod - expand toolbars ***/
+	QMenu* GetEditMenu() const
+	{
+		return mEditMenu;
+	}
+
+	QMenu* GetPieceMenu() const
+	{
+		return mPieceMenu;
+	}
+/*** LPub3D Mod end ***/
+
 	QMenu* GetViewpointMenu() const
 	{
 		return mViewpointMenu;
@@ -230,9 +242,19 @@ public:
 		return mSelectionModeMenu;
 	}
 
+	QToolBar* GetStandardToolBar()
+	{
+		return mStandardToolBar;
+	}
+
 	QToolBar* GetToolsToolBar()
 	{
 		return mToolsToolBar;
+	}
+
+	QToolBar* GetVisualizationToolBar()
+	{
+		return mVisualizationToolBar;
 	}
 
 	QDockWidget* GetPartsToolBar()
@@ -479,6 +501,9 @@ protected:
 	QTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
 	QToolBar* mToolsToolBar;
+/*** LPub3D Mod - expand toolbars ***/
+	QToolBar* mVisualizationToolBar;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - rotate step ***/
 	lcVector3 mExistingTransform;
 	lcVector3 mExistingRotStep;
@@ -511,6 +536,10 @@ protected:
 
 	QMenu* mTransformMenu;
 	QMenu* mToolsMenu;
+/*** LPub3D Mod - expand toolbars ***/
+	QMenu* mEditMenu;
+	QMenu* mPieceMenu;
+/*** LPub3D Mod end ***/
 	QMenu* mViewpointMenu;
 	QMenu* mCameraMenu;
 	QMenu* mProjectionMenu;

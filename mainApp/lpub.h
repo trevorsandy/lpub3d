@@ -1366,13 +1366,17 @@ public slots:
   lcPartSelectionWidget* GetPartSelectionWidget();
   lcPiecesLibrary*       GetPiecesLibrary();
   lcPreferences&         GetPreferences();
+  QToolBar*              GetStandardToolBar();
   QToolBar*              GetToolsToolBar();
+  QToolBar*              GetVisualizationToolBar();
   QDockWidget*           GetTimelineToolBar();
   QDockWidget*           GetPropertiesToolBar();
   QDockWidget*           GetPartsToolBar();
   QDockWidget*           GetColorsToolBar();
   QMenu*                 GetCameraMenu();
+  QMenu*                 GetEditMenu();
   QMenu*                 GetToolsMenu();
+  QMenu*                 GetPieceMenu();
   QMenu*                 GetViewpointMenu();
   QMenu*                 GetProjectionMenu();
   QMenu*                 GetShadingMenu();
@@ -2072,6 +2076,7 @@ private:
 
   // Visual Editor Menus
   QMenu *SnapshotMenu;
+  QMenu *PaintMenu;
   QMenu *CameraMenu;
   QMenu *LightMenu;
   QMenu *BuildModMenu;
@@ -2133,8 +2138,8 @@ private:
   QAction *ViewpointGroupAct;
   QAction *ViewpointZoomExtAct;
   QAction *TransformAct;
-  QAction *MoveAct;
-  QAction *AngleAct;
+  QAction *MovementSnapAct;
+  QAction *RotationSnapAct;
   QAction *ResetViewerImageAct;
 
   QAction *recentFilesSeparatorAct;

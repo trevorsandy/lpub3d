@@ -24,9 +24,10 @@ lcPreviewDockWidget::lcPreviewDockWidget(QMainWindow* Parent)
 	SetPreviewLock();
 
 	mLabel = new QLabel();
-
-	mToolBar = addToolBar(tr("Toolbar"));
-	mToolBar->setObjectName("Toolbar");
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	mToolBar = addToolBar(tr("Preview Toolbar"));
+/*** LPub3D Mod end ***/
+	mToolBar->setObjectName("PreviewToolbar");
 	mToolBar->setStatusTip(tr("Preview Toolbar"));
 	mToolBar->setMovable(false);
 	mToolBar->addAction(mLockAction);

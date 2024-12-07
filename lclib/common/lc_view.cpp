@@ -326,18 +326,7 @@ void lcView::ShowContextMenu() const
 
 	Popup->addSeparator();
 
-	Popup->addAction(Actions[LC_EDIT_CUT]);
-	Popup->addAction(Actions[LC_EDIT_COPY]);
-	Popup->addAction(Actions[LC_EDIT_PASTE]);
-	Popup->addAction(Actions[LC_PIECE_DELETE]);
-
-	Popup->addSeparator();
-
-	Popup->addAction(Actions[LC_EDIT_FIND]);
-	Popup->addAction(Actions[LC_EDIT_FIND_NEXT]);
-	Popup->addAction(Actions[LC_EDIT_FIND_PREVIOUS]);
-	Popup->addAction(Actions[LC_EDIT_REPLACE]);
-	Popup->addAction(Actions[LC_EDIT_REPLACE_NEXT]);
+	Popup->addMenu(gMainWindow->GetEditMenu());
 
 	Popup->addSeparator();
 
@@ -349,28 +338,11 @@ void lcView::ShowContextMenu() const
 	Popup->addSeparator();
 
 	Popup->addMenu(gMainWindow->GetToolsMenu());
-	Popup->addMenu(gMainWindow->GetViewpointMenu());
-	Popup->addMenu(gMainWindow->GetCameraMenu());
-	Popup->addMenu(gMainWindow->GetProjectionMenu());
-	Popup->addMenu(gMainWindow->GetShadingMenu());
 
-	Popup->addSeparator();
-
-	Popup->addAction(Actions[LC_PIECE_PAINT_SELECTED]);
+	Popup->addMenu(gMainWindow->GetPieceMenu());
 /***
-	Popup->addAction(Actions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
-	Popup->addAction(Actions[LC_PIECE_EDIT_END_SUBMODEL]);
-***/
 	Popup->addSeparator();
 
-	Popup->addAction(Actions[LC_PIECE_HIDE_SELECTED]);
-	Popup->addAction(Actions[LC_PIECE_HIDE_UNSELECTED]);
-	Popup->addAction(Actions[LC_PIECE_UNHIDE_ALL]);
-
-	Popup->addSeparator();
-
-/***
-	Popup->addAction(Actions[LC_EDIT_PASTE_STEPS]);
 	Popup->addAction(Actions[LC_PIECE_DUPLICATE]);
 
 	Popup->addSeparator();
@@ -385,9 +357,15 @@ void lcView::ShowContextMenu() const
 	Popup->addAction(Actions[LC_PIECE_VIEW_SELECTED_MODEL]);
 	Popup->addAction(Actions[LC_PIECE_INLINE_SELECTED_MODELS]);
 	Popup->addAction(Actions[LC_PIECE_MOVE_SELECTION_TO_MODEL]);
+***/
+	Popup->addMenu(gMainWindow->GetViewpointMenu());
+	Popup->addMenu(gMainWindow->GetCameraMenu());
+	Popup->addMenu(gMainWindow->GetProjectionMenu());
+	Popup->addMenu(gMainWindow->GetShadingMenu());
 
 	Popup->addSeparator();
 
+/***
 	Popup->addMenu(gMainWindow->GetToolsMenu());
 	Popup->addMenu(gMainWindow->GetViewpointMenu());
 	Popup->addMenu(gMainWindow->GetCameraMenu());

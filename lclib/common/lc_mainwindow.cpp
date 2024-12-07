@@ -574,7 +574,11 @@ void lcMainWindow::CreateMenus()
 	FileMenu->addAction(mActions[LC_FILE_RECENT4]);
 	mActionFileRecentSeparator = FileMenu->addSeparator();
 	FileMenu->addAction(mActions[LC_FILE_EXIT]);
-
+***/
+/*** LPub3D Mod - expand toolbars ***/
+	mEditMenu = new QMenu(tr("&Edit"), this);
+/*** LPub3D Mod end ***/
+/***
 	QMenu* EditMenu = menuBar()->addMenu(tr("&Edit"));
 	EditMenu->addAction(mActions[LC_EDIT_UNDO]);
 	EditMenu->addAction(mActions[LC_EDIT_REDO]);
@@ -633,9 +637,14 @@ void lcMainWindow::CreateMenus()
 	ToolBarsMenu->addSeparator();
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
+	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_VISUALIZATION]);
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_TIME]);
 	ViewMenu->addAction(mActions[LC_VIEW_FULLSCREEN]);
-
+***/
+/*** LPub3D Mod - expand toolbars ***/
+	mPieceMenu = new QMenu(tr("&Piece"), this);
+/*** LPub3D Mod end ***/
+/***
 	QMenu* PieceMenu = menuBar()->addMenu(tr("&Piece"));
 	PieceMenu->addAction(mActions[LC_PIECE_INSERT]);
 	PieceMenu->addAction(mActions[LC_PIECE_DELETE]);
@@ -737,7 +746,6 @@ void lcMainWindow::CreateToolBars()
 	AngleAction->setStatusTip(tr("Snap rotations to fixed intervals"));
 	AngleAction->setIcon(QIcon(":/resources/edit_snap_angle.png"));
 	AngleAction->setMenu(SnapAngleMenu);
-
 	mStandardToolBar = addToolBar(tr("Standard"));
 	mStandardToolBar->setObjectName("StandardToolbar");
 /*** LPub3D Mod - suppress mStandardToolBar ***/
@@ -774,9 +782,9 @@ void lcMainWindow::CreateToolBars()
 
 	mToolsToolBar = addToolBar(tr("Tools"));
 	mToolsToolBar->setObjectName("ToolsToolbar");
-	insertToolBarBreak(mToolsToolBar);
 /*** LPub3D Mod - toolstoolbar undo/redo ***/
 /***
+	insertToolBarBreak(mToolsToolBar);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_POINT_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
@@ -799,6 +807,11 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ZOOM_REGION]);
 	mToolsToolBar->hide();
 ***/
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - expand toolbars ***/
+	mVisualizationToolBar = addToolBar(tr("Visualization"));
+	mVisualizationToolBar->setObjectName("VisualizationToolbar");
 /*** LPub3D Mod end ***/
 
 	mPartsToolBar = new QDockWidget(tr("Parts"), this);
@@ -945,19 +958,9 @@ void lcMainWindow::CreateToolBars()
 ***/
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - hide standard and timeline toolbars ***/
-	mStandardToolBar->setVisible(false);
+/*** LPub3D Mod - hide timeline toolbar on visual editor tab ***/
 	mTimeToolBar->setVisible(false);
-	// remove first mToolsToolBar separator
-	foreach(QAction* tbAction, mToolsToolBar->actions())
-	{
-		if (tbAction->isSeparator()) {
-			mToolsToolBar->removeAction(tbAction);
-			break;
-		}
-	}
 /*** LPub3D Mod end ***/
-
 }
 
 lcView* lcMainWindow::CreateView(lcModel* Model)
@@ -974,10 +977,7 @@ lcView* lcMainWindow::CreateView(lcModel* Model)
 void lcMainWindow::PreviewPiece(const QString& PartId, int ColorCode, bool ShowPreview)
 {
 /*** LPub3D Mod - preview widget for LPub3D ***/
-Q_UNUSED(ShowPreview)
-
-//	if (ShowPreview)
-//		mPreviewToolBar->show();
+	Q_UNUSED(ShowPreview)
 
 	lcPreferences& Preferences = lcGetPreferences();
 
@@ -1187,22 +1187,19 @@ QMenu* lcMainWindow::createPopupMenu()
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_PROPERTIES]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TIMELINE]);
-/*** LPub3D Mod - preview widget for LPub3D ***/
-	lcPreferences& Preferences = lcGetPreferences();
-	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
-		Menu->addAction(mActions[LC_VIEW_TOOLBAR_PREVIEW]);
-/*** LPub3D Mod end ***/
 	Menu->addSeparator();
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
+/*** LPub3D Mod - expand toolbars ***/
+	Menu->addAction(mActions[LC_VIEW_TOOLBAR_VISUALIZATION]);
+/*** LPub3D Mod end ***/
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TIME]);
 
-/*** LPub3D Mod - popup menu remove actions ***/
+/*** LPub3D Mod - remove unused visual editor tab toolbars ***/
 	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_PARTS]);
 	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
-
-	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
-	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
+	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_PROPERTIES]);
+	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_TIMELINE]);
 	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_TIME]);
 /*** LPub3D Mod end ***/
 	return Menu;
@@ -1216,13 +1213,10 @@ void lcMainWindow::UpdateDockWidgetActions()
 	mActions[LC_VIEW_TOOLBAR_TIMELINE]->setChecked(mTimelineToolBar->isVisible());
 	mActions[LC_VIEW_TOOLBAR_STANDARD]->setChecked(mStandardToolBar->isVisible());
 	mActions[LC_VIEW_TOOLBAR_TOOLS]->setChecked(mToolsToolBar->isVisible());
-	mActions[LC_VIEW_TOOLBAR_TIME]->setChecked(mTimeToolBar->isVisible());
-/*** LPub3D Mod - preview widget for LPub3D ***/
-	lcPreferences& Preferences = lcGetPreferences();
-	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
-		mActions[LC_VIEW_TOOLBAR_PREVIEW]->setChecked(/*mPreviewToolBar*/
-													  gui->getPreviewDockWindow()->isVisible());
+/*** LPub3D Mod - expand toolbars ***/
+	mActions[LC_VIEW_TOOLBAR_VISUALIZATION]->setChecked(mVisualizationToolBar->isVisible());
 /*** LPub3D Mod end ***/
+	mActions[LC_VIEW_TOOLBAR_TIME]->setChecked(mTimeToolBar->isVisible());
 }
 
 void lcMainWindow::UpdateGamepads()
@@ -3511,6 +3505,12 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_VIEW_TOOLBAR_TOOLS:
 		ToggleDockWidget(mToolsToolBar);
 		break;
+
+/*** LPub3D Mod - expand toolbars ***/
+	case LC_VIEW_TOOLBAR_VISUALIZATION:
+		ToggleDockWidget(mVisualizationToolBar);
+		break;
+/*** LPub3D Mod end ***/
 
 	case LC_VIEW_TOOLBAR_TIME:
 		ToggleDockWidget(mTimeToolBar);

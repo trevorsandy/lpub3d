@@ -1122,14 +1122,21 @@ const lcCommand gCommands[] =
 	// LC_VIEW_TOOLBAR_STANDARD
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Standard"),
-		QT_TRANSLATE_NOOP("Menu", "Standard"),
+		QT_TRANSLATE_NOOP("Menu", "Standard Toolbar"),                                /*** LPub3D Mod - expand toolbars ***/
 		QT_TRANSLATE_NOOP("Status", "Toggle the Standard Toolbar"),
 		""
+	},
+	// LC_VIEW_TOOLBAR_VISUALIZATION                                                  /*** LPub3D Mod - expand toolbars ***/
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Visualization"),                   /*** LPub3D Mod - expand toolbars ***/
+		QT_TRANSLATE_NOOP("Menu", "Visualization Toolbar"),                           /*** LPub3D Mod - expand toolbars ***/
+		QT_TRANSLATE_NOOP("Status", "Toggle the Visualization Toolbar"),              /*** LPub3D Mod - expand toolbars ***/
+		""                                                                            /*** LPub3D Mod - expand toolbars ***/
 	},
 	// LC_VIEW_TOOLBAR_TOOLS
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Tools"),
-		QT_TRANSLATE_NOOP("Menu", "Tools"),
+		QT_TRANSLATE_NOOP("Menu", "Tools Toolbar"),                                   /*** LPub3D Mod - expand toolbars ***/
 		QT_TRANSLATE_NOOP("Status", "Toggle the Tools Toolbar"),
 		""
 	},
@@ -1187,7 +1194,7 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Action", "View.CloseCurrentTab"),
 		QT_TRANSLATE_NOOP("Menu", "Close &Tab"),
 		QT_TRANSLATE_NOOP("Status", "Close current tab"),
-		""                                /*** LPub3D Mod - LPub3D Menu update ***/
+		""                                                      /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_VIEW_SHADE_WIREFRAME
 	{

@@ -136,6 +136,9 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]->setObjectName("PaintSelectedAct.4");
     lpub->actions.insert("PaintSelectedAct.4", Action(QStringLiteral("3DViewer.Paint Selected"), gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]));
 
+    gMainWindow->mActions[LC_PIECE_RESET_PIVOT_POINT]->setObjectName("ResetPivotPointAct.4");
+    lpub->actions.insert("ResetPivotPointAct.4", Action(QStringLiteral("3DViewer.Reset Pivot Point"), gMainWindow->mActions[LC_PIECE_RESET_PIVOT_POINT]));
+
     //gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]->setObjectName("EditSelectedSubmodelAct.4");
     //lpub->actions.insert("EditSelectedSubmodelAct.4", Action(QStringLiteral("3DViewer.Edit Selected Submodel"), gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]));
 
@@ -274,6 +277,11 @@ void Gui::create3DActions()
     PaintSelectedIcon.addFile(":/resources/action_paint_selected_16.png");
     gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]->setIcon(PaintSelectedIcon);
 
+    QIcon ResetPivotPointIcon;
+    ResetPivotPointIcon.addFile(":/resources/resetpivotpoint.png");
+    ResetPivotPointIcon.addFile(":/resources/resetpivotpoint16.png");
+    gMainWindow->mActions[LC_PIECE_RESET_PIVOT_POINT]->setIcon(ResetPivotPointIcon);
+
     QIcon CreateBuildModIcon;
     CreateBuildModIcon.addFile(":/resources/buildmodcreate.png");
     CreateBuildModIcon.addFile(":/resources/buildmodcreate16.png");
@@ -364,7 +372,7 @@ void Gui::create3DActions()
     SnapshotAct->setObjectName("SnapshotAct.4");
     SnapshotAct->setStatusTip(tr("Generate current image snapshot and save camera meta commands"));
     SnapshotAct->setShortcut(QStringLiteral("Shift+A"));
-    lpub->actions.insert(SnapshotAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Camera.Snapshot"), SnapshotAct));
+    lpub->actions.insert(SnapshotAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Camera.Take Snapshot"), SnapshotAct));
     connect(SnapshotAct, SIGNAL(triggered()), this, SLOT(applyCameraSettings()));
 
     UseImageSizeAct = new QAction(tr("Use Image Size"),this);
@@ -416,17 +424,17 @@ void Gui::create3DActions()
     lpub->actions.insert(TransformAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Transform"), TransformAct));
     TransformAct->setIcon(QIcon(":/resources/edit_transform_relative.png"));
 
-    MoveAct = new QAction(tr("Movement Snap"), this);
-    MoveAct->setObjectName("MoveAct.4");
-    MoveAct->setStatusTip(tr("Snap translations to fixed intervals"));
-    MoveAct->setIcon(QIcon(":/resources/edit_snap_move.png"));
-    lpub->actions.insert(MoveAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Snap.Movement Snap"), MoveAct));
+    MovementSnapAct = new QAction(tr("Movement Snap"), this);
+    MovementSnapAct->setObjectName("MoveAct.4");
+    MovementSnapAct->setStatusTip(tr("Snap translations to fixed intervals"));
+    MovementSnapAct->setIcon(QIcon(":/resources/edit_snap_move.png"));
+    lpub->actions.insert(MovementSnapAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Snap.Movement Snap"), MovementSnapAct));
 
-    AngleAct = new QAction(tr("Rotation Snap"), this);
-    AngleAct->setObjectName("AngleAct.4");
-    AngleAct->setStatusTip(tr("Snap rotations to fixed intervals"));
-    AngleAct->setIcon(QIcon(":/resources/edit_snap_angle.png"));
-    lpub->actions.insert(AngleAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Snap.Rotation Snap"), AngleAct));
+    RotationSnapAct = new QAction(tr("Rotation Snap"), this);
+    RotationSnapAct->setObjectName("RotationSnapAct.4");
+    RotationSnapAct->setStatusTip(tr("Snap rotations to fixed intervals"));
+    RotationSnapAct->setIcon(QIcon(":/resources/edit_snap_angle.png"));
+    lpub->actions.insert(RotationSnapAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Snap.Rotation Snap"), RotationSnapAct));
 
     gMainWindow->mActions[LC_PIECE_DELETE]->setIcon(QIcon(":/resources/delete.png"));
 
@@ -469,6 +477,16 @@ void Gui::create3DActions()
     ViewShadersIcon.addFile(":/resources/viewshaders.png");
     ViewShadersIcon.addFile(":/resources/viewshaders16.png");
     gMainWindow->GetShadingMenu()->setIcon(ViewShadersIcon);
+
+    QIcon PieceIcon;
+    PieceIcon.addFile(":/resources/previewpart.png");
+    PieceIcon.addFile(":/resources/previewpart16.png");
+    gMainWindow->GetPieceMenu()->setIcon(PieceIcon);
+
+    QIcon EditIcon;
+    EditIcon.addFile(":/resources/editplisubstituteparts.png");
+    EditIcon.addFile(":/resources/editplisubstituteparts16.png");
+    gMainWindow->GetEditMenu()->setIcon(EditIcon);
 
     QIcon EditActionBuildModIcon;
     EditActionBuildModIcon.addFile(":/resources/buildmodcreate.png");
@@ -705,14 +723,14 @@ void Gui::create3DMenus()
      SnapMenu->addSeparator();
      SnapMenu->addMenu(SnapXYMenu);
      SnapMenu->addMenu(SnapZMenu);
-     MoveAct->setMenu(SnapMenu);
+     MovementSnapAct->setMenu(SnapMenu);
 
      SnapAngleMenu = new QMenu(tr("Snap Angle Menu"), this);
      SnapAngleMenu->addAction(gMainWindow->mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]);
      SnapAngleMenu->addSeparator();
      for (int actionIdx = LC_EDIT_SNAP_ANGLE0; actionIdx <= LC_EDIT_SNAP_ANGLE9; actionIdx++)
          SnapAngleMenu->addAction(gMainWindow->mActions[actionIdx]);
-     AngleAct->setMenu(SnapAngleMenu);
+     RotationSnapAct->setMenu(SnapAngleMenu);
 
      BuildModMenu = new QMenu(tr("Build Modification"),this);
      BuildModMenu->addAction(CreateBuildModAct);
@@ -769,71 +787,72 @@ void Gui::create3DMenus()
      ViewerMenu->addMenu(ViewerExportMenu);
      ViewerMenu->addSeparator();
      // Submodel Edit menus
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_CUT]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_COPY]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_PASTE]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_DELETE]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_CUT]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_COPY]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_PASTE]);
      // Submodel Find menus
-     ViewerMenu->addSeparator();
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND_NEXT]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_FIND_PREVIOUS]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_REPLACE]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_REPLACE_NEXT]);
-     ViewerMenu->addSeparator();
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_ALL]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_NONE]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_INVERT]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_SELECT_BY_NAME]);
+     gMainWindow->GetEditMenu()->addSeparator();
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_FIND]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_FIND_NEXT]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_FIND_PREVIOUS]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_REPLACE]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_REPLACE_NEXT]);
+     // Submodel Select menus
+     gMainWindow->GetEditMenu()->addSeparator();
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_SELECT_ALL]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_SELECT_NONE]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_SELECT_INVERT]);
+     gMainWindow->GetEditMenu()->addAction(gMainWindow->mActions[LC_EDIT_SELECT_BY_NAME]);
+     ViewerMenu->addMenu(gMainWindow->GetEditMenu());
      ViewerMenu->addSeparator();
      // Camera menu
      ViewerMenu->addMenu(gMainWindow->GetCameraMenu());
      // Tools menu
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
      gMainWindow->GetToolsMenu()->addSeparator();
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]);
-     gMainWindow->GetToolsMenu()->addSeparator();
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
-     gMainWindow->GetToolsMenu()->addAction(LightGroupAct);
      gMainWindow->GetToolsMenu()->addAction(SnapshotAct);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
+     gMainWindow->GetToolsMenu()->addAction(LightGroupAct);
      gMainWindow->GetToolsMenu()->addSeparator();
-     gMainWindow->GetToolsMenu()->addAction(ResetViewerImageAct);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
      gMainWindow->GetToolsMenu()->addAction(ViewpointGroupAct);
+     gMainWindow->GetToolsMenu()->addAction(ResetViewerImageAct);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(TransformAct);
-     gMainWindow->GetToolsMenu()->addAction(MoveAct);
-     gMainWindow->GetToolsMenu()->addAction(AngleAct); // Snap Rotations to Fixed Intervals menu item
+     gMainWindow->GetToolsMenu()->addAction(MovementSnapAct);
+     gMainWindow->GetToolsMenu()->addAction(RotationSnapAct);
      ViewerMenu->addMenu(gMainWindow->GetToolsMenu());
+     // Piece menu
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_DELETE]);
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]);
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_RESET_PIVOT_POINT]);
+     gMainWindow->GetPieceMenu()->addSeparator();
+     // Show/Hide Piece menus
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]);
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_SELECTED]);
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]);
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_ALL]);
+     ViewerMenu->addMenu(gMainWindow->GetPieceMenu());
      // ViewPoint menu
      ViewerMenu->addMenu(gMainWindow->GetViewpointMenu());
      // Projection menu
      ViewerMenu->addMenu(gMainWindow->GetProjectionMenu());
      // Shading menu
      ViewerMenu->addMenu(gMainWindow->GetShadingMenu());
-     ViewerMenu->addSeparator();
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]);
-     //ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
-     //ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]);
-     ViewerMenu->addSeparator();
-     // Show/Hide Piece menus
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_SELECTED]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]);
-     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_ALL]);
      ViewerMenu->addSeparator();
      // View menus
      ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]);
@@ -867,6 +886,10 @@ void Gui::create3DMenus()
      CameraMenu->addSeparator();
      CameraMenu->addMenu(gMainWindow->GetCameraMenu());
      gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(CameraMenu);
+
+     PaintMenu = new QMenu(tr("Paint"),this);
+     PaintMenu->addAction(gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]);
+     gMainWindow->mActions[LC_EDIT_ACTION_PAINT]->setMenu(PaintMenu);
 }
 
 void Gui::create3DToolBars()
@@ -885,42 +908,46 @@ void Gui::create3DToolBars()
     exportToolBar->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
 
     /*
-     * This toolbar is displayed on the Visual Editor tab
+     * These toolbars are displayed on the Visual Editor tab
      */
-    gMainWindow->GetToolsToolBar()->addSeparator();
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_CUT]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_COPY]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_PASTE]);
-    gMainWindow->GetToolsToolBar()->addSeparator();
-    gMainWindow->GetToolsToolBar()->addAction(FindAndReplaceGroupAct);
-    gMainWindow->GetToolsToolBar()->addAction(SelectGroupAct);
-    gMainWindow->GetToolsToolBar()->addSeparator();
+    gMainWindow->GetStandardToolBar()->addAction(gMainWindow->mActions[LC_EDIT_CUT]);
+    gMainWindow->GetStandardToolBar()->addAction(gMainWindow->mActions[LC_EDIT_COPY]);
+    gMainWindow->GetStandardToolBar()->addAction(gMainWindow->mActions[LC_EDIT_PASTE]);
+    gMainWindow->GetStandardToolBar()->addSeparator();
+    gMainWindow->GetStandardToolBar()->addAction(SelectGroupAct);
+    gMainWindow->GetStandardToolBar()->addAction(FindAndReplaceGroupAct);
+    gMainWindow->GetStandardToolBar()->addSeparator();
+    gMainWindow->GetStandardToolBar()->addAction(TransformAct);
+    gMainWindow->GetStandardToolBar()->addAction(MovementSnapAct);
+    gMainWindow->GetStandardToolBar()->addAction(RotationSnapAct);
+
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_BUILD_MOD]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
+    gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
+    gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
     gMainWindow->GetToolsToolBar()->addSeparator();
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
-    gMainWindow->GetToolsToolBar()->addAction(LightGroupAct);
-    gMainWindow->GetToolsToolBar()->addAction(SnapshotAct);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
-    gMainWindow->GetToolsToolBar()->addSeparator();
-    gMainWindow->GetToolsToolBar()->addAction(ResetViewerImageAct);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
-    gMainWindow->GetToolsToolBar()->addAction(ViewpointGroupAct);
-    gMainWindow->GetToolsToolBar()->addSeparator();
-    gMainWindow->GetToolsToolBar()->addAction(TransformAct);
-    gMainWindow->GetToolsToolBar()->addAction(MoveAct);
-    gMainWindow->GetToolsToolBar()->addAction(AngleAct); // Snap Rotations to Fixed Intervals menu item
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_PIECE_RESET_PIVOT_POINT]);
+
+    gMainWindow->GetVisualizationToolBar()->addAction(SnapshotAct);
+    gMainWindow->GetVisualizationToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
+    gMainWindow->GetVisualizationToolBar()->addAction(LightGroupAct);
+    gMainWindow->GetVisualizationToolBar()->addSeparator();
+    gMainWindow->GetVisualizationToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
+    gMainWindow->GetVisualizationToolBar()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
+    gMainWindow->GetVisualizationToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
+    gMainWindow->GetVisualizationToolBar()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+    gMainWindow->GetVisualizationToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
+    gMainWindow->GetVisualizationToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
+    gMainWindow->GetVisualizationToolBar()->addAction(ViewpointGroupAct);
+    gMainWindow->GetVisualizationToolBar()->addAction(ResetViewerImageAct);
+
     gMainWindow->GetPartsToolBar()->setWindowTitle("Tools Toolbar");
 }
 
@@ -987,6 +1014,7 @@ void Gui::enable3DActions(bool enable)
         gui->RaisePreviewDockWindow();
     }
 
+    SnapshotAct->setEnabled(enable);
     LightGroupAct->setEnabled(enable);
     ViewpointGroupAct->setEnabled(enable);
 
@@ -998,6 +1026,8 @@ void Gui::enable3DActions(bool enable)
     ResetViewerImageAct->setEnabled(enable &&
         static_cast<Options::Mt>(lcGetActiveProject()->GetImageType()) == Options::CSI);
 
+    GetStandardToolBar()->setEnabled(enable);
+    GetVisualizationToolBar()->setEnabled(enable);
     GetToolsToolBar()->setEnabled(enable);
     GetTimelineToolBar()->setEnabled(enable);
     GetPropertiesToolBar()->setEnabled(enable);
@@ -1005,7 +1035,9 @@ void Gui::enable3DActions(bool enable)
     GetColorsToolBar()->setEnabled(enable);
 
     GetCameraMenu()->setEnabled(enable);
+    GetEditMenu()->setEnabled(enable);
     GetToolsMenu()->setEnabled(enable);
+    GetPieceMenu()->setEnabled(enable);
     GetViewpointMenu()->setEnabled(enable);
     GetProjectionMenu()->setEnabled(enable);
     GetShadingMenu()->setEnabled(enable);
@@ -1015,6 +1047,9 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_RESET_VIEWS]->setEnabled(enable);
+    //Edit
+    gMainWindow->mActions[LC_EDIT_UNDO]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_REDO]->setEnabled(enable);
     //File
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setEnabled(enable);
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setEnabled(enable);
@@ -3051,10 +3086,24 @@ void Gui::ReloadVisualEditor() {
      gApplication->mPreferences.LoadDefaults();
  }
 
+ QToolBar* Gui::GetStandardToolBar()
+ {
+     if (gMainWindow)
+         return gMainWindow->GetStandardToolBar();
+     return nullptr;
+ }
+
  QToolBar* Gui::GetToolsToolBar()
  {
      if (gMainWindow)
          return gMainWindow->GetToolsToolBar();
+     return nullptr;
+ }
+
+ QToolBar* Gui::GetVisualizationToolBar()
+ {
+     if (gMainWindow)
+         return gMainWindow->GetVisualizationToolBar();
      return nullptr;
  }
 
@@ -3093,10 +3142,24 @@ void Gui::ReloadVisualEditor() {
      return nullptr;
  }
 
- QMenu* Gui::GetToolsMenu()
+ QMenu* Gui::GetEditMenu()
+ {
+     if (gMainWindow)
+         return gMainWindow->GetEditMenu();
+     return nullptr;
+ }
+
+  QMenu* Gui::GetToolsMenu()
  {
      if (gMainWindow)
          return gMainWindow->GetToolsMenu();
+     return nullptr;
+ }
+
+ QMenu* Gui::GetPieceMenu()
+ {
+     if (gMainWindow)
+         return gMainWindow->GetPieceMenu();
      return nullptr;
  }
 
