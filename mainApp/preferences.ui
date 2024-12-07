@@ -3739,7 +3739,7 @@ p, li { white-space: pre-wrap; }
               <item row="0" column="0">
                <widget class="QCheckBox" name="autoUpdateChangeLogBox">
                 <property name="toolTip">
-                 <string>Automatically download change log at application start-up</string>
+                 <string>Automatically download change log at application start-up; default is to load local change log.</string>
                 </property>
                 <property name="text">
                  <string>Download Change Log At Start-up</string>

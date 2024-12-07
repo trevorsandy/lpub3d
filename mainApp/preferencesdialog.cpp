@@ -282,6 +282,8 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   ui.changeLog_txbr->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
   ui.changeLog_txbr->setOpenExternalLinks(true);
 
+  updateChangelog();
+
   if (ui.povGenNativeRadio->isChecked()) {
       ui.ldvPOVSettingsGrpBox->setTitle(tr("Native POV File Generation Settings"));
       ui.ldvPoVFileGenOptBtn->setToolTip(tr("Open LDView POV generation dialogue"));
@@ -623,8 +625,6 @@ void PreferencesDialog::setPreferences()
   ui.changeLogGrpBox->setTitle(versionInfo);
 
   ui.extendedSearchOptionsBtn->setEnabled(ui.extendedSubfileSearchCheck->isChecked());
-
-  updateChangelog();
 
   // show message options
   mShowLineParseErrors      = Preferences::lineParseErrors;
