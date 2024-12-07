@@ -1121,7 +1121,6 @@ void EditWindow::moveSelection(bool moveUp)
       cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
       cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor);
     }
-
     cursor.select(QTextCursor::LineUnderCursor);
     QTextDocumentFragment selection = cursor.selection();
     if (selection.isEmpty()) {
@@ -1129,10 +1128,11 @@ void EditWindow::moveSelection(bool moveUp)
       return;
     }
     cursor.removeSelectedText();
-    cursor.deleteChar(); // clean up new line
+    cursor.deleteChar(); // clean up residual newline '\n'
     cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor);
     cursor.insertText(selection.toPlainText()+QChar('\n'));
-    cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor);
+    if (moveUp)
+      cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor);
     cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, numChars);
     cursor.endEditBlock();
     _textEdit->setTextCursor(cursor);

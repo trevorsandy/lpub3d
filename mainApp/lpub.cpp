@@ -8258,18 +8258,22 @@ void LDrawSearchDirDialog::buttonClicked()
     else
       emit gui->messageSig(LOG_WARNING, tr("Selected folder is not readable<br>%1").arg(folder.absolutePath()), true/*msgBox*/);
   } else {
+    bool moveUp = true; //sender() == pushButtonMoveUp;
+    if(sender() == pushButtonMoveDown)
+        moveUp = false;
+
     int origPosition = 0, numChars = 0;
     QTextCursor cursor = textEditSearchDirs->textCursor();
     cursor.beginEditBlock();
     origPosition = cursor.position();
     cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
     numChars = origPosition - cursor.position();
-    if (sender() == pushButtonMoveUp) {
+    if (moveUp) {
       if (cursor.atStart()) {
         cursor.endEditBlock();
         return;
       }
-    } else if (sender() == pushButtonMoveDown) {
+    } else {
       cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
       if (cursor.atEnd()) {
         cursor.endEditBlock();
@@ -8278,7 +8282,6 @@ void LDrawSearchDirDialog::buttonClicked()
       cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
       cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor);
     }
-
     cursor.select(QTextCursor::LineUnderCursor);
     QTextDocumentFragment selection = cursor.selection();
     if (selection.isEmpty()) {
@@ -8286,10 +8289,11 @@ void LDrawSearchDirDialog::buttonClicked()
       return;
     }
     cursor.removeSelectedText();
-    cursor.deleteChar(); // clean up new line
+    cursor.deleteChar(); // clean up residual newline '\n'
     cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor);
     cursor.insertText(selection.toPlainText()+QChar('\n'));
-    cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor);
+    if (moveUp)
+      cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor);
     cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, numChars);
     cursor.endEditBlock();
     textEditSearchDirs->setTextCursor(cursor);
