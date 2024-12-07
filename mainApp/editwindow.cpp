@@ -23,8 +23,8 @@
  * possible.  It does work the syntax highlighter implemented in
  * highlighter.(h,cpp)
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 
@@ -727,7 +727,7 @@ void EditWindow::createActions()
     }
     commandsDialogAct = new QAction(commandsDialogIcon,tr("Manage &LPub Metacommands"), this);
     commandsDialogAct->setObjectName("commandsDialogAct.2");
-    commandsDialogAct->setStatusTip(tr("View LPub meta commands, customize command descriptions, and define command snippets"));
+    commandsDialogAct->setStatusTip(tr("View LPUB meta commands, customize command descriptions, and define command snippets"));
     commandsDialogAct->setShortcut(QStringLiteral("Ctrl+K"));
     lpub->actions.insert(commandsDialogAct->objectName(), Action(QStringLiteral("Help.Manage LPub Metacommands"), commandsDialogAct));
     connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));

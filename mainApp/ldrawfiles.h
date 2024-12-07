@@ -22,8 +22,8 @@
  * edited an MPD file, or a top level LDraw files and any sub-model files
  * are maintained in memory using this class.
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

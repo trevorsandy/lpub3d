@@ -17,8 +17,8 @@
  * This class implements a dialog that lets the user pick the placement for
  * page pointers placing them relative to the page.
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

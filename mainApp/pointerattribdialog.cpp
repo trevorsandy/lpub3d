@@ -20,8 +20,8 @@
  * This file describes a dialog that the users can use to change attributes
  * associated with pointers.  Pages, Dividers, Assemblies and Callouts have pointers.
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

@@ -16,11 +16,11 @@
 
 /****************************************************************************
  *
- * This file describes a dialog that users can use to inspect LPub commands,
+ * This file describes a dialog that users can use to inspect LPUB commands,
  * update command description details, and manage the command snippet system.  
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

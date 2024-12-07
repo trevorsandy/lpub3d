@@ -832,7 +832,7 @@ int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -ccf, --color-config-file <file>: Full path for alternate LDConfig colour file.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -dec, --dark-edge-color <#AARRGGBB>: High contrast edge color for dark color parts.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -ec, --edge-color <#AARRGGBB>: High contrast edge color.\n")));
-                fprintf(stdout, "%s", qUtf8Printable(tr("  -emc, --export-meta-commands <file>: Export LPub meta commands to specified file.\n")));
+                fprintf(stdout, "%s", qUtf8Printable(tr("  -emc, --export-meta-commands <file>: Export LPUB meta commands to specified file.\n")));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -fc, --fade-steps-color <LDraw_colour_name>: Set the global fade color. Overridden by\n         fade opacity - if opacity not 100 percent. Default is %1\n").arg(LEGO_FADE_COLOUR_DEFAULT)));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade\n         color - if opacity not 100 percent. Default is %1 percent\n").arg(FADE_OPACITY_DEFAULT)));
                 fprintf(stdout, "%s", qUtf8Printable(tr("  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n")));

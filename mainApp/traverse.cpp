@@ -26,8 +26,8 @@
  * into graphical representation of pages for the user.  In the future it
  * will gather Bill of Materials contents.
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 
@@ -6118,7 +6118,7 @@ int Gui::setBuildModForNextStep(
 } // Gui::setBuildModForNextStep()
 
 /*
- * This function applies buffer exchange and LPub's remove
+ * This function applies buffer exchange and LPub3D's remove
  * meta commands before writing them out for the renderers to use.
  * Fade, Highlight and COLOUR meta commands are preserved.
  * This eliminates the need for ghosting parts removed by buffer

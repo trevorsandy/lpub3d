@@ -23,8 +23,8 @@
  * possible.  It does work the the syntax highlighter implemented in
  * highlighter.(h,cpp)
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

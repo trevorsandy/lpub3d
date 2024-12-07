@@ -18,12 +18,12 @@
 
 /****************************************************************************
  *
- * This file describes the data structure that represents an LPub callout
+ * This file describes the data structure that represents an LPub3D callout
  * (the steps of a submodel packed together and displayed next to the
  * assembly where the submodel is used).  
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

@@ -17,11 +17,11 @@
 
 /****************************************************************************
  *
- * This file describes a dialog that users can use to inspect LPub commands,
+ * This file describes a dialog that users can use to inspect LPub3D commands,
  * update command description details, and manage the command snippet system.  
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 
@@ -212,7 +212,7 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
       snippetTextEdit = lpub->snippetTextEdit;
       snippetTextEdit->setParent(widget);
   }
-  snippetTextEdit->setToolTip(tr("Create shortcuts that trigger LPub command insert or autocomplete.<br>"
+  snippetTextEdit->setToolTip(tr("Create shortcuts that trigger LPUB command insert or autocomplete.<br>"
                                  "Place the '$|' marker where the cursor will be after the command is inserted."));
   snippetTextEdit->setWhatsThis(lpubWT(WT_CONTROL_SNIPPETS_EDIT, tr("Edit Command Snippet")));
   snippetTextEdit->setReadOnly(true);

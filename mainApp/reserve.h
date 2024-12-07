@@ -21,8 +21,8 @@
  * This derived class allows the user to create empty spaces within
  * callouts and multi-steps.
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

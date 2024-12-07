@@ -1064,11 +1064,11 @@ QAction* CommonMenus::resetPartGroupMenu(
   action->setProperty("name", name);
   action->setIcon(QIcon(":/resources/disablegroupmove.png"));
 
-  formatted = QObject::tr("Reset this %1 group - remove LPub meta command") .arg(name.toLower());
+  formatted = QObject::tr("Reset this %1 group - remove LPUB meta command") .arg(name.toLower());
   action->setStatusTip(formatted);
 
   formatted = QObject::tr("Reset %1 Group:<br>"
-                          "  You can reset this %2 group - remove LPub meta command.<br>") .arg(name, name.toLower());
+                          "  You can reset this %2 group - remove LPUB meta command.<br>") .arg(name, name.toLower());
   action->setWhatsThis(formatted);
 
   return action;
@@ -1724,7 +1724,7 @@ void CommonMenus::setWhatsThis()
             "  You can customize some LDGLite renderer options<br>"
             "  from its INI configuration file using the application<br>"
             "  menu action at Configuration, Edit Parameter Files...<br><br>"
-            "  Note that some settings will be overridden by LPub<br>"
+            "  Note that some settings will be overridden by LPUB<br>"
             "  meta commands in your loaded model file.%2<br>")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
@@ -1747,7 +1747,7 @@ void CommonMenus::setWhatsThis()
             "  You can customize additional LDView renderer options<br>"
             "  from its INI configuration file using the application<br>"
             "  menu action at Configuration, Edit Parameter Files...<br><br>"
-            "  Note that some settings will be overridden by LPub<br>"
+            "  Note that some settings will be overridden by LPUB<br>"
             "  meta commands in your loaded model file.%2<br>")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
@@ -1788,7 +1788,7 @@ void CommonMenus::setWhatsThis()
             "  have an effect on the 3DViewer display also.<br><br>"
             "  You can configure additional Native renderer settings<br>"
             "  from the 3DViewer application menu action Preferences.<br><br>"
-            "  Note that some settings will be overridden by LPub<br>"
+            "  Note that some settings will be overridden by LPUB<br>"
             "  meta commands in your loaded model file.%2<br>")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
@@ -1834,7 +1834,7 @@ void CommonMenus::setWhatsThis()
             "  You can customize additional POV-Ray renderer options<br>"
             "  from its INI configuration file using the application<br>"
             "  menu action at Configuration, Edit Parameter Files...<br><br>"
-            "  Note that some settings will be overridden by LPub<br>"
+            "  Note that some settings will be overridden by LPUB<br>"
             "  meta commands in your loaded model file.%2<br>")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
@@ -1982,7 +1982,7 @@ void CommonMenus::setWhatsThis()
             "  renderer so settings configured here can have an<br>"
             "  effect on rendered images when the preferred renderer.<br>"
             "  is set to Native.<br>"
-            "  Note that some settings will be overridden by LPub<br>"
+            "  Note that some settings will be overridden by LPUB<br>"
             "  meta commands in your loaded model file.%2<br>")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
@@ -2070,7 +2070,7 @@ void CommonMenus::setWhatsThis()
             "  Configure the 3D viewer rendering settings.<br><br>"
             "  Renderer settings affect both the 3D viewer and<br>"
             "  the %1 Native renderer.<br><br>"
-            "  Note that some settings will be overridden by LPub<br>"
+            "  Note that some settings will be overridden by LPUB<br>"
             "  meta commands in your loaded model file.%2<br>")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
@@ -5353,7 +5353,7 @@ void CommonMenus::setWhatsThis()
             "  You can customize additional POV-Ray renderer options<br>"
             "  from its INI configuration file using the application<br>"
             "  menu action at Configuration, Edit Parameter Files...<br><br>"
-            "  Note that some settings will be overridden by LPub<br>"
+            "  Note that some settings will be overridden by LPUB<br>"
             "  meta commands in your loaded model file.%2<br>")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
@@ -8373,7 +8373,7 @@ void CommonMenus::setWhatsThis()
             "  - Setup LPub Fade Steps: Turn on or off the capability<br>"
             "    to define fade previous steps or step parts locally<br>"
             "    (versus globally). This is to say, you can apply fade<br>"
-            "    previous steps from the step where the LPub meta command<br>"
+            "    previous steps from the step where the LPUB meta command<br>"
             "    is placed to enable this feature to the step where it<br>"
             "    is placed to disable it.<br>"
             "    For display model steps, this command is automatically<br>"
@@ -8592,7 +8592,7 @@ void CommonMenus::setWhatsThis()
             "    in Preferences so that this option will apply<br>"
             "    globally for all instruction documents.<br><br>"
             "  - Add LPub Meta Command: add the corresponding<br>"
-            "    LPub meta command to instruction document.<br><br>"
+            "    LPUB meta command to instruction document.<br><br>"
             "  Checking the show submodel at first step option<br>"
             "  will enable the following submodel preview options.<br>"
             "  - Show main model at first step: show the top model<br>"

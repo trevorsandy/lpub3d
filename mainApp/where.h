@@ -37,8 +37,8 @@
  * The Where class described here is a fundamental class used for
  * backannotating user edits into the LDraw files.
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

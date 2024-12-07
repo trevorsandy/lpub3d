@@ -19,8 +19,8 @@
  * This class provides the options object passed between LPub3D, the Native
  * renderer and the Visual Editor.
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

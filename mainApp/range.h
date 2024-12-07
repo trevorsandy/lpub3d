@@ -21,8 +21,8 @@
  * This class implements a set of consecutive steps within either a row
  * or column of a callout or multi-step.
  *
- * Please see lpub.h for an overall description of how the files in LPub
- * make up the LPub program.
+ * Please see lpub.h for an overall description of how the files in LPub3D
+ * make up the LPub3D program.
  *
  ***************************************************************************/
 

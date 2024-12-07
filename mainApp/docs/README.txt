@@ -1,4 +1,4 @@
-LPub3D 2.4.8.249.3972 (07 12 2024 09:39:46)
+LPub3D 2.4.8.250.3973 (07 12 2024 09:40:46)
 
 Features, enhancements, fixes and changes
 ------------
@@ -210,7 +210,7 @@ Revisions:
 - Fix - Open with programs menu action not enabled #629
 - Fix - Option Add pointer missing in Call Out #647
 - Fix - Primitives shown as missing parts in file load status #630
-- Fix - Remove LPub Formatting menu action does nothing #638
+- Fix - Remove LPUB Formatting menu action does nothing #638
 - Fix - Selecting a submodel in the Visual editor gives error #665
 - Fix - Set Attributes to Page Pointer globally #648
 - Fix - Settings for Coverpage and Backcover do not work #620
