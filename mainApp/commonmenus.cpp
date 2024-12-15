@@ -17,6 +17,7 @@
 
 #include <QObject>
 #include <QMenu>
+#include <QDir>
 #include <QAction>
 #include <QString>
 
@@ -4546,22 +4547,15 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_COMMANDS_FILTER
         {
             QObject::tr(
-            "  You can filter the command list to efficiently<br>"
-            "  find your desired entry.<br><br>"
+            "  You can filter the command list to efficiently find your desired entry.<br><br>"
             "  The filter dialog supports the following actions.<br>"
-            "  - Auto-complete: keyword suggenstions are presented<br>"
-            "    after the third entered character.<br>"
+            "  - Auto-complete: keyword suggenstions are presented after the third entered character.<br>"
             "    This option is on by default.<br><br>"
-            "  - Case Sensitive: respect upper and lower case entries<br>"
-            "    as unique.<br><br>"
-            "  - Fixed String: present entries matching the entered<br>"
-            "    string. This option is on by default.<br><br>"
-            "  - Regular Expression: present entries matching the<br>"
-            "    entered regular expression.<br><br>"
-            "  - Wildcard: present entries that satisfy the pattern<br>"
-            "    created with the wildcard symbol '*'.<br><br>"
-            "  Click the filter icon to expose the filer actions menu<br>"
-            "  which allow you to change the default filter actions.%1<br>")
+            "  - Case Sensitive: respect upper and lower case entries as unique.<br><br>"
+            "  - Fixed String: present entries matching the entered string. This option is on by default.<br><br>"
+            "  - Regular Expression: present entries matching the entered regular expression.<br><br>"
+            "  - Wildcard: present entries that satisfy the pattern created with the wildcard symbol '*'.<br><br>"
+            "  Click the filter icon to expose the filer actions menu which allow you to change the default filter actions.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_COMMANDS_FILTER")
@@ -4574,10 +4568,8 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  This table view presents all %1 meta commands.<br><br>"
-            "  An editable copy of a selected meta command is<br>"
-            "  displayed in the editor dialog. Use the editable<br>"
-            "  copy to set appropriate values before inserting the<br>"
-            "  command into the command editor.%2<br>")
+            "  An editable copy of a selected meta command is displayed in the editor dialog.<br>"
+            "  Use the editable copy to set appropriate values before inserting the command into the command editor.%2<br>")
             .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
@@ -4590,39 +4582,37 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_COMMANDS_TEXT_EDIT
         {
             QObject::tr(
-            "  You can edit each meta command to reflect default values or<br>"
-            "  content important to you. The a copy of the command with placeholder<br>"
-            "  values is copied to the text editor to give you a starting point.<br><br>"
-            "  The following buttons will complete your command edit:<br>"
+            "  You can insert meta commands and you can edit meta commands to reflect desired values or content important to you.<br>"
+            "  A copy of the selected command with placeholder values is copied to the text editor to provide a starting point.<br><br>"
+            "  The following button actions enable your command edit and insert:<br>"
             "  - <b>Edit:</b> make the read-only content in the text editor editable.<br>"
             "  - <b>Reset:</b> reset the command to its original state at the session start.<br>"
             "  - <b>Insert Before:</b> insert your command into the LPUB command editor.<br>"
             "  - <b>Insert After:</b> insert your command into the LPUB command editor.<br>"
-            "  - <b>Move Up/Down:</b> tailor the position of your inserted command.<br><br>"
+            "  - <b>Move Up/Down:</b> tailor the position of your inserted command.<br>"
             "  - <b>Ok:</b> accept and persist all changes in the currnt session.<br>"
-            "  - <b>Cancel:</b> discard all changes in the current session.<br>"
-            "  Meta Command Placeholder Symbols:<br><br>"
-            "  <b>( )</b> Items within curly brackets (parentheses) are built-in meta command options.<br><br>"
+            "  - <b>Cancel:</b> discard all changes in the current session.<br><br>"
+            "  Meta Command Placeholder Symbols:<br>"
+            "  <b>( )</b> Items within curly brackets (parentheses) are built-in meta command options.<br>"
             "  <b>&lt; &gt;</b> Items within chevron (greater,less than) indicate meta command value options required to complete the command.<br>"
             "  <b>[ ]</b> Items within square brackets indicate optional meta command(s) and or value(s).<br>"
             "  <b>&quot; &quot;</b> Items within double quotes are &quot;string&quot; values. Strings containing space require quotes. Numeric values are not quoted.<br>"
             "  <b>|</b>  Items bisected by a pipe (or) indicate multiple options are available; however, only one option per command can be specified.<br><br>"
-            "  Meta Command Notes:<br><br>"
+            "  Meta Command Notes:<br>"
             "  - The &lt;&quot;page size id&quot;&gt; meta value captures paper size, e.g. A4, B4, Letter, Custom, etc...<br>"
-            "    For custom page size use  &lt;decimal width&gt; &lt;decimal height&gt; &quot;Custom&quot;<br>"
-            "  - The SUBMODEL metas below enable font and background settings for nested submodels and callouts.<br>"
-            "  - The SUBMODEL_FONT meta is supported for up to four levels.<br>"
-            "  - The SUBMODEL_FONT_COLOR meta is supported for up to four levels.<br>"
-            "  - The SUBMODEL_BACKGROUND_COLOR meta is supported for up to four levels.<br>"
-            "    Four level colours #FFFFFF, #FFFFCC, #FFCCCC, and #CCCCFF are predefined.<br>"
+            "    For custom page size use  &lt;decimal width&gt; &lt;decimal height&gt; &quot;Custom&quot;<br><br>"
+            "  - The SUBMODEL metas enable font and background settings for nested submodels and callouts.<br>"
+            "  - SUBMODEL_FONT meta is supported for up to four levels.<br>"
+            "  - SUBMODEL_FONT_COLOR meta is supported for up to four levels.<br>"
+            "  - SUBMODEL_BACKGROUND_COLOR meta is supported for up to four levels.<br>"
+            "    Four level colours #FFFFFF, #FFFFCC, #FFCCCC, and #CCCCFF are predefined.<br><br>"
             "  - The &lt;stud style integer 0-7&gt; meta value captures the 7 stud style types.<br>"
             "    0 None, 1 Thin Line, 2 Outline, 3 Sharp Top, 4 Rounded Top, 5 Flattened, 6 High Contrast Without Logo, 7 High Contrast With Logo<br><br>"
             "  - The &lt;annotation style integer 0-4&gt; meta value captures the 4 annotation icon style types.<br>"
             "    0 None, 1 Circle, 2 Square, 3 Rectangle, 4 LEGO element<br><br>"
             "  - The &lt;line integer 0-5&gt; meta value captures the 5 border line types.<br>"
             "    0 None, 1 Solid (----), 2 Dash (- -), 3 Dot (....), 4 Dash dot (-.-.), 5 Dash dot dot (-..-)<br><br>"
-            "  - The &lt;&quot;font attributes&quot;&gt; meta value is a comma-delimited &lt;&quot;string&quot;&gt; of 10 attributes.<br>"
-            "    Example font attributes &lt;&quot; Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 <br><br>"
+            "  - The &lt;&quot;font attributes...&quot;&gt; meta value is a comma-delimited &lt;&quot;string&quot;&gt; of 10 attributes.<br>"
             "     1 FamilyName - &quot;Arial&quot;<br>"
             "     2 PointSizeF - 64 size of font, -1 if using PixelSize<br>"
             "     3 PixelSize  - -1 size of font, -1 if using PointSizeF<br>"
@@ -4632,8 +4622,10 @@ void CommonMenus::setWhatsThis()
             "     7 Strikeout  - 0 = disabled, 1 = enabled<br>"
             "     8 StrikeOut  - 0 = disabled, 1 = enabled<br>"
             "     9 FixedPitch - 0 = disabled, 1 = enabled<br>"
-            "    10 RawMode    - 0 obsolete, use default value<br><br>"
-            "  Saved edited commands are written to an external json file which is loaded at application startup.%1<br>")
+            "    10 RawMode    - 0 obsolete, use default value<br>"
+            "    Example font attributes &lt;&quot; Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 &quot;&gt;<br><br>"
+            "  Saved edited commands are written to %1 which is loaded at application startup.%2<br>")
+            .arg(QDir::toNativeSeparators(QString("%1/extras/user-command-descriptions.json").arg(Preferences::lpubDataPath)))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_COMMANDS_TEXT_EDIT")
@@ -4647,10 +4639,8 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Use this button to enable the editor.<br>"
             "  Your changes are automatically saved to the current<br>"
-            "  session and permanently saved when you accept your<br>"
-            "  changes by clicking the OK button.<br>"
-            "  You may insert your saved content to the command editor"
-            "  at any time.%1<br>")
+            "  session and permanently saved when you accept your changes by clicking the OK button.<br>"
+            "  You may insert your saved content to the command editor at any time.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_COMMANDS_EDIT")
@@ -4662,7 +4652,9 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_COMMANDS_RESET
         {
             QObject::tr(
-            "  Return to the default meta command description.%1<br>")
+            "  Load the original meta command into the text editor overwriting the current entry.<br>"
+            "  This action manipulates lines in the %1 meta command manager.%2<br>")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_COMMANDS_RESET")
@@ -4676,7 +4668,9 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Insert the edited LPUB command at the cursor position in the command editor.<br>"
             "  This means the content at the current line - the line where the cursor<br>"
-            "  is - will be moved down and the command will be palced at the current line%1<br>")
+            "  is - will be moved down and the command will be palced at the current line.<br>"
+            "  This action manipulates lines in the %1 command editor.%2<br>")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_COMMANDS_INSERT_BEFORE")
@@ -4690,7 +4684,9 @@ void CommonMenus::setWhatsThis()
             QObject::tr(
             "  Insert the edited LPUB command after cursor position in the command editor.<br>"
             "  This means the content at the current line - the line where the cursor<br>"
-            "  is - will be moved up and the command will be palced at the current line%1<br>")
+            "  is - will be moved up and the command will be palced at the current line.<br>"
+            "  This action manipulates lines in the %1 command editor.%2<br>")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_COMMANDS_INSERT_AFTER")
@@ -4702,7 +4698,9 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_COMMANDS_MOVE_LINE_UP
         {
             QObject::tr(
-            "  Move the line at the command editor cursor position up by one line.%1<br>")
+            "  Move the line at the command editor cursor position up by one line.<br>"
+            "  This action manipulates lines in the %1 command editor.%2<br>")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_COMMANDS_MOVE_LINE_UP")
@@ -4714,7 +4712,9 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_COMMANDS_MOVE_LINE_DOWN
         {
             QObject::tr(
-            "  Move the line at the  command editor cursor position down by one line.%1<br>")
+            "  Move the line at the  command editor cursor position down by one line.<br>"
+            "  This action manipulates lines in the %1 command editor.%2<br>")
+            .arg(QLatin1String(VER_PRODUCTNAME_STR))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_COMMANDS_MOVE_LINE_DOWN")
@@ -7157,7 +7157,7 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_SNIPPETS_ADD
         {
             QObject::tr(
-            "  Use this button to add a command snippet.<br><br>"
+            "  Add a new command snippet to the snippet collection.<br><br>"
             "  When the Add button is clicked, a new snippet line<br>"
             "  entry is created in the snippets table and the<br>"
             "  snippet editor is enabled allowing you to edit<br>"
@@ -7196,7 +7196,9 @@ void CommonMenus::setWhatsThis()
             "  the snippet trigger - e.g. '1' for 0 STEP, use<br>"
             "  'CTRL+Space' to trigger the snippet insert dialog.<br>"
             "  When the desired snippet is highlighted, hit ENTER to<br>"
-            "  insert the snippet.%1<br>")
+            "  insert the snippet. User-defined snippets are written to<br>"
+            "  %1 which is loaded at application startup.%2<br>")
+            .arg(QDir::toNativeSeparators(QString("%1/extras/user-snippets.json").arg(Preferences::lpubDataPath)))
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_SNIPPETS_EDIT")
@@ -7208,19 +7210,13 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_SNIPPETS_LIST
         {
             QObject::tr(
-            "  This table view lists the defined snippets currently<br>"
-            "  loaded.<br><br>"
-            "  There are two types of snippets, built-in and<br>"
-            "  user-defined.<br><br>"
+            "  This table view lists the defined snippets currently loaded.<br><br>"
+            "  There are two types of snippets, built-in and user-defined.<br><br>"
             "  Built-in snippets are read-only.<br>"
-            "  This is to say, the Remove button is not enabled<br>"
-            "  when you select a built-in snippet.<br><br>"
-            "  User-defined snippets are created using the Add<br>"
-            "  button which also enables the snippet editor.<br><br>"
-            "  When a new snippet is created, you must edit the<br>"
-            "  snippet trigger and description in this table.<br><br>"
-            "  - Trigger: a short name that uniquely identifies<br>"
-            "    the user-defined snippet.<br><br>"
+            "  This is to say, the Remove button is not enabled when you select a built-in snippet.<br><br>"
+            "  User-defined snippets are created using the Add button which also enables the snippet editor.<br><br>"
+            "  When a new snippet is created, you must edit the snippet trigger and description in this table.<br><br>"
+            "  - Trigger: a short name that uniquely identifies the user-defined snippet.<br><br>"
             "  - Description: a concise description of the snippet.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
@@ -7234,9 +7230,7 @@ void CommonMenus::setWhatsThis()
         {
             QObject::tr(
             "  Remove the selected user-defined command snippet.<br><br>"
-            "  The remove button is disabled when a built-in command<br>"
-            "  snippet is selected. You cannot remove built-in<br>"
-            "  snippets.%1<br>")
+            "  The remove button is disabled when a built-in command snippet is selected. You cannot remove built-in snippets.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_SNIPPETS_REMOVE")
@@ -7248,9 +7242,7 @@ void CommonMenus::setWhatsThis()
         // WT_CONTROL_SUBSTITUTE_CURRENT_PART
         {
             QObject::tr(
-            "  This dialogue displays the current part<br>"
-            "  and its title description. These dialogues<br>"
-            "  are read-only.%1<br>")
+            "  This dialogue displays the current part and its title description. These dialogues are read-only.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_CONTROL_SUBSTITUTE_CURRENT_PART")

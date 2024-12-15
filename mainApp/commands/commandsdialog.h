@@ -75,6 +75,12 @@ private:
   CommandsTextEdit *commandTextEdit;
   QPushButton      *editCommandButton;
   QPushButton      *resetCommandButton;
+  QPushButton      *insertCommandBeforeButton;
+  QPushButton      *insertCommandAfterButton;
+  QLabel           *commandUsageLabel;
+
+  QPushButton      *moveLineUpButton;
+  QPushButton      *moveLineDownButton;
 
   FilterLineEdit        *snippetFilterEdit;
   SnippetsTableModel    *snippetsTableModel;
@@ -86,18 +92,12 @@ private:
   CommandsTextEdit *snippetTextEdit;
   QPushButton      *addSnippetButton;
   QPushButton      *removeSnippetButton;
-
-  QPushButton      *insertCommandBeforeButton;
-  QPushButton      *insertCommandAfterButton;
-  QPushButton      *moveLineUpButton;
-  QPushButton      *moveLineDownButton;
-  QLabel           *commandUsageLabel;
   QLabel           *snippetUsageLabel;
 
   bool              commandEdit;
 
 signals:
-  void commandSnippet(const QString &, bool);
+  void insertCommand(const QString &, bool);
   void moveLineUp();
   void moveLineDown();
 
@@ -108,6 +108,7 @@ private slots:
   void commandTextChanged();
   void resetCommandButtonClicked();
   void editCommandButtonClicked(bool clicked);
+  void insertCommandEdit();
 
   void currentSnippetChanged(const QModelIndex &current, const QModelIndex &previous);
   void snippetFilterEditChanged();
@@ -117,7 +118,6 @@ private slots:
   void copyToClipboard();
   void closeEvent(QCloseEvent *event) override;
   bool maybeSave();
-  void applyCommandEdit();
   void moveLine();
 
 public slots:

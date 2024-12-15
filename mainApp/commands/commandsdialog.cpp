@@ -147,9 +147,9 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
           this,                &CommandsDialog::commandTextChanged);
 
   commandUsageLabel = new QLabel(tr("To insert a command in the command editor, select the command and click "
-                                     "<b><i>Insert Before</i></b> or <b><i>Insert After</i></b>.<br>"
-                                     "Additionally, you can use<b><i>Move Up</i></b> or <b><i>Move Down</i></b> "
-                                     "position the command as desired."));
+                                    "<b><i>Insert Before</i></b> or <b><i>Insert After</i></b>.<br>"
+                                    "Additionally, you can use<b><i>Move Up</i></b> or <b><i>Move Down</i></b> "
+                                    "to position the command as desired."));
   commandUsageLabel->hide();
   commandUsageLabel->setWordWrap(true);
   widgetLayout->addWidget(commandUsageLabel,3,0,1,2);
@@ -165,12 +165,12 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   resetCommandButton = new QPushButton(tr("Reset"),widget);
   resetCommandButton->setWhatsThis(lpubWT(WT_CONTROL_COMMANDS_RESET, tr("Reset Meta Command")));
   resetCommandButton->setEnabled(false);
-  resetCommandButton->setToolTip(tr("Reset the command command in the text editor to its initial state."));
+  resetCommandButton->setToolTip(tr("Reset the current command in the text editor to its initial state."));
   widgetLayout->addWidget(resetCommandButton,1,1,1,1,Qt::AlignTop);
   connect(resetCommandButton,  &QPushButton::clicked,
           this,                &CommandsDialog::resetCommandButtonClicked);
 
-  QVBoxLayout *lineEditLayout = new QVBoxLayout(widget);
+  QVBoxLayout *lineEditLayout = new QVBoxLayout();
   widgetLayout->addLayout(lineEditLayout,2,1);
 
   insertCommandBeforeButton = new QPushButton(tr("Insert Before"), widget);
@@ -180,7 +180,7 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   insertCommandBeforeButton->setVisible(false);
   lineEditLayout->addWidget(insertCommandBeforeButton,0,Qt::AlignTop);
   connect(insertCommandBeforeButton, &QPushButton::clicked,
-          this,                &CommandsDialog::applyCommandEdit);
+          this,                &CommandsDialog::insertCommandEdit);
 
   insertCommandAfterButton = new QPushButton(tr("Insert After"), widget);
   insertCommandAfterButton->setWhatsThis(lpubWT(WT_CONTROL_COMMANDS_INSERT_AFTER, tr("Insert After Current Line")));
@@ -189,7 +189,7 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   insertCommandAfterButton->setVisible(false);
   lineEditLayout->addWidget(insertCommandAfterButton,0,Qt::AlignTop);
   connect(insertCommandAfterButton, &QPushButton::clicked,
-          this,                     &CommandsDialog::applyCommandEdit);
+          this,                     &CommandsDialog::insertCommandEdit);
 
   moveLineUpButton = new QPushButton(tr("Move Up"), widget);
   moveLineUpButton->setWhatsThis(lpubWT(WT_CONTROL_COMMANDS_MOVE_LINE_UP, tr("Move Current Line Up")));
@@ -676,7 +676,7 @@ bool CommandsDialog::maybeSave()
   return rc;
 }
 
-void CommandsDialog::applyCommandEdit()
+void CommandsDialog::insertCommandEdit()
 {
   QPushButton *button = qobject_cast<QPushButton *>(sender());
   bool insertAfter = button == insertCommandAfterButton;
@@ -684,7 +684,7 @@ void CommandsDialog::applyCommandEdit()
   const QModelIndex &modelIndex = commandTableView->selectionModel()->currentIndex();
   if (modelIndex.isValid()) {
     const QString command = commandsProxyTableModel->data(modelIndex, Qt::EditRole).toString();
-    emit commandSnippet(command, insertAfter);
+    emit insertCommand(command, insertAfter);
   } else {
     emit lpub->messageSig(LOG_WARNING,tr("No command selected."), LOG_SHOW_DIALOG);
   }

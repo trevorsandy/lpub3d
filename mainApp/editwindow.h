@@ -175,7 +175,7 @@ private slots:
     void previewCurrentModel();
 #endif
     void commandsDialog();
-    void applyCommandSnippet(const QString &, bool);
+    void insertCommand(const QString &, bool);
     void bottomOfDocument();
     void showAllCharacters();
     void mpdComboChanged(int index);
