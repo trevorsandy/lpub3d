@@ -848,6 +848,9 @@ void lcMainWindow::CreateToolBars()
 	mColorButton->setAutoRaise(true);
 	mColorButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	mColorButton->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+/*** LPub3D Mod - add tooltip to color button ***/
+	mColorButton->setToolTip(tr("Paint Selected Parts"));
+/*** LPub3D Mod end ***/
 	ColorButtonLayout->addWidget(mColorButton);
 
 	connect(mColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
