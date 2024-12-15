@@ -2763,7 +2763,9 @@ void lcMainWindow::UpdateColor()
 	Pixmap.fill(QColor::fromRgbF(gColorList[mColorIndex].Value[0], gColorList[mColorIndex].Value[1], gColorList[mColorIndex].Value[2]));
 
 	mColorButton->setIcon(Pixmap);
-	mColorButton->setText(QString("	 ") + gColorList[mColorIndex].Name);
+/*** LPub3D Mod - add code to selected color name display ***/
+	mColorButton->setText(QString("	 %1 (%2)").arg(gColorList[mColorIndex].Name).arg(gColorList[mColorIndex].Code));
+/*** LPub3D Mod end ***/
 	mColorList->SetCurrentColor(mColorIndex);
 }
 
