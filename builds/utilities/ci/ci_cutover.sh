@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: October 19, 2024
+# Last Update: December 13, 2024
 # Copyright (C) 2024 by Trevor SANDY
 
 function ShowHelp() {
@@ -559,7 +559,7 @@ rm -f *.log
 git add . &>> $LOG
 #git reset HEAD 'mainApp/docs/README.txt'
 
-# Create tag here to enable commit files configuration for new version tab
+# Create tag here to enable commit files configuration for new version tag
 if [ -n "${NEXT_VER_TAG}" ]; then
   echo "$((COMMAND_COUNT += 1))-Create local tag in $TO_REPO_NAME repository"
   if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
@@ -573,6 +573,7 @@ cat << pbEOF >.git/COMMIT_EDITMSG
 $COMMIT_MSG
 
 pbEOF
+#pre-commit is called from git-hook
 chmod a+x builds/utilities/hooks/pre-commit
 env force_all=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
 find . -name '*.log*' -type f -exec rm -f *.log {} +
@@ -590,7 +591,7 @@ elif [ -n "${NEXT_VER_TAG}" ]; then
    git tag --delete $LOCAL_TAG
 fi
 
-echo "$((COMMAND_COUNT += 1))-Restore repository checked out state..."
+echo "$((COMMAND_COUNT += 1))-Restore $TO_REPO_NAME repository checked out state..."
 # Checkout master in source [in TO_REPO_NAME]
 if [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     CHECKOUT_MASTER=1
@@ -606,9 +607,12 @@ then
 fi
 [ -z "$CHECKOUT_MASTER" ] && git checkout master || true
 
-# Checkout master in destination [in FROM_REPO_NAME] when not called from next_cutover (AUTO=)
-if [ -z "$AUTO_MODE" ]
+echo "$((COMMAND_COUNT += 1))-Restore $FROM_REPO_NAME repository checked out state..."
+if [ -n "$AUTO_MODE" ]
 then
+    cd $HOME_DIR/$FROM_REPO_NAME && git checkout master || true
+else
+    # Checkout master in destination [in FROM_REPO_NAME] when not called from next_cutover (AUTO=)
     if [ -n "$RELEASE_COMMIT" ]; then
         echo "$((COMMAND_COUNT += 1))-Create new version tag in $FROM_REPO_NAME repository"
         cd $HOME_DIR/$FROM_REPO_NAME
@@ -618,14 +622,14 @@ then
         git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
         git_tag="$(git tag -l -n $LOCAL_TAG)" && \
         [ -n "$git_tag" ] && echo "  -git tag $git_tag created."
-		# Update config files with version from new tag
-		./builds/utilities/hooks/pre-commit -ro && \
-		./builds/utilities/hooks/pre-commit -rf && \
-		rm -f *.log
-		# Git append to amend the last commit to update config files with new version
-		git add . &>> $LOG
-		git commit --amend --no-edit &>> $LOG
-		git log --stat &>> $LOG
+        # Update config files with version from new tag
+        ./builds/utilities/hooks/pre-commit -ro && \
+        ./builds/utilities/hooks/pre-commit -rf && \
+        rm -f *.log
+        # Git append to amend the last commit to update config files with new version
+        git add . &>> $LOG
+        git commit --amend --no-edit &>> $LOG
+        git log --stat &>> $LOG
     fi
     cd $HOME_DIR;
 fi

@@ -350,9 +350,9 @@ do
                 GIT_TAG="$(git tag -l -n $VER_TAG)" && \
                 [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
                 # Update config files with version from new tag
-				./builds/utilities/hooks/pre-commit -ro && \
-				./builds/utilities/hooks/pre-commit -rf && \
-				rm -f *.log
+                ./builds/utilities/hooks/pre-commit -ro && \
+                ./builds/utilities/hooks/pre-commit -rf && \
+                rm -f *.log
                 # Git append to amend the last commit to update config files with new version
                 git add . &>> $LOG
                 git commit --amend --no-edit &>> $LOG
