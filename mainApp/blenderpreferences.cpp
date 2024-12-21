@@ -1299,7 +1299,8 @@ bool BlenderPreferences::downloadAndExtractBlenderAddon(const QString &blenderDi
                                                .arg(blenderAddonFile).arg(blenderDir));
         emit gui->messageSig(LOG_INFO, tr("%1 items archive extracted to %2")
                                           .arg(addonList.size()).arg(blenderDir));
-    }
+    } else if (addonAction == ADDON_NO_ACTION)
+        return true;
 
     return extracted;
 }
@@ -1412,7 +1413,10 @@ int BlenderPreferences::getBlenderAddon(const QString &blenderDir)
 
     if (blenderAddonValidated) {
         if (getBlenderAddonVersionMatch()) {
-            addonAction = ADDON_NO_ACTION;
+            if (extractedAddon)
+                addonAction = ADDON_NO_ACTION;
+            else
+                addonAction = ADDON_EXTRACT;
         } else if (Preferences::modeGUI) {
             if (Preferences::blenderAddonVersionCheck) {
                 if (localVersion.isEmpty())

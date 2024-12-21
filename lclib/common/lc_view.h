@@ -73,6 +73,7 @@ enum class lcTrackTool
 	RotateXYZ,
 	RotateTrainTrackRight,
 	RotateTrainTrackLeft,
+	InsertTrainTrack,
 	ScalePlus,
 	ScaleMinus,
 	Eraser,
@@ -326,6 +327,8 @@ protected:
 	void OnButtonDown(lcTrackButton TrackButton);
 	void StartPan(int x, int y);
 	void UpdatePan(int x, int y);
+
+	void ShowTrainTrackPopup();
 
 	lcViewWidget* mWidget = nullptr;
 	int mWidth = 1;

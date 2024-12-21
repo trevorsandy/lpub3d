@@ -2496,6 +2496,7 @@ lcMatrix33 lcModel::GetRelativeRotation() const
 	return lcMatrix33Identity();
 }
 
+/*** LPub3D Mod - viewer interface ***/
 bool lcModel::RemoveCameraIndex(size_t CameraIdx)
 {
 	if (mCameras.size() > CameraIdx)
@@ -2513,10 +2514,12 @@ bool lcModel::RemoveCameraIndex(size_t CameraIdx)
 	
 	return false;
 }
+/*** LPub3D Mod end ***/
 
-void lcModel::AddPiece()
+void lcModel::AddPiece(PieceInfo* PieceInfo)
 {
-	PieceInfo* PieceInfo = gMainWindow->GetCurrentPieceInfo();
+	if (!PieceInfo)
+		PieceInfo = gMainWindow->GetCurrentPieceInfo();
 
 	if (!PieceInfo)
 		return;

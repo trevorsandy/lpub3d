@@ -1921,6 +1921,17 @@ void lcPiecesLibrary::GetParts(std::vector<PieceInfo*>& Parts) const
 		Parts.emplace_back(PartIt.second);
 }
 
+std::vector<PieceInfo*> lcPiecesLibrary::GetTrainTrackParts(const lcTrainTrackInfo* TrainTrackInfo) const
+{
+	std::vector<PieceInfo*> Parts;
+
+	for (const auto& [Name, Info] : mPieces)
+		if (Info->GetTrainTrackInfo())
+			Parts.emplace_back(Info);
+
+	return Parts;
+}
+
 std::vector<PieceInfo*> lcPiecesLibrary::GetPartsFromSet(const std::vector<std::string>& PartIds) const
 {
 	std::vector<PieceInfo*> Parts;

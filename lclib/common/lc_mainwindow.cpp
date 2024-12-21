@@ -3594,7 +3594,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_PIECE_INSERT:
 		if (ActiveModel)
-			ActiveModel->AddPiece();
+			ActiveModel->AddPiece(static_cast<PieceInfo*>(nullptr));
 		break;
 
 	case LC_PIECE_DELETE:
