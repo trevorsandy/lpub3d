@@ -2247,13 +2247,14 @@ class MetaCommandsFileDialog : public QFileDialog
 public:
     explicit MetaCommandsFileDialog(QWidget *parent = nullptr,
                                     const QString &caption = QString(),
-                                    const QString &dir = QString(),
+                                    const QString &file = QString(),
                                     const QString &filter = QString())
-        : QFileDialog(parent, caption, dir, filter) {}
+        : QFileDialog(parent, caption, file, filter) {}
     static QString getCommandsSaveFileName(bool &exportDirections,
+                                           bool &exportPlainText,
                                            QWidget *parent,
                                            const QString &caption,
-                                           const QString &dir,
+                                           const QString &file,
                                            const QString &filter,
                                            QString *selectedFilter = nullptr,
                                            Options options = Options());

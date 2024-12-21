@@ -137,7 +137,7 @@ public:
   void loadSnippetCollection();
 
   /// Export LPub meta commands to file
-  bool exportMetaCommands(const QString &, QString &, bool = false);
+  bool exportMetaCommands(const QString &, QString &, bool plainText = false, bool descriptons = false);
 
   /// Search directory thread worker
   PartWorker& partWorkerLDSearchDirs();

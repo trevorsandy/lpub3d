@@ -1252,7 +1252,7 @@ void LPub::loadSnippetCollection()
 
 /****************************************************************************
  *
- * LPub command collection load
+ * Command collection load
  *
  ***************************************************************************/
 
@@ -1285,22 +1285,22 @@ void LPub::loadCommandCollection()
         }
 
         if (preamble.endsWith(" FONT"))
-            command = preamble + " <\"font attributes\">";
+            command = preamble + " <\"font attributes...\">";
         else
         if (preamble.endsWith(" FONT_COLOR"))
-            command = preamble + " <\"color name|#RRGGBB\">";
+            command = preamble + " <\"color name | #RRGGBB\">";
         else
         if (preamble.endsWith(" PRIMARY") || preamble.endsWith(" SECONDARY") || preamble.endsWith(" TERTIARY"))
-            command = preamble + " <\"Part Color\"|\"Part Category\"|\"Part Size\"|\"Part Element\"|\"No Sort\">";
+            command = preamble + " <\"Part Color\" | \"Part Category\" | \"Part Size\" | \"Part Element\" | \"No Sort\">";
         else
         if (preamble.endsWith(" PRIMARY_DIRECTION") || preamble.endsWith(" SECONDARY_DIRECTION") || preamble.endsWith(" TERTIARY_DIRECTION"))
-            command = preamble + " <\"Ascending\"|\"Descending\">";
+            command = preamble + " <\"Ascending\" | \"Descending\">";
         else
         if (preamble.endsWith(" SUBMODEL_BACKGROUND_COLOR") || preamble.endsWith(" SUBMODEL_FONT_COLOR"))
-            command = preamble + " <\"color name|#RRGGBB\"> [<\"color name|#RRGGBB\"> <\"color name|#RRGGBB\"> <\"color name|#RRGGBB\">]";
+            command = preamble + " <\"color name | #RRGGBB\"> [<\"color name | #RRGGBB\"> <\"color name | #RRGGBB\"> <\"color name | #RRGGBB\">]";
         else
         if (preamble.endsWith(" SUBMODEL_FONT"))
-            command = preamble + " <\"font attributes\"> [<\"font attributes\"> <\"font attributes\"> <\"font attributes\">]";
+            command = preamble + " <\"font attributes...\"> [<\"font attributes...\"> <\"font attributes...\"> <\"font attributes...\">]";
         else
         if (preamble.endsWith(" COLOR") && !preamble.contains(" FADE_STEPS "))
             command = preamble + " <\"color name|#RRGGBB\">";
@@ -1309,10 +1309,10 @@ void LPub::loadCommandCollection()
             command = preamble + " <\"file path\">";
         else
         if (preamble.endsWith(" LIGHT AREA_SHAPE"))
-            command = preamble + " <\"UNDEFINED\"|\"SQUARE\"|\"DISK\"|\"RECTANGLE\"|\"ELLIPSE\">";
+            command = preamble + " <\"UNDEFINED\" | \"SQUARE\" | \"DISK\" | \"RECTANGLE\" | \"ELLIPSE\">";
         else
         if (preamble.endsWith(" LIGHT TYPE"))
-            command = preamble + " <\"POINT\"|\"SUN\"|\"SPOT\"|\"AREA\">";
+            command = preamble + " <\"POINT\" | \"SUN\" | \"SPOT\" | \"AREA\">";
         else
         if (preamble.endsWith(" REMOVE NAME"))
             command = preamble + " <LDraw part name>";
@@ -1352,11 +1352,11 @@ void LPub::loadCommandCollection()
 
 /****************************************************************************
  *
- * Export LPub commands
+ * Export LPUB commands
  *
  ***************************************************************************/
 
-bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool descriptons)
+bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool plainText, bool descriptons)
 {
     if (!commandCollection) {
         result = tr("The command collection is null.");
@@ -1364,138 +1364,296 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
         return false;
     }
 
-    static const QLatin1String fmtDateTime("yyyy-MM-dd hh:mm:ss");
-
-    static const QLatin1String documentTitle("LPub Meta Commands");
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        emit messageSig(LOG_ERROR, tr("Cannot write file %1:<br>%2.")
+                        .arg(fileName)
+                        .arg(file.errorString()));
+        return false;
+    }
 
     int n = 0;
     enum { FirstRec };
     QStringList doc, rec;
     for (int i = 0; i < commandCollection->count(); ++i) {
         Command command = commandCollection->at(i);
-        rec = command.command.split("\n");
+        QString const cleanCommand = command.command;
+        rec = cleanCommand.split("\n");
         for (int g = 0; g < rec.size(); g++) {
-            if (g == FirstRec)
-                doc.append(QString("%1. %2").arg(++n,3,10,QChar('0')).arg(rec[g]));
-            else
-                doc.append(QString("     %1").arg(rec[g]));
+            if (g == FirstRec) {
+                if (plainText)
+                    doc.append(QString("%1. %2").arg(++n,3,10,QChar('0')).arg(rec[g]));
+                else {
+                    bool singleRec = rec.size() == 1;
+                    doc.append(QString("<li><code>%1%2").arg(rec[g]).arg(singleRec ? "</code></li>" : "<br>"));
+                    ++n;
+                }
+            } else {
+                if (plainText)
+                    doc.append(QString("     %1").arg(rec[g]));
+                else {
+                    bool lastRec = g+1 == rec.size() && !descriptons;
+                    doc.append(QString("          %1%2").arg(rec[g]).arg(lastRec ? "</code></li>" : "<br>"));
+                }
+            }
         }
         if (descriptons && command.modified == Command::True) {
-            rec = command.description.split("\n");
-            doc.append(QString("     0 // DESCRIPTION:"));
-            for (int h = 0; h < rec.size(); h++)
-                doc.append(QString("     %1").arg(rec[h]));
+            QString const cleanDescription = command.description;
+            rec = cleanDescription.split("\n");
+            doc.append(QString("%1").arg(plainText ? "     0 // DESCRIPTION:" : "          0 // DESCRIPTION:<br>"));
+            for (int h = 0; h < rec.size(); h++) {
+                if (plainText)
+                    doc.append(QString("     %1").arg(rec[h]));
+                else {
+                    bool lastRec = h+1 == rec.size();
+                    doc.append(QString("          %1%2").arg(rec[h]).arg(lastRec ? "</code></li>" : "<br>"));
+                }
+            }
         }
     }
 
-    QFile file(fileName);
-    if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        emit messageSig(LOG_ERROR, tr("Cannot write file %1:\n%2.")
-                        .arg(fileName)
-                        .arg(file.errorString()));
-        return false;
-    }
+    static const QLatin1String fmtDateTime("yyyy-MM-dd hh:mm:ss");
 
-    QTextStream out(&file);
+    static const QLatin1String documentTitle("LPUB Meta Commands");
 
     const QString generated = tr("%1 %2 - Generated on %3")
             .arg(VER_PRODUCTNAME_STR)
             .arg(documentTitle)
             .arg(QDateTime::currentDateTime().toString(fmtDateTime));
 
-    const QString exported = QString("%1 of %2")
-            .arg(n)
-            .arg(commandCollection->count());
-
-    // header
-    doc.prepend(tr("Meta Commands:"));
-    doc.prepend(QString());
-    doc.prepend(QString());
-    doc.prepend(tr("   |  Items bisected by a pipe (or) indicate multiple options are available; however, only one option per command can be specified."));
-    doc.prepend(tr("  \" \" Items within double quotes are \"string\" values. Strings containing space require quotes. Numeric values are not quoted."));
-    doc.prepend(tr("  [ ] Items within square brackets indicate optional meta command(s) and or value(s)."));
-    doc.prepend(tr("  < > Items within chevron (greater,less than) indicate meta command value options required to complete the command."));
-    doc.prepend(tr("  ( ) Items within curly brackets (parentheses) are built-in meta command options."));
-    doc.prepend(QString());
-    doc.prepend(tr("Meta Command Symbols:"));
-    doc.prepend(QString());
+    if (plainText) {
+        // header - lines are from bottom to top
+        doc.prepend(tr("Meta Commands:"));
+        doc.prepend(QString());
+        doc.prepend(QString());
+        doc.prepend(tr("   |  Items bisected by a pipe (or) indicate multiple options are available; however, only one option per command can be specified."));
+        doc.prepend(tr("  \" \" Items within double quotes are \"string\" values. Strings containing space require quotes. Numeric values are not quoted."));
+        doc.prepend(tr("  [ ] Items within square brackets indicate optional meta command(s) and or value(s)."));
+        doc.prepend(tr("  < > Items within chevron (greater,less than) indicate meta command value options required to complete the command."));
+        doc.prepend(tr("  ( ) Items within curly brackets (parentheses) are built-in meta command options."));
+        doc.prepend(QString());
+        doc.prepend(tr("Meta Command Symbols:"));
+        doc.prepend(QString());
 #ifdef Q_OS_WIN
-    doc.prepend(tr("---------------------------------------------------------------------------------"));
-    doc.prepend(QString());
-    doc.prepend(tr("  LPub UDL: %1assets/resources/LPub3D_Npp_UDL.xml.zip").arg(VER_HOMEPAGE_GITHUB_STR));
-    doc.prepend(tr("  selected to enable LPub syntax highlighting."));
-    doc.prepend(tr("  Install LPub3D_Npp_UDL.xml and open this file in Notepad++ with 'LPUB3D' UDL"));
-    doc.prepend(tr("  available in the 'extras' folder or at the %1 homepage.").arg(VER_PRODUCTNAME_STR));
-    doc.prepend(tr("  %1 has an LPub3D User Defined Language (UDL) configuration file for Notepad++").arg(VER_PRODUCTNAME_STR));
-    doc.prepend(tr("  Best viewed on Windows with Notepad++ <https://notepad-plus-plus.org>."));
-    doc.prepend(QString());
+        doc.prepend(tr("---------------------------------------------------------------------------------"));
+        doc.prepend(QString());
+        doc.prepend(tr("  LPUB UDL: %1assets/resources/%2.xml.zip").arg(VER_HOMEPAGE_GITHUB_STR).arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  selected to enable LPUB syntax highlighting."));
+        doc.prepend(tr("  Install %1_Npp_UDL.xml and open this file in Notepad++ with '%1' UDL").arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  available in the 'extras' folder or at the %1 homepage.").arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  %1 has an LPUB User Defined Language (UDL) configuration file for Notepad++").arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  Best viewed on Windows with Notepad++ <https://notepad-plus-plus.org>."));
+        doc.prepend(QString());
 #endif
-    doc.prepend(tr("---------------------------------------------------------------------------------"));
-    doc.prepend(QString());
-    doc.prepend(tr("  Copyright © 2023 by %1").arg(VER_PUBLISHER_STR));
-    doc.prepend(tr("  License.....: GPLv3 - see %1").arg(VER_LICENSE_INFO_STR));
-    doc.prepend(tr("  Homepage....: %1").arg(VER_HOMEPAGE_GITHUB_STR));
-    doc.prepend(tr("  Last Update.: %1").arg(VER_COMPILE_DATE_STR));
-    doc.prepend(tr("  Version.....: %1.%2").arg(VER_PRODUCTVERSION_STR).arg(VER_COMMIT_STR));
-    doc.prepend(tr("  Author......: %1").arg(VER_PUBLISHER_STR));
-    doc.prepend(tr("  Name........: %1, LPub Meta Commands").arg(VER_FILEDESCRIPTION_STR));
-    doc.prepend(QString());
-    doc.prepend(generated);
+        doc.prepend(tr("---------------------------------------------------------------------------------"));
+        doc.prepend(QString());
+        doc.prepend(tr("  Copyright © 2016 - %1 by %2").arg(QDate::currentDate().year()).arg(VER_PUBLISHER_STR));
+        doc.prepend(tr("  License.....: GPLv3 - see %1").arg(VER_LICENSE_INFO_STR));
+        doc.prepend(tr("  Homepage....: %1").arg(VER_HOMEPAGE_GITHUB_STR));
+        doc.prepend(tr("  Last Update.: %1").arg(VER_COMPILE_DATE_STR));
+        doc.prepend(tr("  Version.....: %1.%2").arg(VER_PRODUCTVERSION_STR).arg(VER_COMMIT_STR));
+        doc.prepend(tr("  Author......: %1").arg(VER_PUBLISHER_STR));
+        doc.prepend(tr("  Name........: %1, LPUB Meta Commands").arg(VER_FILEDESCRIPTION_STR));
+        doc.prepend(QString());
+        doc.prepend(generated);
 
-    // footer
-    doc.append(QString());
-    doc.append(tr("Meta Command Notes:"));
-    doc.append(tr("-    The <\"page size id\"> meta value captures paper size, e.g. A4, B4, Letter, Custom, etc..."));
-    doc.append(tr("     For custom page size use  <decimal width> <decimal height> \"Custom\""));
-    doc.append(tr("-    The SUBMODEL metas below enable font and background settings for nested submodels and callouts."));
-    doc.append(tr("-    The SUBMODEL_FONT meta is supported for up to four levels."));
-    doc.append(tr("-    The SUBMODEL_FONT_COLOR meta is supported for up to four levels."));
-    doc.append(tr("-    The SUBMODEL_BACKGROUND_COLOR meta is supported for up to four levels."));
-    doc.append(tr("     Four level colours #FFFFFF, #FFFFCC, #FFCCCC, and #CCCCFF are predefined."));
-    doc.append(tr("-    The <stud style integer 0-7> meta value captures the 7 stud style types."));
-    doc.append(tr("     0 None"));
-    doc.append(tr("     1 Thin line logo"));
-    doc.append(tr("     2 Outline logo"));
-    doc.append(tr("     3 Sharp top logo"));
-    doc.append(tr("     4 Rounded top logo"));
-    doc.append(tr("     5 Flattened logo"));
-    doc.append(tr("     6 High contrast without logo"));
-    doc.append(tr("     7 High contrast with logo"));
-    doc.append(tr("-    The <annotation style integer 0-4> meta value captures the 4 annotation icon style types."));
-    doc.append(tr("     0 None"));
-    doc.append(tr("     1 Circle"));
-    doc.append(tr("     2 Square"));
-    doc.append(tr("     3 Rectangle"));
-    doc.append(tr("     4 LEGO element"));
-    doc.append(tr("-    The <line integer 0-5> meta value captures the 5 border line types."));
-    doc.append(tr("     0 None"));
-    doc.append(tr("     1 Solid        ----"));
-    doc.append(tr("     2 Dash         - - "));
-    doc.append(tr("     3 Dot          ...."));
-    doc.append(tr("     4 Dash dot     -.-."));
-    doc.append(tr("     5 Dash dot dot -..-"));
-    doc.append(tr("-    The <\"font attributes\"> meta value is a comma-delimited <\"string\"> of 10 attributes."));
-    doc.append(tr("     Example font attributes <\" Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 \">"));
-    doc.append(tr("     1  FamilyName - \"Arial\""));
-    doc.append(tr("     2  PointSizeF - 64 size of font, -1 if using PixelSize"));
-    doc.append(tr("     3  PixelSize  - -1 size of font, -1 if using PointSizeF"));
-    doc.append(tr("     4  StyleHint  - 255 = no style hint set, 5 = any style, 4 = system font, 0 = Helvetica, etc..."));
-    doc.append(tr("     5  Weight     - 75 = bold, 50 = normal, etc..."));
-    doc.append(tr("     6  Underline  - 0 = disabled, 1 = enabled"));
-    doc.append(tr("     7  Strikeout  - 0 = disabled, 1 = enabled"));
-    doc.append(tr("     8  StrikeOut  - 0 = disabled, 1 = enabled"));
-    doc.append(tr("     9  FixedPitch - 0 = disabled, 1 = enabled"));
-    doc.append(tr("     10 RawMode    - 0 obsolete, use default value"));
-    doc.append(QString());
-    doc.append(tr("End of file."));
+        // footer
+        doc.append(QString());
+        doc.append(tr("Meta Command Notes:"));
+        doc.append(tr("-    The <\"page size id\"> meta value captures paper size, e.g. A4, B4, Letter, Custom, etc..."));
+        doc.append(tr("     For custom page size use  <decimal width> <decimal height> \"Custom\""));
+        doc.append(tr("-    The SUBMODEL metas below enable font and background settings for nested submodels and callouts."));
+        doc.append(tr("-    The SUBMODEL_FONT meta is supported for up to four levels."));
+        doc.append(tr("-    The SUBMODEL_FONT_COLOR meta is supported for up to four levels."));
+        doc.append(tr("-    The SUBMODEL_BACKGROUND_COLOR meta is supported for up to four levels."));
+        doc.append(tr("     Four level colours #FFFFFF, #FFFFCC, #FFCCCC, and #CCCCFF are predefined."));
+        doc.append(tr("-    The <stud style integer 0-7> meta value captures the 7 stud style types."));
+        doc.append(tr("     0 None"));
+        doc.append(tr("     1 Thin line logo"));
+        doc.append(tr("     2 Outline logo"));
+        doc.append(tr("     3 Sharp top logo"));
+        doc.append(tr("     4 Rounded top logo"));
+        doc.append(tr("     5 Flattened logo"));
+        doc.append(tr("     6 High contrast without logo"));
+        doc.append(tr("     7 High contrast with logo"));
+        doc.append(tr("-    The <annotation style integer 0-4> meta value captures the 4 annotation icon style types."));
+        doc.append(tr("     0 None"));
+        doc.append(tr("     1 Circle"));
+        doc.append(tr("     2 Square"));
+        doc.append(tr("     3 Rectangle"));
+        doc.append(tr("     4 LEGO element"));
+        doc.append(tr("-    The <line integer 0-5> meta value captures the 5 border line types."));
+        doc.append(tr("     0 None"));
+        doc.append(tr("     1 Solid        ----"));
+        doc.append(tr("     2 Dash         - - "));
+        doc.append(tr("     3 Dot          ...."));
+        doc.append(tr("     4 Dash dot     -.-."));
+        doc.append(tr("     5 Dash dot dot -..-"));
+        doc.append(tr("-    The <\"font attributes...\"> meta value is a comma-delimited <\"string\"> of 10 attributes."));
+        doc.append(tr("     1  FamilyName - \"Arial\""));
+        doc.append(tr("     2  PointSizeF - 64 size of font, -1 if using PixelSize"));
+        doc.append(tr("     3  PixelSize  - -1 size of font, -1 if using PointSizeF"));
+        doc.append(tr("     4  StyleHint  - 255 = no style hint set, 5 = any style, 4 = system font, 0 = Helvetica, etc..."));
+        doc.append(tr("     5  Weight     - 75 = bold, 50 = normal, etc..."));
+        doc.append(tr("     6  Underline  - 0 = disabled, 1 = enabled"));
+        doc.append(tr("     7  Strikeout  - 0 = disabled, 1 = enabled"));
+        doc.append(tr("     8  StrikeOut  - 0 = disabled, 1 = enabled"));
+        doc.append(tr("     9  FixedPitch - 0 = disabled, 1 = enabled"));
+        doc.append(tr("     10 RawMode    - 0 obsolete, use default value"));
+        doc.append(tr("     Example font attributes <\" Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 \">"));
+        doc.append(QString());
+        doc.append(tr("End of file."));
+    } else {
+        // header - lines are from bottom to top
+        doc.prepend("<ol id=\"commandOL\">");
+        doc.prepend("</div>");
+        doc.prepend("<i class=\"fa fa-filter fa-lg\"></i>");
+        doc.prepend(QString("<input type=\"text\" id=\"commandInput\" onkeyup=\"commandFunction()\" placeholder=\"%1\" title=\"%2\">").arg("Meta command filter").arg(tr("Type command key words to filter list")));
+        doc.prepend(tr("<label><b>Meta Commands:</b></label>"));
+        doc.prepend("<div class=\"commandInputDiv\">");
+        doc.prepend(tr("  <code>|</code> Items bisected by a pipe (or) indicate multiple options are available; however, only one option per command can be specified.</li></p>"));
+        doc.prepend(tr("  <code>\" \"</code> Items within double quotes are <code>\"string\"</code> values. Strings containing space require quotes. Numeric values are not quoted.<br>"));
+        doc.prepend(tr("  <code>[ ]</code> Items within square brackets indicate optional meta command(s) and or value(s).<br>"));
+        doc.prepend(tr("  <code>< ></code> Items within chevron (greater,less than) indicate meta command value options required to complete the command.<br>"));
+        doc.prepend(tr("<li><code>( )</code> Items within curly brackets (parentheses) are built-in meta command options.<br>"));
+        doc.prepend(tr("<p><b>Meta Command Symbols:</b><br>"));
+#ifdef Q_OS_WIN
+        doc.prepend("<p>---------------------------------------------------------------------------------</p>");
+        doc.prepend(tr("  <i class=\"fa fa-download fa-lg\"></i> %1_LPub_Meta_Commands.txt.zip</button></p>").arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  <button onclick=\"location.href='%1assets/resources/%2_LPub_Meta_Commands.txt.zip'\" title=\"%1assets/resources/%2_LPub_Meta_Commands.txt.zip\">").arg(VER_HOMEPAGE_GITHUB_STR).arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  <i class=\"fa fa-download fa-lg\"></i> %1_Npp_UDL.xml.zip </button>").arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  <button onclick=\"location.href='%1assets/resources/%2_Npp_UDL.xml.zip'\" title=\"%1assets/resources/%2_Npp_UDL.xml.zip\">").arg(VER_HOMEPAGE_GITHUB_STR).arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  selected to enable LPUB syntax highlighting.<br>"));
+        doc.prepend(tr("  Install %1_Npp_UDL.xml and open the .txt instance of this file in Notepad++ with '%1' UDL").arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  available in the 'extras' folder or at the <a href=\"%1\" target=\"_blank\" rel=\"noopener noreferrer\">%2 homepage</a>.<br>").arg(VER_HOMEPAGE_GITHUB_STR).arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  %1 has an LPUB User Defined Language (UDL) configuration file for Notepad++").arg(VER_PRODUCTNAME_STR));
+        doc.prepend(tr("  The text instance of this file is best viewed on Windows with Notepad++ <a href=\"%1\" target=\"_blank\" rel=\"noopener noreferrer\">%1</a>.<br>").arg("https://notepad-plus-plus.org"));
+        doc.prepend("<p>");
+#endif
+        doc.prepend("<p>---------------------------------------------------------------------------------</p>");
+        doc.prepend(tr("  Copyright &copy; 2016 - %1 by %2</p>").arg(QDate::currentDate().year()).arg(VER_PUBLISHER_STR));
+        doc.prepend(tr("  License.....: GPLv3 - see <a href=\"%1\" target=\"_blank\" rel=\"noopener noreferrer\">%1</a><br>").arg(VER_LICENSE_INFO_STR));
+        doc.prepend(tr("  Homepage....: <a href=\"%1\" target=\"_blank\" rel=\"noopener noreferrer\">%1</a><br>").arg(VER_HOMEPAGE_GITHUB_STR));
+        doc.prepend(tr("  Last Update.: %1<br>").arg(VER_COMPILE_DATE_STR));
+        doc.prepend(tr("  Version.....: %1.%2<br>").arg(VER_PRODUCTVERSION_STR).arg(VER_COMMIT_STR));
+        doc.prepend(tr("  Author......: %1<br>").arg(VER_PUBLISHER_STR));
+        doc.prepend(tr("  Name........: %1, LPUB Meta Commands<br>").arg(VER_FILEDESCRIPTION_STR));
+        doc.prepend("<p>");
+        doc.prepend("</div>");
+        doc.prepend("<p>---------------------------------------------------------------------------------</p>");
+        doc.prepend(QString("<h2>%1</h2><br>").arg(generated));
+        doc.prepend("<img alt=\"LPub3D Logo\" src=\"data:image/png;base64,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\" />");
+        doc.prepend("<div class=\"header\">");
+        doc.prepend("<ul id=\"commandUL\">");
+        doc.prepend("<body>");
+        doc.prepend("</head>");
+        doc.prepend("</style>");
+        doc.prepend("#commandUL li code { font-size: 15px; color: #c7254e; }");
+        doc.prepend("#commandOL li code:hover:not(.header) { background-color: #eee; }");
+        doc.prepend("#commandOL li code { border: 1px solid #ddd; margin-top: -1px; /* Prevent double borders */ background-color: #f9f2f4; padding: 8px; text-decoration: none; font-size: 15px; color: #c7254e; display: block }");
+        doc.prepend("#commandOL { padding: 0;margin: 0; }");
+        doc.prepend("#commandInput { width: 100%; padding: 12px 40px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; box-sizing: border-box; }");
+        doc.prepend(".commandInputDiv i { position: absolute; left: 15px; top: 40px; color: gray; }");
+        doc.prepend(".commandInputDiv { position: relative; }");
+        doc.prepend("button:hover { opacity: 0.7; }");
+        doc.prepend("button { background-color: #c7254e; border: none; color: white; padding: 12px 30px; cursor: pointer; font-size: 15px; }");
+        doc.prepend("p { text-align: left; }");
+        doc.prepend("body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }");
+        doc.prepend(".header h2 { font-weight: 100; position: relative; top: 18px; left: 10px; }");
+        doc.prepend(".header img { float: left; width: 64px; height: 64px; }");
+        doc.prepend("@charset \"UTF-8\";");
+        doc.prepend("<style>");
+        doc.prepend("<link rel=\"icon\" type=\"image/x-icon\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAASdAAAEnQB3mYfeAAAAAd0SU1FB98FBQEaCRixU1AAAABUdEVYdENvbW1lbnQAUmVuZGVyIERhdGU6IDIwMTUtMDUtMDUgMDE6MjY6MDlaClBsYXRmb3JtOiB4ODZfNjQtcGMtd2luCkNvbXBpbGVyOiBtc3ZjIDEwCiw8tlAAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAgbSURBVFhHrVYJbBTnGTXhjA9CsOWLPbyzszOzx+zseo1xbYyD8Ymvvb22d71rr9fG9prb2JwGYxMCGAghJU0LCaUhqA2lSasqVaWSqFWUKOqlKlKqSmmiqlRV01SVKlS1Fa/fP0xzNFxu+klPMxqvv/e+8/8z/tsuux1lV2S59Lzdohw1m+27BaM0adbxewWDaYIrMkzp9cW7TfkF24uK8rYYH1kxLoo5Yzy/lP51wW0PX9CuuOQbL7udf/q22/HH47L9Rr8o/i4uSu8T3usVxN9ELdK73aL0Tkyw/qpHEH8RE60/jYrWtyKi9WKYF58KCLYJryTlau7mbyTgr6+UufAdwpzTiV6rDTHJhiihm9BFiBA6RRvChJBoRZAQIPgIXkH6oM1m4zV387cX3c4PXybya4QTmgBG3qORMzByhk+T+zUBHYL1162czaC5m79ddjlvXPO4cJVw3CkjRgIY+f2iZwK8TIBo/WWbw1GguZu/vaA432fkLxGOkYAoCWDkDIw88jG57XPR3xYgvdVikB/V3M3PLpWX6y667H+5WurEN1wOHCUBn46+U7AizHCH6D8WIIivtdNkaC7nZ9drahZNWK3vRk0mjIsWPC7Ln6SenAeNRgT0eoQECQGzGQF6fjZ6K9os0vfrnc4szeX87Tm3/LMrpQpeJByhDIR1qxDmTAiRKP+qIviKC+E3GkiACX2VVRjt7EKkci2CsoLY+g0IlFe8FKyoeFhzN3+74JLfvEzkLxBmHXYEi/IRKCqAL3cFfPQMmTkMBoLY2tePMydO4vD0DIYGhrB3NI2d23YgmUh+KxgM/u8CnnXJP2HklwjTkoUEFMBfmA9f3qPotkmYSA1i/74D2Lp1O2ZnjqjvI8NppAYGMbxpBAPJobdrKmvK0sPpkVQqVaq5fXAjAdcvuRV8nTAtmBHUF8NbkIewYRUmx8Ywfegwpg5MYeuWbUiPbsbo6Bg2EfHQ0AgGU5uQTKb+HovFf59KbfoHve/W3D64PaM4Xr1I5M8TDvIlCBp0iFC9h1tasDm9WY18164JbNm8DanUEAKBEMbo+zZKfyKRhN8fRG9vH/r6kujvHxiPx+Mrurv7OM39/e2c4vju824nniMBUyY9IkadWu/eWBzBYAjDw6MYG9uiRi1JVgiCoPbBkdnHMUBlqF67Dj09vejujiIe7/tzb2/ibXq+F41G8zWKe9tZp3ztAgk4T9hPAvz6Vej0+tHe7kNt7Qb0kGOWdm+HF5lLlsCg02Hm8AzmqCEHBzdhPU1CU9NGxGIJJOL9JKL/Fr2/XkMjrlHc284q8pWvuZz4KmGfsQhtWUvRZtSjk8aNEezZvQ9pSnlVxZewdMECcAYjTp96EsePz6kl8HjK1KxQD5DYGMvErUik+w0AD3ZcP+mULz1L5Ax7OT36qBR70mNIETmLfJQ13sgY7JR+Cgk11etwcu4Udo1PElkMFRWVWLx4MRobmiDTbmDfSABCocgPOzu7ExrN3Y0EXHiGyBkOuWXspKZbs6YKPC9gbVU1pTaOkZE0RN4CN52WO7fvVGtPdUZZ2WpkZ2djKZVm4cKFWEAZ6um5LaCpufVmU1NLXKO5u51S5HPniJxhn2zDGosAs74E+fmFyMrKUes7THOf7B9Qa3/o4DR1/IBacxY164usZcuQk5MDt8uNfpqGjg4f1tfWf6++vv7+K3pOls88rTjxZcKkyYDGzCWoeXgJBEMJNVi9Wn+2cFLaQpqaOkhLaEgVwKLd2NyCZoIoiuqksOglOkt4XvrIxAlnjEbjMo3qzva0Ip8/S+QMkzyHjdnL4CchvaGwGjkbQ+Z4IJmiRZTG5ORudQE1NDSiqmotfL6AWvdKOid2UHna270oKCiEmZfAmcV/cpy4LyMjtFCj+7xdLVV+TNsQTykyJiQR8aoq7KIlw2bf5/PTLgjToklQ1Cn0Jfq1ZnNR7XPUuhcVFau/27ixTV1UjY3NyMvLZwI+MJutXpNJvazcfSIOOp2zp6n+x6j+u+x2xMlRoLUDTsmuOtJTKarXrccQTQXbglabrEZXvMqgdj9Dbm4eIjS2LuqBrq4eiFQC+s1vzWaxkSjuPY7TNtv+aYcDB2QHxu0OdFjtaKZzvoHOfisRGUvMbKTUncAibCVxFkElgMHIITMrmwTkqiubCfT7Q7A7XOzvt6gHPqSbfqVGdWebtVv3UCPeOkl3gXES0s4uGYR2h4JamvFIZ4TGcFQlZyPJJqCpqRVOpRQmjseiRYuQmZmppt7l8lD0dlUcx4sfcWbp5xaL5Neo7mxHHI7NJ2THv+ZIwE4SwMhb6RqWDndhz+QelTSZHFQjI2eoq2ugURtQG29dzWMoLCyEwWAiUlEl/g9MZvEJjuPy77uSZ2w21zHZcZ1E/G0HlYDIb7YI0jtttXWv19U3/ai+vuF0eXnVpZUr82jRPKR2OR276gmYoKZkaGvzUkY8nxHA8cKrPM8v12jubqAmObJ6de5RWW7earcfbbFY6+iSWVyj1Kxob2/PYRFwJZYhFuXy5Y9gfHyCHbtQFBeq6GrGBLDa126oo9ornwjgxDd0OttKjeaLGTm7wpxWVz+mlsPrDWAldX443KkKcLs9cNA5EA5HaDese43nxbb7jt98zGyWBmmp/MEi2r+pKKVzgmi/SR1Od4aEmo1STzllxKNuxmi0d25qaurBjuJ5mrrNLBYL9ZbwA5rxNzfUNb7S1RX7iix7Dlks9ojP53OEQvfYev8ne0in061k8Hg8mYTF9O0BU52R8W/KBzpmBoqf8gAAAABJRU5ErkJggg==\">");
+        doc.prepend("<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\">");
+        doc.prepend(tr("<title>%1 LPUB Metacommands</title>").arg(VER_PRODUCTNAME_STR));
+        doc.prepend("<meta charset=\"utf-8\">");
+        doc.prepend("<head>");
+        doc.prepend("<html>");
+        doc.prepend("<!DOCTYPE html>");
+
+        // footer
+        doc.append("</ol>");
+        doc.append(tr("<p><b>Meta Command Notes:</b><br>"));
+        doc.append(tr("<li>The <code><\"page size id\"></code> meta value captures paper size, e.g. <code>A4, B4</code>, <code>Letter</code>, <code>Custom</code>, etc...<br>"));
+        doc.append(tr(" For custom page size use <code><decimal width> <decimal height> \"Custom\"</code>.</li><br>"));
+        doc.append(tr("<li>These <code>SUBMODEL</code> metas enable font and background settings for nested submodels and callouts.<br>"));
+        doc.append(tr(" - <code>SUBMODEL_FONT</code> meta is supported for up to four levels.<br>"));
+        doc.append(tr(" - <code>SUBMODEL_FONT_COLOR</code> meta is supported for up to four levels.<br>"));
+        doc.append(tr(" - <code>SUBMODEL_BACKGROUND_COLOR</code> meta is supported for up to four levels.<br>"));
+        doc.append(tr(" There are 4 predefined submodel level colors <span style=\"background-color:#FFFFFF\"><code>#FFFFFF</code></span>, <span style=\"background-color:#FFFFCC\"><code>#FFFFCC</code></span>, <span style=\"background-color:#FFCCCC\"><code>#FFCCCC</code></span>, and <span style=\"background-color:#CCCCFF\"><code>#CCCCFF</code></span>.</li><br>"));
+        doc.append(tr("<li>The <code>&lt;stud style integer 0-7&gt;</code> meta value captures the 7 stud style types.<br>"));
+        doc.append("<code>");
+        doc.append(tr(" 0 None<br>"));
+        doc.append(tr(" 1 Thin line logo<br>"));
+        doc.append(tr(" 2 Outline logo<br>"));
+        doc.append(tr(" 3 Sharp top logo<br>"));
+        doc.append(tr(" 4 Rounded top logo<br>"));
+        doc.append(tr(" 5 Flattened logo<br>"));
+        doc.append(tr(" 6 High contrast without logo<br>"));
+        doc.append(tr(" 7 High contrast with logo</code></li><br>"));
+        doc.append(tr("<li>The <code>&lt;annotation style integer 0-4&gt;</code> meta value captures the 4 annotation icon style types.<br>"));
+        doc.append("<code>");
+        doc.append(tr(" 0 None<br>"));
+        doc.append(tr(" 1 Circle<br>"));
+        doc.append(tr(" 2 Square<br>"));
+        doc.append(tr(" 3 Rectangle<br>"));
+        doc.append(tr(" 4 LEGO element</code></li></br>"));
+        doc.append(tr("<li>The <code>&lt;line integer 0-5&gt;</code> meta value captures the 5 border line types.<br>"));
+        doc.append("<code>");
+        doc.append(tr(" 0 None<br>"));
+        doc.append(tr(" 1 Solid        ----<br>"));
+        doc.append(tr(" 2 Dash         - - <br>"));
+        doc.append(tr(" 3 Dot          ....<br>"));
+        doc.append(tr(" 4 Dash dot     -.-.<br>"));
+        doc.append(tr(" 5 Dash dot dot -..-</code></li></br>"));
+        doc.append(tr("<li>The <code><\"font attributes...\"></code> meta value is a comma-delimited <code><\"string\"></code> of 10 attributes.<br>"));
+        doc.append(tr("<code>1  FamilyName</code> - \"Arial\"<br>"));
+        doc.append(tr("<code>2  PointSizeF</code> - <code>64</code> size of font, <code>-1</code> if using PixelSize<br>"));
+        doc.append(tr("<code>3  PixelSize</code>  - <code>-1</code> size of font, <code>-1</code> if using PointSizeF<br>"));
+        doc.append(tr("<code>4  StyleHint</code>  - <code>255</code> = no style hint set, <code>5</code> = any style, <code>4</code> = system font, <code>0</code> = Helvetica, etc...<br>"));
+        doc.append(tr("<code>5  Weight</code>     - <code>75</code> = bold, <code>50</code> = normal, etc...<br>"));
+        doc.append(tr("<code>6  Underline</code>  - <code>0</code> = disabled, <code>1</code> = enabled<br>"));
+        doc.append(tr("<code>7  Strikeout</code>  - <code>0</code> = disabled, <code>1</code> = enabled<br>"));
+        doc.append(tr("<code>8  StrikeOut</code>  - <code>0</code> = disabled, <code>1</code> = enabled<br>"));
+        doc.append(tr("<code>9  FixedPitch</code> - <code>0</code> = disabled, <code>1</code> = enabled<br>"));
+        doc.append(tr("<code>10 RawMode</code>    - <code>0</code> obsolete, use default value<br>"));
+        doc.append(tr(" Example font attributes <code><\" Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 \"></code></li>"));
+        doc.append("</p>");
+        doc.append("</ul>");
+        doc.append(tr("<p>End of file.</p>"));
+        doc.append("<script>");
+        doc.append("function commandFunction() {");
+        doc.append("    var input, filter, ol, li, code, i, txtValue;");
+        doc.append("    input = document.getElementById(\"commandInput\");");
+        doc.append("    filter = input.value.toUpperCase();");
+        doc.append("    ol = document.getElementById(\"commandOL\");");
+        doc.append("    li = ol.getElementsByTagName(\"li\");");
+        doc.append("    for (i = 0; i < li.length; i++) {");
+        doc.append("        code = li[i].getElementsByTagName(\"code\")[0];");
+        doc.append("        txtValue = code.textContent || code.innerText;");
+        doc.append("        if (txtValue.toUpperCase().indexOf(filter) > -1) {");
+        doc.append("            li[i].style.display = \"\";");
+        doc.append("        } else {");
+        doc.append("            li[i].style.display = \"none\";");
+        doc.append("        }");
+        doc.append("    }");
+        doc.append("}");
+        doc.append("</script>");
+        doc.append("</body>");
+        doc.append("</html>");
+    }
 
     // export content list
+    QTextStream out(&file);
     for (int i = 0; i < doc.size(); i++) {
         out << doc[i] << lpub_endl;
     }
 
     file.close();
 
+    const QString exported = QString("%1 of %2")
+            .arg(n)
+            .arg(commandCollection->count());
     result = tr("Export %1 processed %2 commands.").arg(documentTitle).arg(exported);
 
     emit messageSig(LOG_INFO, QString(result).replace(".", QString(" to %1.")

@@ -3706,16 +3706,6 @@ void Gui::closeEvent(QCloseEvent *event)
   }
 }
 
-void Gui::workerJobResult(int value) {
-    gui->m_workerJobResult = value;
-}
-
-void Gui::getRequireds() {
-    // Check preferred renderer value is set before setting Renderer class
-    Preferences::getRequireds();
-    Render::setRenderer(Preferences::preferredRenderer);
-}
-
 void Gui::initialize()
 {
 
@@ -3840,9 +3830,21 @@ void Gui::initialize()
   readSettings();
 }
 
+void Gui::getRequireds()
+{
+    // Check preferred renderer value is set before setting Renderer class
+    Preferences::getRequireds();
+    Render::setRenderer(Preferences::preferredRenderer);
+}
+
+void Gui::workerJobResult(int value)
+{
+    gui->m_workerJobResult = value;
+}
+
 void Gui::getSubFileList()
 {
-   emit gui->setSubFilesSig(fileList());
+    emit gui->setSubFilesSig(fileList());
 }
 
 void Gui::loadBLCodes()
@@ -4013,18 +4015,21 @@ void Gui::progressBarPermSetText(const QString &progressText)
       gui->progressLabelPerm->setText(progressText);
     }
 }
+
 void Gui::progressBarPermSetRange(int minimum, int maximum)
 {
   if (Gui::okToInvokeProgressBar()) {
       gui->progressBarPerm->setRange(minimum,maximum);
     }
 }
+
 void Gui::progressBarPermSetValue(int value)
 {
   if (Gui::okToInvokeProgressBar()) {
       gui->progressBarPerm->setValue(value);
     }
 }
+
 void Gui::progressBarPermReset()
 {
   if (Gui::okToInvokeProgressBar()) {
@@ -4789,26 +4794,27 @@ void Gui::commandsDialog()
 
 QString MetaCommandsFileDialog::getCommandsSaveFileName(
         bool &exportDirections,
+        bool &exportPlainText,
         QWidget *parent,
         const QString &caption,
-        const QString &dir,
+        const QString &file,
         const QString &filter,
         QString *selectedFilter,
         Options options)
 {
     QSettings Settings;
-    QString const settingsKey("ExportCommandDescriptions");
+    QString const exportDirectionsKey("ExportCommandDescriptions");
 
     bool exportDirectionsChecked = false;
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,settingsKey)))
-       exportDirectionsChecked =  Settings.value(QString("%1/%2").arg(SETTINGS,settingsKey)).toBool();
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,exportDirectionsKey)))
+       exportDirectionsChecked =  Settings.value(QString("%1/%2").arg(SETTINGS,exportDirectionsKey)).toBool();
 
     QEventLoop loop;
     QUrl selectedUrl;
-    const QUrl dirUrl = QUrl::fromLocalFile(dir);
+    const QUrl fileUrl = QUrl::fromLocalFile(file);
     const QStringList supportedSchemes;
 
-    QSharedPointer<MetaCommandsFileDialog> fileDialog(new MetaCommandsFileDialog(parent, caption, dirUrl.toLocalFile(), filter));
+    QSharedPointer<MetaCommandsFileDialog> fileDialog(new MetaCommandsFileDialog(parent, caption, fileUrl.toLocalFile(), filter));
     fileDialog->setFileMode(AnyFile);
     fileDialog->setOptions(options);
     fileDialog->setSupportedSchemes(supportedSchemes);
@@ -4822,16 +4828,24 @@ QString MetaCommandsFileDialog::getCommandsSaveFileName(
     exportDescriptionsBox->setChecked(exportDirectionsChecked);
     exportDescriptionsBox->setText(tr("Export user-defined command descriptions"));
 
+    QSharedPointer<QCheckBox> exportPlainTextBox(new QCheckBox(fileDialog.data()));
+    exportPlainTextBox->setText(tr("Export plain text"));
+
     QSharedPointer<QGridLayout> layout(qobject_cast<QGridLayout *>(fileDialog->layout()));
-    layout->addWidget(exportDescriptionsBox.data(), 4, 1);
+    //layout->addWidget(exportDescriptionsBox.data(), 4, 1);
+    QHBoxLayout *hLayout = new QHBoxLayout(fileDialog.data());
+    layout->addLayout(hLayout,4,1);
+
+    hLayout->addWidget(exportDescriptionsBox.data());
+    hLayout->addWidget(exportPlainTextBox.data());
 
     fileDialog->connect(fileDialog.data(), &QFileDialog::accepted, [&] {
-        if (selectedFilter) {
+        if (selectedFilter)
             *selectedFilter = fileDialog->selectedNameFilter();
-        }
 
+        exportPlainText = exportPlainTextBox->isChecked();
         exportDirectionsChecked = exportDescriptionsBox->isChecked();
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,settingsKey), exportDirectionsChecked);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,exportDirectionsKey), exportDirectionsChecked);
 
         exportDirections = exportDirectionsChecked;
         selectedUrl = fileDialog->selectedUrls().value(0);
@@ -4845,26 +4859,33 @@ QString MetaCommandsFileDialog::getCommandsSaveFileName(
     // Non blocking wait
     loop.exec(QEventLoop::DialogExec);
 
-    return selectedUrl.toLocalFile();
+    QFileInfo fileInfo(selectedUrl.toLocalFile());
+    QString const localFile = exportPlainText && fileInfo.suffix().startsWith("htm",Qt::CaseInsensitive)
+            ? QString("%1/%2.txt").arg(fileInfo.absolutePath(),fileInfo.completeBaseName())
+            : fileInfo.absoluteFilePath();
+
+    return QDir::toNativeSeparators(localFile);
 }
 
 void Gui::exportMetaCommands()
 {
-  static const QString defaultFileName(QDir::currentPath() + QDir::separator() + VER_PRODUCTNAME_STR + "_Metacommands.txt");
+  static const QString defaultFileName(QDir::currentPath() + QDir::separator() + VER_PRODUCTNAME_STR + "_Metacommands.html");
 
   bool withDescriptions = false;
+  bool exportPlainText = false;
   QString fileName = MetaCommandsFileDialog::getCommandsSaveFileName(
               withDescriptions,
+              exportPlainText,
               this,
-              tr("Meta Commands Save File Name (*.txt):"),
+              tr("Meta Commands Save File Name"),
               defaultFileName,
-              tr("txt (*.txt);; all(*.*)"));
+              tr("Supported Files (*.txt *.html);; all(*.*)"));
 
   if (fileName.isEmpty())
     return;
 
   QString result;
-  if (!lpub->exportMetaCommands(fileName, result, withDescriptions))
+  if (!lpub->exportMetaCommands(fileName, result, exportPlainText, withDescriptions))
       return;
 
   if (!Preferences::modeGUI)
@@ -4884,26 +4905,18 @@ void Gui::exportMetaCommands()
                               .arg(QDir::toNativeSeparators(fileName)));
 
   if (box.exec() == QMessageBox::Yes) {
-    QStringList arguments;
     QString CommandPath = fileName;
-    QProcess *Process = new QProcess(this);
-    Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
 #ifdef Q_OS_WIN
-    if (Preferences::usingNPP) {
+    if (exportPlainText && Preferences::usingNPP) {
+        QProcess *Process = new QProcess(this);
+        Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
         Process->setNativeArguments(CommandPath);
-        arguments << CommandPath << QLatin1String(WINDOWS_NPP_LPUB3D_UDL_ARG);
+        QStringList arguments = QStringList() << CommandPath << QLatin1String(WINDOWS_NPP_LPUB3D_UDL_ARG);
         Process->startDetached(Preferences::systemEditor, arguments);
     } else
         QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #else
-    arguments << CommandPath;
-    Process->start(UNIX_SHELL, arguments);
-    Process->waitForFinished();
-    if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
-        QErrorMessage *m = new QErrorMessage(this);
-        m->showMessage(tr("Failed to launch PDF document.\n%1\n%2")
-                         .arg(CommandPath).arg(QString(Process->readAllStandardError())));
-    }
+    QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #endif
   } else {
       emit gui->messageSig(LOG_INFO_STATUS, result);
