@@ -54,9 +54,17 @@
 
 #ifdef LP3D_CONTINUOUS_BUILD
   #ifdef LP3D_DEVOPS_BUILD
-     #define    VER_BUILD_TYPE_STR          "Dev-release"
+     #ifdef QT_DEBUG_MODE
+         #define    VER_BUILD_TYPE_STR      "Dev-debug"
+     #else
+         #define    VER_BUILD_TYPE_STR      "Dev-release"
+     #endif
   #elif defined LP3D_NEXT_BUILD
-     #define    VER_BUILD_TYPE_STR          "Next-release"
+     #ifdef QT_DEBUG_MODE
+         #define    VER_BUILD_TYPE_STR      "Next-debug"
+     #else
+         #define    VER_BUILD_TYPE_STR      "Next-release"
+     #endif
   #else
      #define    VER_BUILD_TYPE_STR          "Release"
   #endif
