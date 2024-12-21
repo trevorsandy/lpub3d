@@ -421,7 +421,7 @@ void Gui::displayPage()
   }
 }
 
-void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fileReload/*false*/, bool isEditor)
+void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fileReload/*false*/, bool isEditor, bool cyclePages)
 {
   int goToPageNum = inputPageNum;
 
@@ -439,7 +439,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
 
   PageDirection move = PAGE_NO_DIRECTION;
   bool saveCycleEachPage = Preferences::cycleEachPage;
-  bool cycleEachPage = saveCycleEachPage |= (fileReload || Preferences::buildModEnabled);
+  bool cycleEachPage  = (fileReload || cyclePages || saveCycleEachPage || Preferences::buildModEnabled);
   bool atStartOfPages = (Gui::displayPageNum == 1 + Gui::pa && goToPageNum == 1 + Gui::pa);
 
   auto setDirection = [&] (PageDirection &move)
@@ -4305,7 +4305,7 @@ bool Gui::installRenderer(int which)
 
 // Update parts archive from LDSearch directories
 
-void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update, bool fileReload) {
+void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update, bool fileReload, bool cyclePages) {
   if (Process)
       gui->partWorkerLDSearchDirs.ldsearchDirPreferences();
 
@@ -4394,12 +4394,12 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update, bool fi
   if (!Gui::getCurFile().isEmpty() && gui->m_workerJobResult > 0) {
       if (fileReload) {
           bool _continue;
-      if (Preferences::saveOnRedraw) {
-          _continue = gui->maybeSave(false); // No prompt
-      } else {
-          _continue = gui->maybeSave(true, SaveOnNone);
-      }
-      if (!_continue)
+          if (Preferences::saveOnRedraw) {
+              _continue = gui->maybeSave(false); // No prompt
+          } else {
+              _continue = gui->maybeSave(true, SaveOnNone);
+          }
+          if (!_continue)
               return;
       }
 
@@ -4414,7 +4414,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update, bool fi
       }
 
       //reload current model file
-      gui->cyclePageDisplay(Gui::displayPageNum, true/*silent*/, fileReload);
+      gui->cyclePageDisplay(Gui::displayPageNum, true/*silent*/, fileReload, false/*isEditor*/, cyclePages);
 
       if (fileReload)
           emit gui->messageSig(LOG_INFO_STATUS, QString("%1 File %2 reloaded. %3")
@@ -7963,6 +7963,8 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
   QVBoxLayout *actionsLayout = new QVBoxLayout();
 
+  QHBoxLayout *cycleReloadLayout = new QHBoxLayout();
+
   QString ldrawSearchDirsTitle = tr("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
 
   QGroupBox *searchDirsGrpBox = new QGroupBox(ldrawSearchDirsTitle,dialog);
@@ -7988,15 +7990,32 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
   gridLayout->addWidget(groupBoxActions, 1,1,2,1);
 
-  bool fileReload = true;
+  gridLayout->addLayout(cycleReloadLayout,3,0);
+
   QSettings Settings;
   QString const fileReloadKey = QLatin1String("SearchDirectroyFileReload");
-  if (Settings.contains(QString("%1/%2").arg(SETTINGS,fileReloadKey)))
-      fileReload = Settings.value(QString("%1/%2").arg(SETTINGS,fileReloadKey)).toBool();
+  bool fileLoaded = !Gui::getCurFile().isEmpty();
+  bool fileReload = fileLoaded;
+  if (fileLoaded)
+      if (Settings.contains(QString("%1/%2").arg(SETTINGS,fileReloadKey)))
+          fileReload = Settings.value(QString("%1/%2").arg(SETTINGS,fileReloadKey)).toBool();
   fileReloadCheck = new QCheckBox(tr("Clear cache and reload the current model file."), dialog);
+  fileReloadCheck->setEnabled(fileLoaded);
   fileReloadCheck->setChecked(fileReload);
   fileReloadCheck->setToolTip(tr("Clear all caches and reload the current model file when new parts archived."));
-  gridLayout->addWidget(fileReloadCheck,3,0);
+  cycleReloadLayout->addWidget(fileReloadCheck);
+
+  QString const cyclePagesKey = QLatin1String("SearchDirectroyCyclePages");
+  bool pagesLoaded = fileLoaded && Gui::displayPageNum > (1 + Gui::pa);
+  bool cyclePages = pagesLoaded && (Preferences::cycleEachPage || Preferences::buildModEnabled);
+  if (pagesLoaded)
+      if (Settings.contains(QString("%1/%2").arg(SETTINGS,cyclePagesKey)))
+          cyclePages = Settings.value(QString("%1/%2").arg(SETTINGS,cyclePagesKey)).toBool();
+  cyclePagesCheck = new QCheckBox(tr("Cycle pages %1 - %2.").arg(1 + Gui::pa).arg(Gui::displayPageNum), dialog);
+  cyclePagesCheck->setEnabled(pagesLoaded);
+  cyclePagesCheck->setChecked(cyclePages);
+  cyclePagesCheck->setToolTip(tr("Cycle model file from page %1 to current page %2.").arg(1 + Gui::pa).arg(Gui::displayPageNum));
+  cycleReloadLayout->addWidget(cyclePagesCheck);
 
   pushButtonAddDirectory = new QPushButton(dialog);
   pushButtonAddDirectory->setToolTip(tr("Add LDraw search directory"));
@@ -8081,6 +8100,8 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
     fileReload = fileReloadCheck->isChecked();
     Settings.setValue(QString("%1/%2").arg(SETTINGS,fileReloadKey), QVariant(fileReload));
+    cyclePages = cyclePagesCheck->isChecked();
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,cyclePagesKey), QVariant(cyclePages));
 
     QStringList searchDirs = textEditSearchDirs->toPlainText().split("\n");
 
@@ -8144,8 +8165,8 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
       }
 
       if (newDirs.size()) {
-        gui->partWorkerLDSearchDirs.populateUpdateSearcDirs(newDirs);
-        gui->loadLDSearchDirParts(false/*Process*/, false/*OnDemand*/, true/*Update*/, fileReload);
+        gui->partWorkerLDSearchDirs.populateUpdateSearchDirs(newDirs);
+        gui->loadLDSearchDirParts(false/*Process*/, false/*OnDemand*/, true/*Update*/, fileReload, cyclePages);
       }
     }
   }

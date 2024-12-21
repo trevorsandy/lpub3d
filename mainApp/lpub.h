@@ -1561,7 +1561,7 @@ public slots:
   void reloadCurrentModelFile();
   void reloadModelFileAfterColorFileGen();
   void reloadCurrentPage(bool prompt = false);
-  void cyclePageDisplay(const int inputPageNum, bool silent = true, bool global = false, bool isEditor = false);
+  void cyclePageDisplay(const int inputPageNum, bool silent = true, bool global = false, bool isEditor = false, bool cyclePages = false);
   void resetModelCache(QString file = QString(), bool commandLine = false);
   bool removeDir(int &count,const QString &dirName);
 
@@ -1569,7 +1569,7 @@ public slots:
 
   void processFadeColourParts(bool overwrite, bool setup);
   void processHighlightColourParts(bool overwrite, bool setup);
-  void loadLDSearchDirParts(bool Process = false, bool OnDemand = false, bool Update = false, bool fileReload = false);
+  void loadLDSearchDirParts(bool Process = false, bool OnDemand = false, bool Update = false, bool fileReload = false, bool cyclePages = false);
   bool loadFile(const QString &file);
   bool loadFile(const QString &file, bool console);
   void openWith(const QString &filePath);
@@ -2179,6 +2179,7 @@ class LDrawSearchDirDialog : public QWidget
   QLineEdit          *lineEditIniFile;
   TextEditSearchDirs *textEditSearchDirs;
   QCheckBox          *fileReloadCheck;
+  QCheckBox          *cyclePagesCheck;
   QPushButton        *pushButtonReset;
   QPushButton        *pushButtonMoveUp;
   QPushButton        *pushButtonMoveDown;
