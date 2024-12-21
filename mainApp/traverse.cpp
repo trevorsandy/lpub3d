@@ -6474,6 +6474,9 @@ void Gui::writeToTmp()
                       gui->writeToTmp(highlightFileNameStr, *highlightContent, false/*parseContent*/);
                   }
               }
+
+              delete futureContent;
+              delete cleanContent;
           }));
       } // ChangedSinceLastWrite
   } // Parse _subFileOrder
