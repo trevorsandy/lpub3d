@@ -1478,8 +1478,8 @@ public slots:
   static void ReloadVisualEditor();
 
   // right side progress bar
-  void progressBarPermInit();
-  void progressBarPermSetText(const QString &progressText);
+  void progressPermInit();
+  void progressLabelPermSetText(const QString &progressText);
   void progressBarPermSetRange(int minimum, int maximum);
   void progressBarPermSetValue(int value);
   void progressBarPermReset();
@@ -1641,11 +1641,11 @@ signals:
   void progressStatusRemoveSig();
 
   // right side progress bar
-  void progressBarPermInitSig();
-  void progressPermMessageSig(const QString &text);
-  void progressPermRangeSig(const int &min, const int &max);
-  void progressPermSetValueSig(const int &value);
-  void progressPermResetSig();
+  void progressPermInitSig();
+  void progressLabelPermSetTextSig(const QString &text);
+  void progressBarPermSetRangeSig(const int &min, const int &max);
+  void progressBarPermSetValueSig(const int &value);
+  void progressBarPermResetSig();
   void progressPermStatusRemoveSig();
 
   void messageSig(LogType logType, const QString &message, int msgBox = 0);

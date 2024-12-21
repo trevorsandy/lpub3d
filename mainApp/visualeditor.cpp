@@ -2576,6 +2576,14 @@ void Gui::createStatusBar()
         gMainWindow->mStatusBarLabel = new lcElidedLabel();
     StatusBar->addWidget(gMainWindow->mStatusBarLabel, 1);
     gMainWindow->mStatusBarLabel->setText(tr("Ready"));
+
+    gui->progressLabelPerm = new QLabel(this);
+    gui->progressLabelPerm->setAlignment(Qt::AlignRight);
+    gui->progressLabelPerm->hide();
+    gui->progressBarPerm = new QProgressBar(this);
+    gui->progressBarPerm->setMaximumHeight(15);
+    gui->progressBarPerm->setMaximumWidth(300);
+    gui->progressBarPerm->hide();
     StatusBar->addPermanentWidget(gui->progressLabelPerm);
     StatusBar->addPermanentWidget(gui->progressBarPerm);
 
@@ -3265,9 +3273,9 @@ void Gui::ReloadVisualEditor() {
 
          QString BuildModKey = buildModificationKey;
 
-         gui->progressBarPermInit();
+         gui->progressPermInit();
          gui->progressBarPermSetRange(0, 0);   // Busy indicator
-         gui->progressBarPermSetText(tr("%1 Build Modification...").arg(Action));
+         gui->progressLabelPermSetText(tr("%1 Build Modification...").arg(Action));
 
          if (mBuildModRange.first() || Update) {
 

@@ -944,13 +944,13 @@ int Pli::createSubModelIcons()
 
     } else {
 
-        emit gui->progressPermResetSig();
-        emit gui->progressPermRangeSig(1, iconCount);
+        emit gui->progressBarPermResetSig();
+        emit gui->progressBarPermSetRangeSig(1, iconCount);
 
         for (int i = 0; i < iconCount; i++) {
 
-            emit gui->progressPermSetValueSig(i + 1);
-            emit gui->progressPermMessageSig(QObject::tr("Rendering submodel icon %1 of %2...").arg(i + 1).arg(iconCount));
+            emit gui->progressBarPermSetValueSig(i + 1);
+            emit gui->progressLabelPermSetTextSig(QObject::tr("Rendering submodel icon %1 of %2...").arg(i + 1).arg(iconCount));
 
             key = setSubmodel(i);
             if ((createPartImage(parts[key]->nameKey,type,color,nullptr) != 0)) {
@@ -959,7 +959,7 @@ int Pli::createSubModelIcons()
                 continue;
             }
         }
-        emit gui->progressPermSetValueSig(iconCount);
+        emit gui->progressBarPermSetValueSig(iconCount);
     }
 
     return rc;
@@ -2217,7 +2217,7 @@ int Pli::partSize()
       Q_FOREACH (const QString &key, parts.keys()) {
 
           if (populateBomProgress)
-              emit gui->progressPermSetValueSig(++partCounter);
+              emit gui->progressBarPermSetValueSig(++partCounter);
 
           // get part info
           PliPart *part;
@@ -2459,7 +2459,7 @@ int Pli::partSizeLDViewSCall() {
     Q_FOREACH (const QString &key, parts.keys()) {
 
         if (populateBomProgress)
-            emit gui->progressPermSetValueSig(++partCounter);
+            emit gui->progressBarPermSetValueSig(++partCounter);
 
         // get part info
 
@@ -2766,8 +2766,8 @@ int Pli::partSizeLDViewSCall() {
     }            // for every part
 
     if (isSubModel) {
-        emit gui->progressPermResetSig();
-        emit gui->progressPermRangeSig(1, ptn.size());
+        emit gui->progressBarPermResetSig();
+        emit gui->progressBarPermSetRangeSig(1, ptn.size());
     }
 
     // 2. generate part image
@@ -2775,10 +2775,10 @@ int Pli::partSizeLDViewSCall() {
 
         int ptRc = 0;
         if (isSubModel) {
-            emit gui->progressPermMessageSig(QObject::tr("Rendering submodel icon %1 of %2...").arg(pT + 1).arg(ptn.size()));
-            emit gui->progressPermSetValueSig(pT);
+            emit gui->progressLabelPermSetTextSig(QObject::tr("Rendering submodel icon %1 of %2...").arg(pT + 1).arg(ptn.size()));
+            emit gui->progressBarPermSetValueSig(pT);
         } else if (populateBomProgress)
-            emit gui->progressPermSetValueSig(++partCounter);
+            emit gui->progressBarPermSetValueSig(++partCounter);
 
 //#ifdef QT_DEBUG_MODE
 //        QString CurrentPartType = PartTypeNames[pT];
@@ -2822,7 +2822,7 @@ int Pli::partSizeLDViewSCall() {
     } // for every part type
 
     if (isSubModel) {
-        emit gui->progressPermSetValueSig(ptn.size());
+        emit gui->progressBarPermSetValueSig(ptn.size());
     }
 
     return rc;

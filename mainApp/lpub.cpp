@@ -3345,9 +3345,11 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     Preferences::exportPreferences();
     Preferences::keyboardShortcutPreferences();
 
+    pageRangeText                   = "1";
     sa                              = 0;
     pa                              = 0;
     saveDisplayPageNum              = 0;
+    exportPixelRatio                = 1.0;
     displayPageNum                  = 1 + pa;
     numPrograms                     = 0;
     previewDockWindow               = nullptr;
@@ -3356,8 +3358,7 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
     pageProcessParent               = PROC_NONE;        // display page porcess
     processOption                   = EXPORT_ALL_PAGES; // export process
     m_exportMode                    = EXPORT_PDF;
-    pageRangeText                   = "1";
-    exportPixelRatio                = 1.0;
+
     suspendFileDisplay              = false;
     resetCache                      = false;
     m_previewDialog                 = false;
@@ -3462,15 +3463,15 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
                 this,             SLOT (  cancelExporting()));
 
         // Gui - right side progress bar
-        connect(this, SIGNAL(progressBarPermInitSig()),
-                this, SLOT(  progressBarPermInit()));
-        connect(this, SIGNAL(progressPermMessageSig(const QString &)),
-                this, SLOT(  progressBarPermSetText(const QString &)));
-        connect(this, SIGNAL(progressPermRangeSig(int,int)),
+        connect(this, SIGNAL(progressPermInitSig()),
+                this, SLOT(  progressPermInit()));
+        connect(this, SIGNAL(progressLabelPermSetTextSig(const QString &)),
+                this, SLOT(  progressLabelPermSetText(const QString &)));
+        connect(this, SIGNAL(progressBarPermSetRangeSig(int,int)),
                 this, SLOT(  progressBarPermSetRange(int,int)));
-        connect(this, SIGNAL(progressPermSetValueSig(int)),
+        connect(this, SIGNAL(progressBarPermSetValueSig(int)),
                 this, SLOT(  progressBarPermSetValue(int)));
-        connect(this, SIGNAL(progressPermResetSig()),
+        connect(this, SIGNAL(progressBarPermResetSig()),
                 this, SLOT(  progressBarPermReset()));
         connect(this, SIGNAL(progressPermStatusRemoveSig()),
                 this, SLOT(  progressPermStatusRemove()));
@@ -3653,10 +3654,9 @@ Gui::~Gui()
     delete editModeWindow;
     delete mpdCombo;
     delete setGoToPageCombo;
-    delete progressBar;
-    delete m_progressDialog;
     delete progressLabelPerm;
     delete progressBarPerm;
+    delete m_progressDialog;
   }
 }
 
@@ -3946,6 +3946,7 @@ void Gui::progressPermStatusRemove() {
     }
 }
 
+void Gui::progressLabelPermSetText(const QString &progressText)
 {
   if (Gui::okToInvokeProgressBar()) {
       gui->progressLabelPerm->setText(progressText);
@@ -4070,9 +4071,9 @@ void Gui::generateCustomColourPartsList(bool prompt)
                 colourPartListWorker, SLOT(  requestEndThreadNow()));
 
         connect(colourPartListWorker, SIGNAL(progressBarInitSig()),
-                this,                 SLOT(  progressBarPermInit()));
+                this,                 SLOT(  progressPermInit()));
         connect(colourPartListWorker, SIGNAL(progressMessageSig(const QString &)),
-                this,                 SLOT(  progressBarPermSetText(const QString &)));
+                this,                 SLOT(  progressLabelPermSetText(const QString &)));
         connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),
                 this,                 SLOT(  progressBarPermSetRange(int,int)));
         connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),
@@ -7679,7 +7680,7 @@ void Gui::parseError(const QString &message,
             } else
                 Gui::setAbortProcess(abort);
             if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP)
-                emit gui->progressPermMessageSig(tr("Writing submodel [Parse Error%1")
+                emit gui->progressLabelPermSetTextSig(tr("Writing submodel [Parse Error%1")
                                                .arg(okToShowMessage ? "]...          " : " - see log]... " ));
         } else {
             const QString status(messageIcon == QMessageBox::Icon::Warning

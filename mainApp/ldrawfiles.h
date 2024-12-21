@@ -514,7 +514,7 @@ class LDrawFile {
     int instances(const QString &fileName, bool mirrored);
     void addCustomColorParts(const QString &mcFileName, bool autoAdd = false);
     void recountParts();
-    void countParts(const QString &fileName);
+    void countParts(const QString &fileName, bool recount = false);
     void countInstances();
     void countInstances(
             const QString &fileName,

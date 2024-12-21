@@ -1882,11 +1882,11 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     int lineCount = stagedContents.size();
 
     if (topLevelModel)
-        emit gui->progressBarPermInitSig();
+        emit gui->progressPermInitSig();
     else
         emit gui->progressBarPermReset();
-    emit gui->progressPermRangeSig(1, lineCount);
-    emit gui->progressPermMessageSig(QObject::tr("Loading MPD Model '%1'...").arg( fileInfo.fileName()));
+    emit gui->progressBarPermSetRangeSig(1, lineCount);
+    emit gui->progressLabelPermSetTextSig(QObject::tr("Loading MPD Model '%1'...").arg( fileInfo.fileName()));
 
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1").arg(lineCount));
@@ -1898,7 +1898,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
         smLine = stagedContents.at(lineIndx).trimmed();
 
-        emit gui->progressPermSetValueSig(lineIndx);
+        emit gui->progressBarPermSetValueSig(lineIndx);
 
         if (smLine.isEmpty())
             continue;
@@ -2378,9 +2378,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     }
 #endif
 
-    emit gui->progressPermSetValueSig(lineCount);
+    emit gui->progressBarPermSetValueSig(lineCount);
     if (!stagedSubfiles.size()) {
-        emit gui->progressPermMessageSig(QString());
+        emit gui->progressLabelPermSetTextSig(QString());
         emit gui->progressPermStatusRemoveSig();
     }
 
@@ -2508,11 +2508,11 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         int lineCount = stagedContents.size();
 
         if (topLevelModel)
-            emit gui->progressBarPermInitSig();
+            emit gui->progressPermInitSig();
         else
             emit gui->progressBarPermReset();
-        emit gui->progressPermRangeSig(1, lineCount);
-        emit gui->progressPermMessageSig(QObject::tr("Loading LDR Model '%1'...").arg(fileInfo.fileName()));
+        emit gui->progressBarPermSetRangeSig(1, lineCount);
+        emit gui->progressLabelPermSetTextSig(QObject::tr("Loading LDR Model '%1'...").arg(fileInfo.fileName()));
 
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1").arg(lineCount));
@@ -2526,7 +2526,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
             smLine = stagedContents.at(lineIndx).trimmed();
 
-            emit gui->progressPermSetValueSig(lineIndx);
+            emit gui->progressBarPermSetValueSig(lineIndx);
 
             if (smLine.isEmpty())
                 continue;
@@ -2944,9 +2944,9 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         }
 #endif
 
-        emit gui->progressPermSetValueSig(lineCount);
+        emit gui->progressBarPermSetValueSig(lineCount);
         if (!stagedSubfiles.size()) {
-            emit gui->progressPermMessageSig(QString());
+            emit gui->progressLabelPermSetTextSig(QString());
             emit gui->progressPermStatusRemoveSig();
         }
 
@@ -3527,28 +3527,25 @@ void LDrawFile::loadStatusEntry(const int messageType,
     _loadedItems.append(statusEntry);
 }
 
-void LDrawFile::countParts(const QString &fileName) {
+void LDrawFile::countParts(const QString &fileName, bool recount) {
 
     itemsLoaded.clear();
     displayModel       = false;
     bool lpubFade      = false;
     bool lpubHighlight = false;
     bool checkTexmap   = false;
+    bool progressPermInit = true;
 
     Where top(fileName, getSubmodelIndex(fileName), 0);
 
     int topModelIndx  = top.modelIndex;
 
     QString const title = QObject::tr("%1 parts for %2...")
-                                      .arg(_loadedItems.size()
-                                               ? QObject::tr("Recounting")
-                                               : QObject::tr("Counting")).arg(top.modelName);
+                                      .arg(recount
+                                           ? QObject::tr("Recounting")
+                                           : QObject::tr("Counting")).arg(top.modelName);
 
     QRegExp texmapRx("^0\\s+!?TEXMAP\\s+(?:START|NEXT)\\s+(\\b\\w+\\b)");
-
-    emit gui->progressBarPermInitSig();
-    emit gui->progressPermRangeSig(1, size(top.modelName));
-    emit gui->progressPermMessageSig(title);
 
     LDrawUnofficialFileType subFileType;
     std::function<void(Where&)> countModelParts;
@@ -3560,6 +3557,12 @@ void LDrawFile::countParts(const QString &fileName) {
         int lines = content.size();
 
         if (content.size()) {
+            if (progressPermInit) {
+                emit gui->progressPermInitSig();
+                emit gui->progressBarPermSetRangeSig(1, size(top.modelName));
+                emit gui->progressLabelPermSetTextSig(title);
+                progressPermInit = false;
+            }
 
             // skip the header
             gui->skipHeader(top);
@@ -3584,7 +3587,7 @@ void LDrawFile::countParts(const QString &fileName) {
                 bool helperPart    = true/*allow helper part*/;
 
                 if (top.modelIndex == topModelIndx)
-                    emit gui->progressPermSetValueSig(top.lineNumber);
+                    emit gui->progressBarPermSetValueSig(top.lineNumber);
 
                 // adjust ghost lines
                 if (line.startsWith("0 GHOST "))
@@ -3809,8 +3812,8 @@ void LDrawFile::countParts(const QString &fileName) {
 
     countModelParts(top);
 
-    emit gui->progressPermSetValueSig(size(top.modelName));
-    emit gui->progressPermMessageSig(QString());
+    emit gui->progressBarPermSetValueSig(size(top.modelName));
+    emit gui->progressLabelPermSetTextSig(QString());
     emit gui->progressPermStatusRemoveSig();
 }
 
@@ -3836,7 +3839,7 @@ void LDrawFile::recountParts()
     _helperPartCount = 0;
     _displayModelPartCount = 0;
 
-    countParts(topLevelFile());
+    countParts(topLevelFile(), true/*recount*/);
 
     if (_loadIssues < static_cast<int>(SHOW_ERROR))
         _loadIssues = save_loadIssues;

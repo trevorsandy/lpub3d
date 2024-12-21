@@ -6342,6 +6342,7 @@ void Gui::writeToTmp()
   QList<QFuture<void>> writeToTmpFutures;
   QElapsedTimer writeToTmpTimer;
   writeToTmpTimer.start();
+  bool progressPermInit = true;
   int writtenFiles = 0;
   int subFileCount = lpub->ldrawFile._subFileOrder.size();
   Gui::doFadeStep  = (Preferences::enableFadeSteps || lpub->page.meta.LPub.fadeSteps.setup.value());
@@ -6373,16 +6374,17 @@ void Gui::writeToTmp()
       return externalFileContents;
   };
 
-  if (!Gui::ContinuousPage()) {
-      emit gui->progressBarPermInitSig();
-      emit gui->progressPermRangeSig(1, subFileCount);
-  }
-
   for (int i = 0; i < subFileCount && !Gui::abortProcess(); i++) {
 
       QString const fileName = lpub->ldrawFile._subFileOrder[i].toLower();
 
       if (lpub->ldrawFile.changedSinceLastWrite(fileName)) {
+
+          if (progressPermInit && !Gui::ContinuousPage()) {
+              emit gui->progressPermInitSig();
+              emit gui->progressBarPermSetRangeSig(1, subFileCount);
+              progressPermInit = false;
+          }
 
           writtenFiles++;
 
@@ -6413,14 +6415,16 @@ void Gui::writeToTmp()
               progressMessage = tr("Writing %1%2 (%3 lines)").arg(fileType).arg(fileName).arg(numberOfLines);
           }
 
-          writeToTmpFutures.append(QtConcurrent::run([ i,message, progressMessage, fileName, fileType,
+          if (!Gui::ContinuousPage()) {
+              emit gui->progressLabelPermSetTextSig(progressMessage);
+              emit gui->progressBarPermSetValueSig(i + 1);
+              QApplication::processEvents();
+          }
+
+          writeToTmpFutures.append(QtConcurrent::run([message, fileName, fileType,
               sourceFilePath, externalFile, fadeColor, displayModel, getExternalFileContent ] () {
               if (!Gui::ContinuousPage())
-                  emit gui->messageSig(LOG_INFO_STATUS, message);
-              if (!Gui::ContinuousPage()) {
-                  emit gui->progressPermMessageSig(progressMessage);
-                  emit gui->progressPermSetValueSig(i + 1);
-              }
+                  emit gui->messageSig(LOG_INFO, message);
 
               if (externalFile) {
                   QString const destinationPath = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
@@ -6449,7 +6453,7 @@ void Gui::writeToTmp()
                         fadeFileNameStr = QString(fileName).append(QString("%1.ldr").arg(FADE_SFX));
                       else
                         fadeFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
-                      emit gui->messageSig(LOG_INFO_STATUS, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(fadeFileNameStr));
+                      emit gui->messageSig(LOG_INFO, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(fadeFileNameStr));
                       QStringList *fadeContent = new QStringList(Gui::configureModelSubFile(*cleanContent, fadeColor, FADE_PART));
                       gui->insertConfiguredSubFile(fadeFileNameStr, *fadeContent);
                       gui->writeToTmp(fadeFileNameStr, *fadeContent, false/*parseContent*/);
@@ -6460,7 +6464,7 @@ void Gui::writeToTmp()
                         highlightFileNameStr = QString(fileName).append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
                       else
                         highlightFileNameStr = QString(fileName).replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
-                      emit gui->messageSig(LOG_INFO_STATUS, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(highlightFileNameStr));
+                      emit gui->messageSig(LOG_INFO, tr("Writing %1'%2' to temp folder...").arg(fileType).arg(highlightFileNameStr));
                       QStringList *highlightContent = new QStringList(Gui::configureModelSubFile(*cleanContent, fadeColor, HIGHLIGHT_PART));
                       gui->insertConfiguredSubFile(highlightFileNameStr, *highlightContent);
                       gui->writeToTmp(highlightFileNameStr, *highlightContent, false/*parseContent*/);
@@ -6478,8 +6482,6 @@ void Gui::writeToTmp()
 
   if (Preferences::modeGUI && !Gui::exporting() && !Gui::ContinuousPage() && !Gui::abortProcess()) {
       if (lcGetPreferences().mViewPieceIcons && !Gui::submodelIconsLoaded) {
-          // complete previous progress
-          emit gui->progressPermSetValueSig(subFileCount);
           // generate submodel icons...
           emit gui->messageSig(LOG_INFO_STATUS, tr("Creating submodel icons..."));
           Pli pli;
@@ -6492,7 +6494,6 @@ void Gui::writeToTmp()
 
   if (!Gui::ContinuousPage()) {
       // complete and close progress
-      emit gui->progressPermSetValueSig(subFileCount);
       emit gui->progressPermStatusRemoveSig();
 
       QString const writeToTmpElapsedTime = Gui::elapsedTime(writeToTmpTimer.elapsed());

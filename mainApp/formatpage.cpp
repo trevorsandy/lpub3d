@@ -623,10 +623,10 @@ int Gui::addGraphicsPageItems(
                 QString const message = tr("Processing Bill Of Material...");
                 emit gui->messageSig(LOG_INFO, message);
                 if (Preferences::modeGUI && !Gui::exporting()) {
-                    emit gui->progressBarPermInitSig();
-                    emit gui->progressPermMessageSig(message);
-                    emit gui->progressPermRangeSig(0, 100);
-                    emit gui->progressPermSetValueSig(0);
+                    emit gui->progressPermInitSig();
+                    emit gui->progressLabelPermSetTextSig(message);
+                    emit gui->progressBarPermSetRangeSig(0, 100);
+                    emit gui->progressBarPermSetValueSig(0);
                     Gui::m_saveExportMode = Gui::m_exportMode;
                     Gui::m_exportMode = GENERATE_BOM;
                     emit gui->setGeneratingBomSig(true);
@@ -649,7 +649,7 @@ int Gui::addGraphicsPageItems(
                         if (Preferences::enableHighlightStep)
                             partCount++;
                     }
-                    emit gui->progressPermRangeSig(0, partCount);
+                    emit gui->progressBarPermSetRangeSig(0, partCount);
                 }
                 page->pli.sizePli(&page->meta,page->relativeType,false); // must run on UI thread
                 page->pli.relativeToSize[0] = plPage.size[XX];
@@ -2490,11 +2490,13 @@ int Gui::addCoverPageAttributes(
       // ModelName (Front Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayModelNameFront) {                                   // display attribute On ?
           if (modelNameFrontPld.relativeTo == PageTitleType) {       // default relativeTo ?
-              if (displayTitleFront && !breakTitleFrontRelativeTo){  // display and not break default relativeTo ?
-                  titleFront->appendRelativeTo(modelNameFront);
-                  titleFront->placeRelative(modelNameFront);
+              if (displayTitleFront) {                               // display and not break default relativeTo ?
+                  if (!breakTitleFrontRelativeTo) {
+                      titleFront->appendRelativeTo(modelNameFront);
+                      titleFront->placeRelative(modelNameFront);
+                  } else
+                      titleFront->placement.setValue(RightInside,PageType);
               } else {                                               // break or no display default relativeTo ?
-                  titleFront->placement.setValue(RightInside,PageType);
                   plPage.appendRelativeTo(modelNameFront);
                   plPage.placeRelative(modelNameFront);
               }
