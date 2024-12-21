@@ -48,6 +48,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     mHeight     = RENDER_DEFAULT_HEIGHT;
 
     mHaveKeys   = false;
+    mBannerLoaded = false;
 
     mViewerStepKey = lpub->viewerStepKey;
 
@@ -317,6 +318,9 @@ void RenderDialog::on_RenderButton_clicked()
         PromptCancel();
         return;
     }
+
+    LPub::loadBanner(mRenderType);
+    mBannerLoaded = true;
 
     ui->RenderOutputButton->setEnabled(false);
     mPreviewWidth  = ui->preview->width();
@@ -752,6 +756,10 @@ void RenderDialog::on_RenderButton_clicked()
                         }
                     }
                 }
+                if (mBannerLoaded && lpub->currentStep) {
+                    lpub->currentStep->loadTheViewer();
+                    mBannerLoaded = false;
+                }
                 close();
                 return;
             }
@@ -1065,6 +1073,11 @@ void RenderDialog::ShowResult()
 
     WriteStdOut();
 
+    if (mBannerLoaded && lpub->currentStep) {
+        lpub->currentStep->loadTheViewer();
+        mBannerLoaded = false;
+    }
+
     message = QString("%1 CSI %2. %3")
                       .arg(imageType)
                       .arg(Success ? mImportOnly ? tr("completed") :
@@ -1157,6 +1170,11 @@ bool RenderDialog::PromptCancel()
                 ui->RenderLabel->setText(tr("Tiles: %1/%2, Render Cancelled.")
                                             .arg(mBlendProgValue)
                                             .arg(mBlendProgMax));
+
+            if (mBannerLoaded && lpub->currentStep) {
+                lpub->currentStep->loadTheViewer();
+                mBannerLoaded = false;
+            }
         }
         else
             return false;
@@ -1199,10 +1217,10 @@ void RenderDialog::on_InputGenerateCheck_toggled()
     if (mPopulatedFile)
         return;
 
-    bool const generageModelFile = ui->InputGenerateCheck->isChecked();
-    ui->InputEdit->setEnabled(!generageModelFile);
-    ui->InputBrowseButton->setEnabled(!generageModelFile);
-    if (generageModelFile && !mModelFile.isEmpty()) {
+    bool const generateModelFile = ui->InputGenerateCheck->isChecked();
+    ui->InputEdit->setEnabled(!generateModelFile);
+    ui->InputBrowseButton->setEnabled(!generateModelFile);
+    if (generateModelFile && !mModelFile.isEmpty()) {
         mModelFile = Render::getRenderModelFile(mRenderType, false/*save current model*/);
         ui->InputEdit->setText(mModelFile);
     } else {

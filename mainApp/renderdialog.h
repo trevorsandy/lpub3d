@@ -103,6 +103,7 @@ protected:
     QStringList mStdOutList;
 
     bool mPopulatedFile;
+    bool mBannerLoaded;
     bool mHaveKeys;
     bool mTransBackground;
     int mWidth;

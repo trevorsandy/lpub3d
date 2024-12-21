@@ -2002,8 +2002,8 @@ bool Gui::loadBanner(const int &type, const QString &bannerPath)
 
     const bool bom = type == GENERATE_BOM;
     const bool error = type == ERROR_ENCOUNTERED;
-    QString banner = bom ? "BOM" : error ? "Error" : "Export";
-    QString description = bom ? "Bill of Material (" + banner + ")" : banner;
+    QString banner = bom ? tr("BOM") : error ? tr("Error") : tr("Export");
+    QString description = bom ? tr("Bill of Material (%1)").arg(banner) : banner;
     QList<QString> bannerData;
     bannerData << "0 Author: Trevor SANDY";
     bannerData << "0 !LDRAW_ORG Unofficial_Model";
@@ -2086,84 +2086,96 @@ bool Gui::loadBanner(const int &type, const QString &bannerPath)
         switch (type) {
         case EXPORT_PNG:
             banner = "PNG";
-            description = "Export Portable Network Graphics (" + banner + ")";
+            description = tr("Export Portable Network Graphics (%1)").arg(banner);
             bannerData << "1 25 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             bannerData << "1 25 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptn.dat";
             bannerData << "1 25 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptg.dat";
             break;
         case EXPORT_JPG:
             banner = "JPEG";
-            description = "Export Joint Photographic Experts Group (" + banner + ")";
+            description = tr("Export Joint Photographic Experts Group (%1)").arg(banner);
             bannerData << "1 92 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptj.dat";
             bannerData << "1 92 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             bannerData << "1 92 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptg.dat";
             break;
         case EXPORT_BMP:
             banner = "BMP";
-            description = "Export Bitmap Image (" + banner + ")";
+            description = tr("Export Bitmap Image (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptb.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptm.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             break;
         case EXPORT_WAVEFRONT:
             banner = "OBJ";
-            description = "Export Wavefront 3D Object (" + banner + ")";
+            description = tr("Export Wavefront 3D Object (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpto.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptb.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptj.dat";
             break;
         case EXPORT_COLLADA:
             banner = "DAE";
-            description = "Export COLLADA Digital Asset Exchange (" + banner + ")";
+            description = tr("Export COLLADA Digital Asset Exchange (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptd.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpta.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpte.dat";
             break;
         case EXPORT_3DS_MAX:
             banner = "3DS";
-            description = "Export Autodesk 3DS Max (" + banner + ")";
+            description = tr("Export Autodesk 3DS Max (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptx.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptd.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpts.dat";
             break;
         case EXPORT_STL:
             banner = "STL";
-            description = "Export Stereolithography Standard Tessellation Language (" + banner + ")";
+            description = tr("Export Stereolithography Standard Tessellation Language (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpts.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptt.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptl.dat";
             break;
+        case POVRAY_RENDER:
         case EXPORT_POVRAY:
             banner = "POV";
-            description = "Export POV-Ray Scene Description (" + banner + ")";
+            description = tr("Export POV-Ray Scene Description (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpto.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptv.dat";
             break;
         case EXPORT_HTML_PARTS:
             banner = "HTM";
-            description = "Export Hypertext Markup Language (" + banner + ")";
+            description = tr("Export Hypertext Markup Language (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpth.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptt.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptm.dat";
             break;
         case EXPORT_CSV:
             banner = "CSV";
-            description = "Export Comma-Separated Values (" + banner + ")";
+            description = tr("Export Comma-Separated Values (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptc.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpts.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptv.dat";
             break;
         case EXPORT_BRICKLINK:
             banner = "XML";
-            description = "Export The LEGO Group Bricklink (" + banner + ")";
+            description = tr("Export The LEGO Group Bricklink (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptx.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptm.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptl.dat";
             break;
+        case BLENDER_RENDER:
+            banner = "Blender";
+            description = tr("Render Image (%1)").arg(banner);
+            bannerData << "1 462 -37.0071 -4.0043 -68.6865 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptb.dat";
+            bannerData << "1 462 -19.1869 -4.0043 -59.6067 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptl.dat";
+            bannerData << "1 462 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpte.dat";
+            bannerData << "1 462 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptn.dat";
+            bannerData << "1 462 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptd.dat";
+            bannerData << "1 462 52.0937 -4.0043 -23.2873 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpte.dat";
+            bannerData << "1 462 69.9138 -4.0043 -14.2077 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptr.dat";
+            break;
         default:
             banner = "PDF";
-            description = "Export Portable Document Format (" + banner + ")";
+            description = tr("Export Portable Document Format (%1)").arg(banner);
             bannerData << "1 320 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptp.dat";
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptd.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptf.dat";
@@ -2174,7 +2186,7 @@ bool Gui::loadBanner(const int &type, const QString &bannerPath)
 
     bannerData << "0";
     bannerData.prepend("0 Name: " + bannerFileName);
-    bannerData.prepend("0 " + description + " "  + VISUAL_BANNER_SUFFIX);
+    bannerData.prepend("0 " + description + " " + VISUAL_BANNER_SUFFIX);
 
     const QString bannerFilePath = QDir::toNativeSeparators(QString("%1/%2").arg(bannerPath).arg(bannerFileName));
 
