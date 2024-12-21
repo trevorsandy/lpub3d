@@ -5292,9 +5292,8 @@ void Preferences::publishingPreferences()
 
 void Preferences::viewerPreferences()
 {
-    QSettings Settings;
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
-        lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
+    if (lcGetProfileString(LC_PROFILE_PROJECTS_PATH).isEmpty())
+        lcSetProfileString(LC_PROFILE_PROJECTS_PATH, ldrawLibPath + "/models");
 
     if (povRayInstalled)
         lcSetProfileString(LC_PROFILE_POVRAY_PATH, povrayExe);

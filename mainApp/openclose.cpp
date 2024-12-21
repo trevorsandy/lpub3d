@@ -188,13 +188,9 @@ void Gui::setComboPatternSyntax(QRegExp::PatternSyntax s)
 void Gui::open()
 {  
   if (gui->maybeSave() && gui->saveBuildModification()) {
-    QSettings Settings;
-    QString modelDir;
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath"))) {
-      modelDir = Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString();
-    } else {
+    QString modelDir = lcGetProfileString(LC_PROFILE_PROJECTS_PATH);
+    if (modelDir.isEmpty())
       modelDir = Preferences::ldrawLibPath + "/models";
-    }
 
     QString fileName = QFileDialog::getOpenFileName(
       this,
@@ -206,7 +202,7 @@ void Gui::open()
 
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
+      lcSetProfileString(LC_PROFILE_PROJECTS_PATH, fileInfo.path());
       if (!gui->openFile(fileName))
           return;
       Gui::displayPage();
@@ -233,8 +229,7 @@ void Gui::openDropFile(QString &fileName) {
       mpd = extension == "mpd";
       dat = extension == "dat";
       if (fileInfo.exists() && (ldr || mpd || dat)) {
-          QSettings Settings;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
+          lcSetProfileString(LC_PROFILE_PROJECTS_PATH, fileInfo.path());
           if (!gui->openFile(fileName))
               return;
           gui->displayPage();
