@@ -472,8 +472,7 @@ void lcView::UpdatePiecePreview()
 
 		if (TrainTrackInfo)
 		{
-			quint32 ConnectionIndex = mTrackToolSection & 0xff;
-			lcTrainTrackType TrainTrackType = static_cast<lcTrainTrackType>((mTrackToolSection >> 8) & 0xff);
+			auto [ConnectionIndex, TrainTrackType] = lcTrainTrackInfo::DecodeTrackToolSection(mTrackToolSection);
 
 			std::tie(PreviewInfo, mPiecePreviewTransform) = TrainTrackInfo->GetPieceInsertTransform(Piece, ConnectionIndex, TrainTrackType);
 
@@ -2757,7 +2756,7 @@ void lcView::OnButtonDown(lcTrackButton TrackButton)
 
 	case lcTrackTool::RotateTrainTrack:
 		{
-			quint32 ConnectionIndex = mTrackToolSection & 0xff;
+			auto [ConnectionIndex, TrainTrackType] = lcTrainTrackInfo::DecodeTrackToolSection(mTrackToolSection);
 
 			ActiveModel->RotateTrainTrackToolClicked(ConnectionIndex);
 

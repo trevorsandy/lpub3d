@@ -171,14 +171,14 @@ void EditWindow::commandsDialog()
     CommandsDialog::setCommandEdit(false);
 }
 
-void EditWindow::insertCommand(const QString &snippet, bool insertAfter)
+void EditWindow::applyInsertCommand(const QString &command, bool insertAfter)
 {
     QTextCursor cursor = _textEdit->textCursor();
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
     if (insertAfter)
         cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor);
-    cursor.insertText(snippet+QChar('\n'));
+    cursor.insertText(command+QChar('\n'));
     cursor.endEditBlock();
     _textEdit->setTextCursor(cursor);
 }
@@ -2761,7 +2761,7 @@ void EditWindow::loadFinished()
             this,                  SLOT(  contentsChange(int,int,int)));
 
     connect(lpub->commandsDialog, SIGNAL(insertCommand(const QString &,bool)),
-            this,                 SLOT(insertCommand(const QString &, bool)));
+            this,                 SLOT(applyInsertCommand(const QString &, bool)));
 
     connect(lpub->commandsDialog, SIGNAL(moveLineUp()),
            this,                  SLOT(moveLineUp()));
