@@ -2077,7 +2077,8 @@ lcCursor lcView::GetCursor() const
 		lcCursor::Rotate,			// lcTrackTool::RotateZ
 		lcCursor::Rotate,			// lcTrackTool::RotateXY
 		lcCursor::Rotate,			// lcTrackTool::RotateXYZ
-		lcCursor::Rotate,			// lcTrackTool::RotateTrainTrack
+		lcCursor::Rotate,			// lcTrackTool::RotateTrainTrackRight
+		lcCursor::Rotate,			// lcTrackTool::RotateTrainTrackLeft
 		lcCursor::Move,				// lcTrackTool::ScalePlus
 		lcCursor::Move,				// lcTrackTool::ScaleMinus
 		lcCursor::Delete,			// lcTrackTool::Eraser
@@ -2190,7 +2191,8 @@ lcTool lcView::GetCurrentTool() const
 		lcTool::Rotate,			  // lcTrackTool::RotateZ
 		lcTool::Rotate,			  // lcTrackTool::RotateXY
 		lcTool::Rotate,			  // lcTrackTool::RotateXYZ
-		lcTool::Rotate,			  // lcTrackTool::RotateTrainTrack
+		lcTool::Rotate,			  // lcTrackTool::RotateTrainTrackRight
+		lcTool::Rotate,			  // lcTrackTool::RotateTrainTrackLeft
 		lcTool::Move,			  // lcTrackTool::ScalePlus
 		lcTool::Move,			  // lcTrackTool::ScaleMinus
 		lcTool::Eraser,			  // lcTrackTool::Eraser
@@ -2754,17 +2756,15 @@ void lcView::OnButtonDown(lcTrackButton TrackButton)
 			StartTracking(TrackButton);
 		break;
 
-	case lcTrackTool::RotateTrainTrack:
+	case lcTrackTool::RotateTrainTrackRight:
+	case lcTrackTool::RotateTrainTrackLeft:
 		{
-			auto [ConnectionIndex, TrainTrackType] = lcTrainTrackInfo::DecodeTrackToolSection(mTrackToolSection);
-
-			ActiveModel->RotateTrainTrackToolClicked(ConnectionIndex);
+			ActiveModel->RotateFocusedTrainTrack(mTrackTool == lcTrackTool::RotateTrainTrackRight ? 1 : -1);
 
 			mToolClicked = true;
 			UpdateTrackTool();
 		}
 		break;
-
 
 	case lcTrackTool::ScalePlus:
 	case lcTrackTool::ScaleMinus:
@@ -2859,8 +2859,19 @@ void lcView::OnLeftButtonDoubleClick()
 		return;
 	}
 
-	lcObjectSection ObjectSection = FindObjectUnderPointer(false, false);
 	lcModel* ActiveModel = GetActiveModel();
+
+	if (mTrackTool == lcTrackTool::RotateTrainTrackRight || mTrackTool == lcTrackTool::RotateTrainTrackLeft)
+	{
+		ActiveModel->RotateFocusedTrainTrack(mTrackTool == lcTrackTool::RotateTrainTrackRight ? 1 : -1);
+
+		mToolClicked = true;
+		UpdateTrackTool();
+
+		return;
+	}
+
+	lcObjectSection ObjectSection = FindObjectUnderPointer(false, false);
 
 	if (mMouseModifiers & Qt::ControlModifier)
 		ActiveModel->FocusOrDeselectObject(ObjectSection);
@@ -3238,7 +3249,8 @@ void lcView::OnMouseMove()
 		}
 		break;
 
-	case lcTrackTool::RotateTrainTrack:
+	case lcTrackTool::RotateTrainTrackRight:
+	case lcTrackTool::RotateTrainTrackLeft:
 	case lcTrackTool::Eraser:
 	case lcTrackTool::Paint:
 	case lcTrackTool::ColorPicker:
