@@ -1064,8 +1064,8 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
 
     const Where &top = lpub->page.top;
     const Where &bottom = lpub->page.bottom;
-    const TypeLine here(fileOrderIndex, lineNumber);
-    const QString stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineIndex, top.modelIndex,top.lineNumber, bottom.modelIndex, bottom.lineNumber);
+    const TypeLine line = TypeLine(fileOrderIndex, lineNumber);
+    const QString stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(line.modelIndex, line.lineIndex, top.modelIndex,top.lineNumber, bottom.modelIndex, bottom.lineNumber);
 
     if (!stepKey.isEmpty()) {
         Step *currentStep = lpub->currentStep;
@@ -1172,6 +1172,7 @@ bool EditWindow::setValidPartLine()
     bool isSubstitute = false;
     bool isSubstituteAlt = false;
     bool isDisplayType = false;
+    bool isSubmodelProgress = false;
     bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
     const int lineNumber = cursor.blockNumber();
     const bool stepSet = modelFileEdit() ? false : setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
@@ -1247,8 +1248,8 @@ bool EditWindow::setValidPartLine()
             isSubstituteAlt = pliPart->subType;
         // we have a partType that is not in the PLI so check if it is an excluded part
         else
-            // if the partType is not excluded, likely is being substituted - this check is not 100%
-            isSubstituteAlt = !ExcludedParts::isExcludedPart(partType);
+            // if the partType is not excluded, the line is presenting submodel progress
+            isSubmodelProgress = !ExcludedParts::isExcludedPart(partType);
     }
 
     partType = partType.trimmed();
@@ -1293,11 +1294,12 @@ bool EditWindow::setValidPartLine()
     copyFileNameToClipboardAct->setData(partType);
 
     if (!isReadOnly) {
-        if (colorCode != LDRAW_MATERIAL_COLOUR) {
+        bool colorEdit = colorCode != LDRAW_MATERIAL_COLOUR;
+        if (colorEdit) {
             editColorAct->setText(tr("Edit Color %1 (%2)...").arg(gColorList[lcGetColorIndex(colorCode)].Name).arg(colorCode));
             editColorAct->setData(QString("%1|%2").arg(colorCode).arg(selection));
         }
-        editColorAct->setEnabled(colorCode != LDRAW_MATERIAL_COLOUR);
+        editColorAct->setEnabled(colorEdit);
 
         editPartAct->setText(tr("Edit %1 %2...").arg(titleType).arg(elidedPartType));
         editPartAct->setData(QString("%1|%2").arg(partType).arg(colorCode));
@@ -1326,8 +1328,10 @@ bool EditWindow::setValidPartLine()
                 substitutePartAct->setText(actionText);
                 subPartKey.append(QString("|%1").arg(sSubstitute));
             }
-            substitutePartAct->setData(subPartKey);
-            substitutePartAct->setEnabled(stepSet || modelFileEdit());
+            if (!isSubmodelProgress) {
+                substitutePartAct->setData(subPartKey);
+                substitutePartAct->setEnabled(stepSet || modelFileEdit());
+            }
         }
 
         if (numOpenWithPrograms)
@@ -2021,7 +2025,7 @@ void EditWindow::highlightSelectedParts() {
     if (isIncludeFile || isReadOnly)
         return;
 
-    enablePartLineTools(setValidPartLine());
+    setValidPartLine();
 
     // stop here if in detached editor
     if (modelFileEdit())
