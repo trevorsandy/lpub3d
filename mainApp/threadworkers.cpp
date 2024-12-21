@@ -2160,13 +2160,15 @@ int CountPageWorker::countPage(
 //*/
 
   Where topOfStep = opts.current;
+  if (topOfStep.modelIndex == BM_INVALID_INDEX)
+      topOfStep.modelIndex = ldrawFile->getSubmodelIndex(topOfStep.modelName);
   if (opts.flags.countPageContains) {
       gui->skipHeader(opts.current);
       topOfStep = opts.current;
       opts.flags.countPageContains = false;
   } else if (Preferences::buildModEnabled) {
       // set the topOfStep, lineNumber from findPage is automatically incremented
-      ldrawFile->getTopOfStep(topOfStep.modelName, topOfStep.modelIndex, topOfStep.lineNumber);
+      ldrawFile->getTopOfStep(topOfStep.modelIndex, topOfStep.lineNumber);
   }
   Where topOfSteps = topOfStep;
 
@@ -2611,7 +2613,7 @@ int CountPageWorker::countPage(
                       // if we are processing lines in the last step of a submodel, the topOfStep.lineNumber
                       // likely will not reflect a valid value so we'll have to manually set it accordingly...
                       if (buildModStepIndex == BM_INVALID_INDEX) {
-                          ldrawFile->getTopOfStep(topOfStep.modelName, topOfStep.modelIndex, topOfStep.lineNumber);
+                          ldrawFile->getTopOfStep(topOfStep.modelIndex, topOfStep.lineNumber);
                           buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
                       }
                       buildMod.key = meta->LPub.buildMod.key();

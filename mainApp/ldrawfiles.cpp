@@ -5243,73 +5243,38 @@ int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
         stepIndex = _buildModStepIndexes.indexOf(topOfStep);
         if (stepIndex == BM_INVALID_INDEX) {
             int topLineNumber = lineNumber;
-            stepIndex = getTopOfStep(modelName, modelIndex, topLineNumber);
+            stepIndex = getTopOfStep(modelIndex, topLineNumber);
         }
     }
 
     return stepIndex;
 }
 
-int LDrawFile::getTopOfStep(const QString &modelName, int &modelIndex, int &lineNumber)
+int LDrawFile::getTopOfStep(const int &modelIndex, const int &lineNumber)
 {
-    if (modelIndex == BM_INVALID_INDEX)
-        modelIndex = getSubmodelIndex(modelName);
+    if (modelIndex == BM_INVALID_INDEX) {
+        emit gui->messageSig(LOG_ERROR, QObject::tr("Invalid submodel specified - undefined (%1).")
+                                                    .arg(modelIndex));
+        return BM_INVALID_INDEX;
+    }
 
     int stepIndex = _buildModStepIndexes.indexOf({ modelIndex, lineNumber });
 
     if (stepIndex == BM_INVALID_INDEX) {
-        int topLineNumber = -1;
-        for (QVector<int> &topOfStep : _buildModStepIndexes) {
+        stepIndex = _buildModStepIndexes.size() - 1;
+        do {
+            QVector<int> topOfStep = _buildModStepIndexes.at(stepIndex);
             if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
-                topLineNumber = topOfStep.at(BM_STEP_LINE_KEY);
-                if (topLineNumber == lineNumber) {
-                    stepIndex = _buildModStepIndexes.indexOf(topOfStep);
-                } else if (topLineNumber > lineNumber) {
-                    stepIndex = _buildModStepIndexes.indexOf(topOfStep) - 1;
-                    if (stepIndex > BM_INVALID_INDEX) {
-                        int topModelIndex = _buildModStepIndexes[stepIndex].at(BM_STEP_MODEL_KEY);
-                        if (topModelIndex == modelIndex) {
-                            lineNumber = _buildModStepIndexes[stepIndex].at(BM_STEP_LINE_KEY);
-                        } else {
-                            emit gui->messageSig(LOG_ERROR, QObject::tr("TopOfStep modelIndex %1 (%2) - lineNumber %3 is below model "
-                                                                        "start line %4, returned modelIndex %5 (%6).")
-                                                                        .arg(modelIndex).arg(modelName).arg(lineNumber).arg(topLineNumber)
-                                                                        .arg(topModelIndex).arg(getSubmodelName(topModelIndex)));
-                            return BM_INVALID_INDEX;
-                        }
-                    }
-                }
-                // When topLineNumber is 0, the topOfStep is the first step in the submodel.
-                // If lineNumber is greater than 0, but less than the topLineNumber of
-                // the next step in buildModStepIndexes, or the next step modelIndex
-                // is not equal to modelIndex, we take the topOfStep stepIndex.
-                else if (!topLineNumber && lineNumber) {
-                    int nextStepIndex = _buildModStepIndexes.indexOf(topOfStep) + 1;
-                    if (nextStepIndex > BM_INVALID_INDEX) {
-                        QVector<int> topOfNextStep = _buildModStepIndexes.at(nextStepIndex);
-                        if ((lineNumber < topOfNextStep.last()) || (topOfStep.first() != topOfNextStep.first()))
-                            stepIndex = _buildModStepIndexes.indexOf(topOfStep);
-                    }
+                if (topOfStep.at(BM_STEP_LINE_KEY) <= lineNumber) {
+                    break;
                 }
             }
-            // When lineNumber is greater than last step topOfStep lineNumber but
-            // less than model max lines, set the stepIndex of the last step topOfStep
-            else if (stepIndex == BM_INVALID_INDEX && topLineNumber > 0) {
-                int modelLines = size(modelName);
-                if (lineNumber <= modelLines) {
-                    lineNumber = topLineNumber;
-                    stepIndex = getTopOfStep(modelName, modelIndex, lineNumber);
-                } else {
-                    emit gui->messageSig(LOG_ERROR, QObject::tr("TopOfStep modelIndex %1 (%2) - lineNumber %3 exceedes the total model lines %4.")
-                                                                .arg(modelIndex).arg(modelName).arg(lineNumber).arg(modelLines));
-                    return stepIndex;
-                }
-            }
-            if (stepIndex > BM_INVALID_INDEX) {
-                break;
-            }
-        }
+        } while (--stepIndex >= 0);
     }
+
+    if (stepIndex == BM_INVALID_INDEX)
+        emit gui->messageSig(LOG_ERROR, QObject::tr("Could not find Step index for submodel %1 (%2) - lineNumber %3.")
+                                                    .arg(getSubmodelName(modelIndex,false)).arg(modelIndex).arg(lineNumber));
 
     return stepIndex;
 }
@@ -5318,7 +5283,7 @@ QString LDrawFile::getViewerStepKey(const int stepIndex)
 {
     QString stepKey;
     if (stepIndex > BM_INVALID_INDEX) {
-        QVector<int> topOfStep =  _buildModStepIndexes.at(stepIndex);
+        QVector<int> topOfStep = _buildModStepIndexes.at(stepIndex);
         const int lineNumber = topOfStep.at(BM_STEP_LINE_KEY);
         const int modelIndex = topOfStep.at(BM_STEP_MODEL_KEY);
         stepKey = QString("%1;%2;0").arg(modelIndex).arg(lineNumber);
@@ -5343,29 +5308,36 @@ QString LDrawFile::getViewerStepKey(const int stepIndex)
 
 QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNumber)
 {
-    Where here(getSubmodelName(modelIndex,false),modelIndex,lineNumber);
-    int stepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
+    int stepIndex = getTopOfStep(modelIndex, lineNumber);
 
     return getViewerStepKey(stepIndex);
 }
 
 QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lineNumber, const int topModelIndex, const int topLineNumber, const int bottomModelIndex, const int bottomLineNumber)
 {
-    bool ok[2];
-    Where here(getSubmodelName(topModelIndex,false), topModelIndex, topLineNumber);
-    int topStepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
-    ok[0] = topStepIndex != BM_INVALID_INDEX;
-    here = Where(getSubmodelName(bottomModelIndex,false), bottomModelIndex, bottomLineNumber);
-    int bottomStepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
-    ok[1] = bottomStepIndex != BM_INVALID_INDEX;
-
-    if (ok[0] && ok[1] && topModelIndex == modelIndex && topLineNumber <= lineNumber && bottomModelIndex == modelIndex)
-        return getViewerStepKey(topStepIndex);
-
-    here = Where(getSubmodelName(modelIndex,false), modelIndex, lineNumber);
-    int stepIndex = getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
-    if (stepIndex >= topStepIndex && stepIndex <= bottomStepIndex)
+    int stepIndex = getTopOfStep(modelIndex, lineNumber);
+    if (stepIndex != BM_INVALID_INDEX)
         return getViewerStepKey(stepIndex);
+
+    int topStepIndex = getTopOfStep(topModelIndex, topLineNumber);
+    bool ok = (topStepIndex != BM_INVALID_INDEX);
+    if (!ok)
+        emit gui->messageSig(LOG_WARNING, QObject::tr("Invalid top of step range specified - %1 (%2), line %3.")
+                                                      .arg(getSubmodelName(modelIndex,false)).arg(topModelIndex).arg(topLineNumber));
+
+    int bottomStepIndex = getTopOfStep(bottomModelIndex, bottomLineNumber);
+    ok &= (bottomStepIndex != BM_INVALID_INDEX);
+    if (!ok)
+        emit gui->messageSig(LOG_WARNING, QObject::tr("Invalid bottom of step range specified - %1 (%2), line %3.")
+                                                      .arg(getSubmodelName(bottomModelIndex,false)).arg(bottomModelIndex).arg(bottomLineNumber));
+
+    if (ok && topModelIndex == modelIndex && topLineNumber <= lineNumber && bottomModelIndex == modelIndex)
+        return getViewerStepKey(topStepIndex);
+    else
+        emit gui->messageSig(LOG_ERROR, QObject::tr("Step at %1 (%2), line %3 is outside specified top %4 (%5), line %6 and bottom %7 (%8), line %9 range.")
+                                                    .arg(getSubmodelName(modelIndex,false)).arg(modelIndex).arg(lineNumber)
+                                                    .arg(getSubmodelName(topModelIndex,false)).arg(topModelIndex).arg(topLineNumber)
+                                                    .arg(getSubmodelName(bottomModelIndex,false)).arg(bottomModelIndex).arg(bottomLineNumber));
 
     return QString();
 }

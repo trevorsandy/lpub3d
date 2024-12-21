@@ -1092,7 +1092,9 @@ public:
 
   void getTopOfStep(Where &here)
   {
-      lpub->ldrawFile.getTopOfStep(here.modelName, here.modelIndex, here.lineNumber);
+      if (here.modelIndex == BM_INVALID_INDEX)
+          here.modelIndex = lpub->ldrawFile.getSubmodelIndex(here.modelName);
+      lpub->ldrawFile.getTopOfStep(here.modelIndex, here.lineNumber);
   }
 
   void setExportedFile(const QString &fileName)
