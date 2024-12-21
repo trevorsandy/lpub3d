@@ -1465,7 +1465,6 @@ bool LDVWidget::installLDraw(void)
 			qApp->processEvents();
 			if (!progressDialogClosed && libraryUpdateWindow->wasCanceled())
 			{
-				progressDialogClosed = true;
 				// When the install finishes for real, we change the button
 				// title from "Cancel" to "OK".	 However, it still acts like
 				// a cancel.  So check to se if the update really finished, and
