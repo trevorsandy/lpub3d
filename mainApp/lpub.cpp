@@ -3437,11 +3437,6 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
         setGoToPageCombo->setStatusTip("Use dropdown to select page");
         setGoToPageCombo->setEnabled(false);
 
-        progressLabelPerm = new QLabel();
-        progressLabelPerm->setMinimumWidth(200);
-        progressBarPerm = new QProgressBar();
-        progressBarPerm->setMaximumWidth(300);
-
         m_progressDialog = new ProgressDialog();
     }
 
@@ -3935,18 +3930,22 @@ void Gui::reloadModelFileAfterColorFileGen() {
 }
 
 // right side progress bar
-void Gui::progressBarPermInit() {
+void Gui::progressPermInit() {
   if (Gui::okToInvokeProgressBar()) {
-      gui->progressBarPerm->setMaximumHeight(15);
-      gui->statusBar()->addPermanentWidget(gui->progressLabelPerm);
-      gui->statusBar()->addPermanentWidget(gui->progressBarPerm);
-      gui->progressLabelPerm->setAlignment(Qt::AlignRight);
+      gui->displayVisualEditorStatusWidgets(false);
       gui->progressLabelPerm->show();
       gui->progressBarPerm->show();
     }
 }
 
-void Gui::progressBarPermSetText(const QString &progressText)
+void Gui::progressPermStatusRemove() {
+  if (Gui::okToInvokeProgressBar()) {
+      gui->progressLabelPerm->hide();
+      gui->progressBarPerm->hide();
+      gui->displayVisualEditorStatusWidgets(true);
+    }
+}
+
 {
   if (Gui::okToInvokeProgressBar()) {
       gui->progressLabelPerm->setText(progressText);
@@ -3971,13 +3970,6 @@ void Gui::progressBarPermReset()
 {
   if (Gui::okToInvokeProgressBar()) {
       gui->progressBarPerm->reset();
-    }
-}
-
-void Gui::progressPermStatusRemove() {
-  if (Gui::okToInvokeProgressBar()) {
-      gui->statusBar()->removeWidget(gui->progressBarPerm);
-      gui->statusBar()->removeWidget(gui->progressLabelPerm);
     }
 }
 
@@ -7476,13 +7468,6 @@ void Gui::createToolBars()
     zoomToolBar->addAction(gui->getAct("fullScreenViewAct.1"));
 
     gui->create3DToolBars();
-}
-
-void Gui::statusBarMsg(QString msg)
-{
-    if (!Preferences::modeGUI)
-        return;
-    gui->statusBar()->showMessage(msg);
 }
 
 void Gui::createDockWindows()

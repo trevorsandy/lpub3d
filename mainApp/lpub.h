@@ -1900,7 +1900,7 @@ private slots:
     void loadStatus();
 
     void toggleLCStatusBar(bool);
-    void showLCStatusMessage();
+
     void enableWindowFlags(bool);
 
     void pageProcessUpdate();
@@ -2050,6 +2050,7 @@ private:
   void create3DDockWindows();
   void readSettings();
   void writeSettings();
+  void displayVisualEditorStatusWidgets(bool b);
   void readVisualEditorSettings(QSettings &Settings);
   void writeVisualEditorSettings(QSettings &Settings);
   bool createPreviewWidget();

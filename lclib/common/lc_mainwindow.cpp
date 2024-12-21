@@ -89,10 +89,6 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) : QMainWindow(parent)
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - gamepad connection moved to lcMainWindow::CreateWidgets() ***/
-/*** LPub3D Mod - status bar ***/
-	mLCStatusBar = new QStatusBar(this);
-/*** LPub3D Mod end ***/
-
 	gMainWindow = this;
 }
 
@@ -1058,6 +1054,8 @@ void lcMainWindow::EnableWindowFlags(bool Detached)
 	}
 }
 
+/*** LPub3D Mod - move lcElidedLabel from lcMainWindow source to header ***/
+/***
 class lcElidedLabel : public QFrame
 {
 public:
@@ -1078,6 +1076,8 @@ protected:
 
 	QString mText;
 };
+***/
+/*** LPub3D Mod end ***/
 
 void lcElidedLabel::paintEvent(QPaintEvent* event)
 {
@@ -1122,22 +1122,19 @@ void lcElidedLabel::paintEvent(QPaintEvent* event)
 
 void lcMainWindow::CreateStatusBar()
 {
-/*** LPub3D Mod - statusbar management ***/
-	setStatusBar(mLCStatusBar);
-	//QStatusBar* StatusBar = new QStatusBar(this);
-	//setStatusBar(StatusBar);
+	QStatusBar* StatusBar = new QStatusBar(this);
+	setStatusBar(StatusBar);
 
 	mStatusBarLabel = new lcElidedLabel();
-	mLCStatusBar->addWidget(mStatusBarLabel, 1);
-	//StatusBar->addWidget(mStatusBarLabel, 1);
+	StatusBar->addWidget(mStatusBarLabel, 1);
 
-	//mStatusPositionLabel = new QLabel();
-	//StatusBar->addPermanentWidget(mStatusPositionLabel);
+	mStatusPositionLabel = new QLabel();
+	StatusBar->addPermanentWidget(mStatusPositionLabel);
 
 	mStatusSnapLabel = new QLabel();
-	mLCStatusBar->addPermanentWidget(mStatusSnapLabel);
-	//StatusBar->addPermanentWidget(mStatusSnapLabel);
+	StatusBar->addPermanentWidget(mStatusSnapLabel);
 
+/*** LPub3D Mod - disable time status label ***/
 	//mStatusTimeLabel = new QLabel();
 	//StatusBar->addPermanentWidget(mStatusTimeLabel);
 /*** LPub3D Mod end ***/
@@ -2668,8 +2665,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 
 		if (Focus && Focus->IsPiece())
 		{
-/*** LPub3D Mod - add transformation focus part message	   ***/
-			QString focusPart = GetTool() == lcTool::Rotate ? ". Transform focus object: " : " -";
+/*** LPub3D Mod - add transformation focus part message	***/
+			QString focusPart = GetTool() == lcTool::Rotate ? " - Transform: " : " -";
 			Message.append(tr("%1 %2 (ID: %3)").arg(focusPart).arg(Focus->GetName()).arg(((lcPiece*)Focus)->GetID()));
 /*** LPub3D Mod end ***/
 			const lcGroup* Group = ((lcPiece*)Focus)->GetGroup();
@@ -2678,18 +2675,16 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 		}
 	}
 
+	mStatusBarLabel->setText(Message);
 	lcVector3 Position;
 	lcGetActiveModel()->GetFocusPosition(Position);
 
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction and add Position label ***/
+	Position = lcVector3LeoCADToLDraw(Position);
 	QString Label("Position X: %1 Y: %2 Z: %3");
-	Label = Label.arg(QLocale::system().toString(Position[0], 'f', 2), QLocale::system().toString(-Position[2], 'f', 2), QLocale::system().toString(Position[1], 'f', 2));
 /*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - replace mStatusBarLabel ***/
-	 statusBar()->showMessage(Focus && Focus->IsPiece() && SelectionType == VIEWER_MOD ? Label : Selection.size() == 1 ? Message.append(" " + Label) : Message);
-/*	mStatusPositionLabel->setText(Label);	*/
-/*** LPub3D Mod end ***/
+	Label = Label.arg(QLocale::system().toString(Position[0], 'f', 2), QLocale::system().toString(Position[1], 'f', 2), QLocale::system().toString(Position[2], 'f', 2));
+	mStatusPositionLabel->setText(Label);
 }
 
 void lcMainWindow::UpdateTimeline(bool Clear, bool UpdateItems)
@@ -2716,7 +2711,7 @@ void lcMainWindow::UpdateCurrentStep()
 	mActions[LC_VIEW_TIME_PREVIOUS]->setEnabled(CurrentStep > 1);
 	mActions[LC_VIEW_TIME_NEXT]->setEnabled(CurrentStep < LC_STEP_MAX);
 	mActions[LC_VIEW_TIME_LAST]->setEnabled(CurrentStep != LastStep);
-/*** LPub3D Mod 2121 - suppress time status													 ***/
+/*** LPub3D Mod 2121 - suppress time status ***/
 /***	mStatusTimeLabel->setText(QString(tr("Step %1")).arg(QString::number(CurrentStep))); ***/
 /*** LPub3D Mod end ***/
 }
@@ -2754,10 +2749,9 @@ void lcMainWindow::UpdateSnap()
 	mActions[LC_EDIT_SNAP_MOVE_Z0 + mMoveZSnapIndex]->setChecked(true);
 	mActions[LC_EDIT_SNAP_ANGLE0 + mAngleSnapIndex]->setChecked(true);
 
-/*** LPub3D Mod - suppress mStatusSnapLabel ***/
-//	 QString Relative = mRelativeTransform ? tr("Rel") : tr("Abs");
-//	 mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 %4 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText(), Relative));
-/*** LPub3D Mod end ***/
+	QString Relative = mRelativeTransform ? tr("Rel") : tr("Abs");
+	mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 %4 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText(), Relative));
+
 }
 
 void lcMainWindow::UpdateColor()

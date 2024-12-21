@@ -8662,7 +8662,7 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,maxOpenWithProgramsKey), maxPrograms);
             }
             gui->createOpenWithActions(maxPrograms);
-            gui->statusBar()->showMessage(QString("Open with programs updated."));
+            gui->statusBarMsg(tr("Open with programs updated."));
         }
         if (systemEditorEdit->text().toLower() != Preferences::systemEditor.toLower()) {
             QString const systemEditorKey("SystemEditor");

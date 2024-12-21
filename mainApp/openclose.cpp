@@ -888,8 +888,7 @@ bool Gui::saveFile(const QString &fileName)
     int lines = lpub->ldrawFile.savedLines();
     const QString message = tr("File %1 saved (%2 lines)")
                                 .arg(QFileInfo(fileName).fileName()).arg(lines);
-    emit lpub->messageSig(LOG_INFO, message);
-    gui->statusBar()->showMessage(message, 2000);
+    emit lpub->messageSig(LOG_INFO_STATUS, message);
   }
   return rc;
 }

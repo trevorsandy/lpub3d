@@ -1390,10 +1390,12 @@ void Gui::UpdateVisualEditUndoRedo(const QString& UndoText, const QString& RedoT
 
 }
 
-void Gui::showLCStatusMessage()
+void Gui::statusBarMsg(QString msg)
 {
+    if (!Preferences::modeGUI)
+        return;
     if(!visualEditDockWindow->isFloating())
-    statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
+        gMainWindow->mStatusBarLabel->setText(msg);
 }
 
 void Gui::toggleLCStatusBar(bool topLevel)
@@ -2564,9 +2566,31 @@ void Gui::autoCenterSelection()
 
 void Gui::createStatusBar()
 {
-    statusBar()->showMessage(tr("Ready"));
-    if (Preferences::modeGUI)
-        connect(gMainWindow->mLCStatusBar, SIGNAL(messageChanged(QString)), this, SLOT(showLCStatusMessage()));
+    if (!Preferences::modeGUI)
+        return;
+
+    QStatusBar* StatusBar = new QStatusBar(this);
+    setStatusBar(StatusBar);
+
+    if (!gMainWindow->mStatusBarLabel)
+        gMainWindow->mStatusBarLabel = new lcElidedLabel();
+    StatusBar->addWidget(gMainWindow->mStatusBarLabel, 1);
+    gMainWindow->mStatusBarLabel->setText(tr("Ready"));
+    StatusBar->addPermanentWidget(gui->progressLabelPerm);
+    StatusBar->addPermanentWidget(gui->progressBarPerm);
+
+    if (!gMainWindow->mStatusPositionLabel)
+        gMainWindow->mStatusPositionLabel = new QLabel();
+    StatusBar->addPermanentWidget(gMainWindow->mStatusPositionLabel);
+
+    if (!gMainWindow->mStatusSnapLabel)
+        gMainWindow->mStatusSnapLabel = new QLabel();
+    StatusBar->addPermanentWidget(gMainWindow->mStatusSnapLabel);
+}
+
+void Gui::displayVisualEditorStatusWidgets(bool b)
+{
+    gMainWindow->mStatusPositionLabel->setVisible(b);
 }
 
 void Gui::readVisualEditorSettings(QSettings &Settings)
@@ -3215,22 +3239,21 @@ void Gui::ReloadVisualEditor() {
      if ((!Update && !CreateBuildModAct->isEnabled()) || (Update && !UpdateBuildModAct->isEnabled()))
          return;
 
-     bool showMsgBox = true;
      using namespace Options;
      Mt imageType = static_cast<Mt>(lcGetActiveProject()->GetImageType());
      if (imageType != CSI) {
          const QString model = imageType == CSI ? tr("a part instance") :
                                imageType == SMI ? tr("a submodel preview") :
                                tr("not an assembly");
-         statusMessage(LOG_WARNING,tr("Build modifications can only be created for an assembly.<br>"
-                                      "The active model is %1.").arg(model), showMsgBox);
+         emit gui->messageSig(LOG_WARNING,tr("Build modifications can only be created for an assembly.<br>"
+                                             "The active model is %1.").arg(model), LOG_SHOW_DIALOG);
          return;
      }
 
      //actionTriggered = true;
 
      if (buildModificationKey.isEmpty() && ! mBuildModRange.first()) {
-         statusMessage(LOG_INFO,tr("No build modification detected for this step.<br>There is nothing to create."),showMsgBox);
+         emit gui->messageSig(LOG_INFO,tr("No build modification detected for this step.<br>There is nothing to create."),LOG_SHOW_DIALOG);
          return;
      }
 
@@ -3242,15 +3265,15 @@ void Gui::ReloadVisualEditor() {
 
          QString BuildModKey = buildModificationKey;
 
-         progressBarPermInit();
-         progressBarPermSetRange(0, 0);   // Busy indicator
-         progressBarPermSetText(tr("%1 Build Modification...").arg(Action));
+         gui->progressBarPermInit();
+         gui->progressBarPermSetRange(0, 0);   // Busy indicator
+         gui->progressBarPermSetText(tr("%1 Build Modification...").arg(Action));
 
          if (mBuildModRange.first() || Update) {
 
-             statusMessage(LOG_INFO, tr("%1 Build Modification for Step %2...")
-                                        .arg(Action)
-                                        .arg(currentStep->stepNumber.number));
+             emit gui->messageSig(LOG_INFO, tr("%1 Build Modification for Step %2...")
+                                               .arg(Action)
+                                               .arg(currentStep->stepNumber.number));
 
              // 'load...' default lines from modelFile and 'save...' buildMod lines from Visual Editor
              std::vector<std::unique_ptr<lcCamera>> Cameras;
@@ -3318,13 +3341,13 @@ void Gui::ReloadVisualEditor() {
 
              // Check that the the build mod and current step shares the same submodel
              if (ModStepKeys[BM_STEP_MODEL_KEY].toInt() != ModelIndex)
-                 statusMessage(LOG_ERROR, tr("%1 BuildMod model (%2) '%3' and current Step model (%4) are not the same")
-                                             .arg(Action)
-                                             .arg(ModelIndex).arg(ModelName).arg(ModStepKeys[BM_STEP_MODEL_KEY]));
+                 emit gui->messageSig(LOG_ERROR, tr("%1 BuildMod model (%2) '%3' and current Step model (%4) are not the same")
+                                                    .arg(Action)
+                                                    .arg(ModelIndex).arg(ModelName).arg(ModStepKeys[BM_STEP_MODEL_KEY]));
 
              if (Gui::abortProcess()) {
                  showLine(currentStep->topOfStep());
-                 progressPermStatusRemove();
+                 gui->progressPermStatusRemove();
                  return;
              }
 
@@ -3341,7 +3364,7 @@ void Gui::ReloadVisualEditor() {
                  if (QMessageBox::warning(this,tr("%1 BuildMod Warning").arg(VER_PRODUCTNAME_STR),message,
                                           QMessageBox::No|QMessageBox::Yes,QMessageBox::No) == QMessageBox::No) {
                      showLine(currentStep->topOfStep());
-                     progressPermStatusRemove();
+                     gui->progressPermStatusRemove();
                      return;
                  }
              }
@@ -3366,7 +3389,7 @@ void Gui::ReloadVisualEditor() {
 
                  if (box.exec() == QMessageBox::No) {
                      showLine(currentStep->topOfStep());
-                     progressPermStatusRemove();
+                     gui->progressPermStatusRemove();
                      return;
                  }
              }
@@ -3857,7 +3880,7 @@ void Gui::ReloadVisualEditor() {
                                  .arg(PieceAdjustment == 0 ? "" : PieceAdjustment > 0 ? "Added " : "Removed ")
                                  .arg(PieceAdjustment  < 0 ? -PieceAdjustment : PieceAdjustment)
                                  .arg(ViewerPieces).arg(VER_PRODUCTNAME_STR).arg(ModStepPieces);
-                 emit messageSig(LOG_DEBUG, message);
+                 emit gui->messageSig(LOG_DEBUG, message);
              }
 
              // Viewer current step pieces
@@ -3896,7 +3919,7 @@ void Gui::ReloadVisualEditor() {
                                      .arg(Piece->GetName())
                                      .arg(LineNumber)
                                      .arg(PieceModified ? QLatin1String("Yes") : QLatin1String("No"));
-                     emit messageSig(LOG_DEBUG, message);
+                     emit gui->messageSig(LOG_DEBUG, message);
                  }
 
                  // If PieceAdjustment is not 0, we increment EndModLineNum as we process each piece
@@ -4134,7 +4157,7 @@ void Gui::ReloadVisualEditor() {
                                                  .arg(SaveModActionLineNum)
                                                  .arg(SaveModEndLineNum)
                                                  .arg(SaveModPieces);
-                 emit messageSig(LOG_DEBUG, message);
+                 emit gui->messageSig(LOG_DEBUG, message);
              }
 
              // BuildMod meta command lines are written in a bottom up manner
@@ -4257,7 +4280,7 @@ void Gui::ReloadVisualEditor() {
                                  .arg(ModStepNum)                     // 10 - 7 BM_MODEL_STEP_NUM
                                  .arg(ModStepKey)                     // 11
                                  .arg(BuildModKey);                   // 12
-                 emit messageSig(LOG_DEBUG, message);
+                 emit gui->messageSig(LOG_DEBUG, message);
              }
 
              endMacro();
@@ -4267,10 +4290,10 @@ void Gui::ReloadVisualEditor() {
 
          } // mBuildModRange || Update
 
-         progressPermStatusRemove();
+         gui->progressPermStatusRemove();
 
-         emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' created at step %2")
-                                             .arg(BuildModKey).arg(lpub->currentStep->stepNumber.number));
+         emit gui->messageSig(LOG_INFO_STATUS, tr("Build modification '%1' created at step %2")
+                                                  .arg(BuildModKey).arg(lpub->currentStep->stepNumber.number));
      }
  }
 
@@ -4303,7 +4326,7 @@ void Gui::applyBuildModification()
     if (buildModKey.isEmpty())
         return;
 
-    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Apply' action..."));
+    emit gui->messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Apply' action..."));
 
     Where topOfStep = currentStep->topOfStep();
 
@@ -4398,8 +4421,8 @@ void Gui::applyBuildModification()
 
         endMacro();
 
-        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' applied at step %1")
-                                            .arg(buildModKey).arg(lpub->currentStep->stepNumber.number));
+        emit gui->messageSig(LOG_INFO_STATUS, tr("Build modification '%1' applied at step %1")
+                                                 .arg(buildModKey).arg(lpub->currentStep->stepNumber.number));
     }
 }
 
@@ -4433,7 +4456,7 @@ void Gui::removeBuildModification()
          return;
      }
 
-    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Remove' action..."));
+    emit gui->messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Remove' action..."));
 
     Where topOfStep = currentStep->topOfStep();
 
@@ -4529,7 +4552,7 @@ void Gui::removeBuildModification()
 
         endMacro();
 
-        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' removed at step %2")
+        emit gui->messageSig(LOG_INFO_STATUS, tr("Build modification '%1' removed at step %2")
                                             .arg(buildModKey).arg(lpub->currentStep->stepNumber.number));
     }
 }
@@ -4595,7 +4618,7 @@ void Gui::deleteBuildModificationAction()
             break;
     }
 
-    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Remove Action' action..."));
+    emit gui->messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Remove Action' action..."));
 
     const QString model(topOfStep.modelName);
     const QString line(QString::number(topOfStep.lineNumber));
@@ -4648,7 +4671,7 @@ void Gui::deleteBuildModificationAction()
 
         endMacro();
 
-        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' %2 action deleted at step %1")
+        emit gui->messageSig(LOG_INFO_STATUS, tr("Build modification '%1' %2 action deleted at step %1")
                                             .arg(buildModKey).arg(actionString.toLower()).arg(lpub->currentStep->stepNumber.number));
     }
 }
@@ -4675,7 +4698,7 @@ void Gui::loadBuildModification()
     if (buildModKey.isEmpty())
         return;
 
-    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Load' action..."));
+    emit gui->messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Load' action..."));
 
     /*
     QString model = "undefined", line = "undefined", step = "undefined";
@@ -4737,7 +4760,7 @@ void Gui::loadBuildModification()
 
             buildModificationKey = buildModKey;
 
-            emit messageSig(LOG_INFO_STATUS, tr("Step %1 with build modification '%1' loaded")
+            emit gui->messageSig(LOG_INFO_STATUS, tr("Step %1 with build modification '%1' loaded")
                                                 .arg(stepNumber).arg(buildModKey));
         }
     }
@@ -4887,7 +4910,7 @@ void Gui::deleteBuildModification()
     if (buildModKey.isEmpty())
         return;
 
-    emit messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Delete' action..."));
+    emit gui->messageSig(LOG_INFO_STATUS, tr("Processing build modification 'Delete' action..."));
 
     const QString step(QString::number(currentStep->stepNumber.number));
     /*
@@ -4968,7 +4991,7 @@ void Gui::deleteBuildModification()
         QString modelName          = getBuildModStepKeyModelName(buildModKey);
 
         if (modelName.isEmpty() || !modBeginLineNum || !modActionLineNum || !modEndLineNum) {
-            emit messageSig(LOG_ERROR, tr("There was a problem receiving build modification attributes for key [%1]<br>"
+            emit gui->messageSig(LOG_ERROR, tr("There was a problem receiving build modification attributes for key [%1]<br>"
                                           "Delete build modification cannot continue.").arg(buildModKey));
             return;
         }
@@ -5049,8 +5072,8 @@ void Gui::deleteBuildModification()
 
         endMacro();
 
-        emit messageSig(LOG_INFO_STATUS, tr("Build modification '%1' deleted at step %2.")
-                                            .arg(buildModKey).arg(lpub->currentStep->stepNumber.number));
+        emit gui->messageSig(LOG_INFO_STATUS, tr("Build modification '%1' deleted at step %2.")
+                                                 .arg(buildModKey).arg(lpub->currentStep->stepNumber.number));
     }
 }
 
@@ -5189,8 +5212,8 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 #endif
 //*/
     if (newLine) {
-        emit messageSig(LOG_TRACE, tr("New viewer part modelName [%1]")
-                                      .arg(getSubmodelName(modelIndex,false)));
+        emit gui->messageSig(LOG_TRACE, tr("New viewer part modelName [%1]")
+                                           .arg(gui->getSubmodelName(modelIndex,false)));
         return false;
 
     } else if (currentModel) {
@@ -5201,9 +5224,9 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
             return false;
 //* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_TRACE, tr("%1 Step lineIndex count: %2 item(s)")
-                                      .arg(VER_PRODUCTNAME_STR)
-                                      .arg(currentStep->lineTypeIndexes.size()));
+        emit gui->messageSig(LOG_TRACE, tr("%1 Step lineIndex count: %2 item(s)")
+                                           .arg(VER_PRODUCTNAME_STR)
+                                           .arg(currentStep->lineTypeIndexes.size()));
 //      for (int i = 0; i < currentStep->lineTypeIndexes.size(); ++i)
 //          emit messageSig(LOG_TRACE, tr(" -%1 Part lineNumber [%2] at step line lineIndex [%3] - specified lineIndex [%4]")
 //                                        .arg(.arg(VER_PRODUCTNAME_STR)).arg(currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
@@ -5291,8 +5314,8 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
 //* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
         if (modelIndex != NEW_MODEL && source > VIEWER_LINE)
-            emit messageSig(LOG_TRACE, tr("Submodel lineIndex count: %1 item(s)")
-                                          .arg(lpub->ldrawFile.getLineTypeRelativeIndexCount(modelIndex)));
+            emit gui->messageSig(LOG_TRACE, tr("Submodel lineIndex count: %1 item(s)")
+                                               .arg(lpub->ldrawFile.getLineTypeRelativeIndexCount(modelIndex)));
 #endif
 //*/
         for (int i = 0; i < indexes.size() && validTrigger; ++i) {
@@ -5349,7 +5372,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
                              .arg(fromSource)
                              .arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineNumber));
             }
-            emit messageSig(LOG_TRACE, Message);
+            emit gui->messageSig(LOG_TRACE, Message);
 #endif
 //*/
         } // indexes present and source is not VIEWER_CLR
@@ -5365,10 +5388,10 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source)
                 }
 //* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE, tr("Delete %1 part(s) specified at step %2, modelName: [%3]")
-                                              .arg(fromSource)
-                                              .arg(currentStep->stepNumber.number)
-                                              .arg(modelName));
+                emit gui->messageSig(LOG_TRACE, tr("Delete %1 part(s) specified at step %2, modelName: [%3]")
+                                                   .arg(fromSource)
+                                                   .arg(currentStep->stepNumber.number)
+                                                   .arg(modelName));
 #endif
 //*/
             }
@@ -5439,7 +5462,7 @@ bool Gui::saveImport(const QString& FileName, Project *Importer)
 
     if (!File.open(QIODevice::WriteOnly))
     {
-        emit messageSig(LOG_ERROR, tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
+        emit gui->messageSig(LOG_ERROR, tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
         return false;
     }
 

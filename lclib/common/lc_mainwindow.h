@@ -87,6 +87,29 @@ protected:
 	lcView* mActiveView;
 };
 
+/*** LPub3D Mod - move lcElidedLabel from lcMainWindow source to header ***/
+class lcElidedLabel : public QFrame
+{
+public:
+	explicit lcElidedLabel(QWidget* Parent = nullptr)
+		: QFrame(Parent)
+	{
+		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	}
+
+	void setText(const QString& Text)
+	{
+		mText = Text;
+		update();
+	}
+
+protected:
+	void paintEvent(QPaintEvent* event) override;
+
+	QString mText;
+};
+/*** LPub3D Mod end ***/
+
 class lcMainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -372,10 +395,6 @@ public:
 	bool mSubmodelIconsLoaded;
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - status bar ***/
-	QStatusBar* mLCStatusBar;
-/*** LPub3D Mod end ***/
-
 public slots:
 	void ProjectFileChanged(const QString& Path);
 	void PreviewPiece(const QString& PartId, int ColorCode, bool ShowPreview);
@@ -529,8 +548,8 @@ protected:
 
 	lcElidedLabel* mStatusBarLabel;
 	QLabel* mStatusSnapLabel;
-/*** LPub3D Mod - disable position/time status ***/
-	//QLabel* mStatusPositionLabel;
+	QLabel* mStatusPositionLabel;
+/*** LPub3D Mod - disable time status label ***/
 	//QLabel* mStatusTimeLabel;
 /*** LPub3D Mod end ***/
 
