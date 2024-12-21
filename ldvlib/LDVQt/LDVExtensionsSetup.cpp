@@ -519,7 +519,7 @@ int LDVExtensionsSetup::choosePixelFormat(HDC hdc, GLint customValues[])
 			printPixelFormat(hdc, indexes[0]);
 		}
 	}
-	delete intValues;
+	delete[] intValues;
 	return retValue;
 }
 
