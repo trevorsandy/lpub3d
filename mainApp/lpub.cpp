@@ -3544,7 +3544,9 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
         connect(editModeWindow, SIGNAL(contentsChangeSig(const QString &,bool,bool,int,int,const QString &)),
                 this,           SLOT(  contentsChange(   const QString &,bool,bool,int,int,const QString &)));
 
-        // Undo Stack
+        // Gui::saveFile() calls Gui::undoStack->setClean() which triggers
+        // Gui::undoStack->cleanChanged() that calls
+        // EditWindow::updateDisabled()
         connect(undoStack,      SIGNAL(cleanChanged(bool)),
                 editModeWindow, SLOT(  updateDisabled(bool)));
 

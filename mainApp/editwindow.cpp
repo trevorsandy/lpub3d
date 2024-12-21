@@ -1705,14 +1705,14 @@ void EditWindow::contentsChange(
     contentsChanged = addedChars != removedChars;
 
     if (!contentsChanged)
-        return;
+      return;
   }
 
   bool isUndo = _isUndo;
   bool isRedo = _isRedo;
   _isUndo = _isRedo = false;
 
-  if (!Preferences::saveOnUpdate)
+  if (!Preferences::saveOnUpdate || charsAdded || charsRemoved)
      updateDisabled(false);
 
   emit contentsChangeSig(fileName, isUndo, isRedo, position, charsRemoved, addedChars);
@@ -2573,6 +2573,10 @@ void EditWindow::setComboPatternSyntax(QRegExp::PatternSyntax s)
 
 void EditWindow::updateDisabled(bool state)
 {
+
+    //EditWindow::contentsChanged() emit EditWindow::contentsChangeSig() which calls Gui::contentsChange()
+    //which triggers Gui::undoStack->push() which triggers Gui::cleanChanged() that calls
+    //EditWindow::updateDisabled()
     if (sender() == saveAct) {
         updateAct->setDisabled(true);
     } else {
