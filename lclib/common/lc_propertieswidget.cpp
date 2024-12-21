@@ -1292,10 +1292,9 @@ void lcPropertiesWidget::SetPiece(const std::vector<lcObject*>& Selection, lcObj
 			mFocusObject = Piece;
 		}
 
-	}
+		Position = lcVector3LeoCADToLDraw(SwitchPosition);
 /*** LPub3D Mod end ***/
-
-	Position = lcVector3LeoCADToLDraw(SwitchPosition);
+	}
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
