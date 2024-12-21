@@ -1569,7 +1569,7 @@ public slots:
 
   void processFadeColourParts(bool overwrite, bool setup);
   void processHighlightColourParts(bool overwrite, bool setup);
-  void loadLDSearchDirParts(bool Process = false, bool OnDemand = false, bool Update = false);
+  void loadLDSearchDirParts(bool Process = false, bool OnDemand = false, bool Update = false, bool fileReload = false);
   bool loadFile(const QString &file);
   bool loadFile(const QString &file, bool console);
   void openWith(const QString &filePath);
@@ -2178,6 +2178,7 @@ class LDrawSearchDirDialog : public QWidget
   QDialog            *dialog;
   QLineEdit          *lineEditIniFile;
   TextEditSearchDirs *textEditSearchDirs;
+  QCheckBox          *fileReloadCheck;
   QPushButton        *pushButtonReset;
   QPushButton        *pushButtonMoveUp;
   QPushButton        *pushButtonMoveDown;

@@ -4305,7 +4305,7 @@ bool Gui::installRenderer(int which)
 
 // Update parts archive from LDSearch directories
 
-void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
+void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update, bool fileReload) {
   if (Process)
       gui->partWorkerLDSearchDirs.ldsearchDirPreferences();
 
@@ -4383,7 +4383,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
                gui,                   SLOT(  cancelExporting()));
 
       gui->m_progressDialog->hide();
-      QString partsLabel = gui->m_workerJobResult == 1 ? "part" : "parts";
+      QString partsLabel = gui->m_workerJobResult == 1 ? tr("part") : tr("parts");
       message = tr("Added %1 %2 to %3 unofficial library archive.")
                    .arg(gui->m_workerJobResult)
                    .arg(partsLabel)
@@ -4391,32 +4391,36 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       emit gui->messageSig(LOG_INFO_STATUS,message);
   }
 
-  if (! Gui::getCurFile().isEmpty()) {
-      bool _continue;
+  if (!Gui::getCurFile().isEmpty() && gui->m_workerJobResult > 0) {
+      if (fileReload) {
+          bool _continue;
       if (Preferences::saveOnRedraw) {
           _continue = gui->maybeSave(false); // No prompt
       } else {
           _continue = gui->maybeSave(true, SaveOnNone);
       }
       if (!_continue)
-          return;
+              return;
+      }
 
       QElapsedTimer timer;
-      timer.start();
-
-      gui->clearPLICache();
-      gui->clearBOMCache();
-      gui->clearCSICache();
-      gui->clearSMICache();
-      gui->clearTempCache();
+      if (fileReload) {
+          timer.start();
+          gui->clearPLICache();
+          gui->clearBOMCache();
+          gui->clearCSICache();
+          gui->clearSMICache();
+          gui->clearTempCache();
+      }
 
       //reload current model file
-      gui->cyclePageDisplay(Gui::displayPageNum, true/*silent*/, true/*FILE_RELOAD*/);
+      gui->cyclePageDisplay(Gui::displayPageNum, true/*silent*/, fileReload);
 
-      emit gui->messageSig(LOG_INFO_STATUS, QString("%1 File %2 reloaded. %3")
-                      .arg(message)
-                      .arg(QFileInfo(Gui::getCurFile()).fileName())
-                      .arg(Gui::elapsedTime(timer.elapsed())));
+      if (fileReload)
+          emit gui->messageSig(LOG_INFO_STATUS, QString("%1 File %2 reloaded. %3")
+                               .arg(message)
+                               .arg(QFileInfo(Gui::getCurFile()).fileName())
+                               .arg(Gui::elapsedTime(timer.elapsed())));
   }
 }
 
@@ -7984,6 +7988,16 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
   gridLayout->addWidget(groupBoxActions, 1,1,2,1);
 
+  bool fileReload = true;
+  QSettings Settings;
+  QString const fileReloadKey = QLatin1String("SearchDirectroyFileReload");
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,fileReloadKey)))
+      fileReload = Settings.value(QString("%1/%2").arg(SETTINGS,fileReloadKey)).toBool();
+  fileReloadCheck = new QCheckBox(tr("Clear cache and reload the current model file."), dialog);
+  fileReloadCheck->setChecked(fileReload);
+  fileReloadCheck->setToolTip(tr("Clear all caches and reload the current model file when new parts archived."));
+  gridLayout->addWidget(fileReloadCheck,3,0);
+
   pushButtonAddDirectory = new QPushButton(dialog);
   pushButtonAddDirectory->setToolTip(tr("Add LDraw search directory"));
   pushButtonAddDirectory->setIcon(QIcon(":/resources/adddirectory.png"));
@@ -8065,6 +8079,9 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
   if (dialog->exec() == QDialog::Accepted) {
 
+    fileReload = fileReloadCheck->isChecked();
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,fileReloadKey), QVariant(fileReload));
+
     QStringList searchDirs = textEditSearchDirs->toPlainText().split("\n");
 
     if (searchDirs.size() && searchDirs != Preferences::ldSearchDirs) {
@@ -8128,7 +8145,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
 
       if (newDirs.size()) {
         gui->partWorkerLDSearchDirs.populateUpdateSearcDirs(newDirs);
-        gui->loadLDSearchDirParts(false/*Process*/, false/*OnDemand*/, true/*Update*/);
+        gui->loadLDSearchDirParts(false/*Process*/, false/*OnDemand*/, true/*Update*/, fileReload);
       }
     }
   }
