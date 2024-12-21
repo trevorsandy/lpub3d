@@ -813,7 +813,6 @@ enum ThemeColorType {
 #define HIGHLIGHT_SFX                           "-highlight"
 #define RESTART_NOTICE                          "@@ReStArT@@"
 #define RESTART_APPLICATION_KEY                 "RestartApplication"
-#define RESTART_EXPORTING_KEY                   "RestartExporting"
 #define LAST_DISPLAYED_PAGE_NUM_KEY             "LastDisplayedPageNum"
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY             "SaveSkipPartsArchive"
 #define VIEW_IMPORT_TOOLBAR_KEY                 "ViewImportToolbar"

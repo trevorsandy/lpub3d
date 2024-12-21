@@ -402,7 +402,7 @@ void Gui::displayPage()
     dpFlags.updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
     Gui::drawPage(dpFlags);
     Gui::pageProcessRunning = PROC_NONE;
-    gui->restartAutoSave();
+    gui->saveDisplayedPage();
     if (Gui::abortProcess()) {
       QApplication::restoreOverrideCursor();
       if (Preferences::modeGUI) {
@@ -430,13 +430,9 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
     QSettings Settings;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY))) {
       int validValue = Settings.value(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)).toInt();
-      if (validValue) {
-        bool wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
-        if (wasExporting)
-          Gui::m_lastDisplayedPage = false;
-        else
-          goToPageNum = validValue;
-      } else
+      if (validValue)
+        goToPageNum = validValue;
+      else
         Gui::m_lastDisplayedPage = false;
     }
   }
@@ -605,18 +601,12 @@ void Gui::enableNavigationActions(bool enable)
   gui->getAct("previousPageContinuousAct.1")->setEnabled(!atStart && previousEnabled);
 }
 
-void Gui::restartAutoSave()
+void Gui::saveDisplayedPage()
 {
-    QSettings Settings;
-    Settings.setValue(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY), QVariant(Gui::exporting()));
-    Settings.setValue(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY), QVariant(Gui::displayPageNum));
-}
-
-void Gui::pageProcessUpdate()
-{
-    if (!Gui::exporting() && !Gui::ContinuousPage())
+    if (Gui::exporting())
         return;
-    QCoreApplication::processEvents();
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY), QVariant(Gui::displayPageNum));
 }
 
 void Gui::nextPage()

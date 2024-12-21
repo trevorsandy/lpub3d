@@ -1903,9 +1903,7 @@ private slots:
 
     void enableWindowFlags(bool);
 
-    void pageProcessUpdate();
-
-    void restartAutoSave();
+    void saveDisplayedPage();
 
     void visitHomepage()
     {
