@@ -1935,16 +1935,14 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         }
 
         // subfile, helper and lsynth part check
-        if (subfileFound && ! _processedSubfiles.contains(subFile)) {
+        if (subfileFound && ! _processedSubfiles.contains(subFile, Qt::CaseInsensitive)) {
             _processedSubfiles.append(subFile);
             PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
-            if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
-                if (displayModel) {
+            if (! pieceInfo && ! LDrawFile::contains(subFile, Qt::CaseInsensitive) && ! stagedSubfiles.contains(subFile, Qt::CaseInsensitive)) {
+                if (displayModel)
                     stagedSubfiles.append(QString("%1|displaymodel").arg(subFile));
-                    displayModel = false;
-                } else {
+                else
                     stagedSubfiles.append(subFile);
-                }
                 stagedSubfilesFound = true;
                 // determine if missing helper or lsynth part
                 if (helperPartsNotFound || lsynthPartsNotFound) {
@@ -2060,7 +2058,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             }
         } // modelHeaderFinished
 
-        if ((alreadyLoaded = LDrawFile::contains(subfileName))) {
+        if ((alreadyLoaded = LDrawFile::contains(subfileName, Qt::CaseInsensitive))) {
             emit gui->messageSig(LOG_TRACE, QObject::tr("MPD %1 '%2' already loaded.").arg(fileType()).arg(subfileName));
             subfileIndx = stagedSubfiles.indexOf(subfileName);
             if (subfileIndx > NOT_FOUND)
@@ -2233,7 +2231,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
     // at end of file - NOFILE tag not specified
     if ( ! subfileName.isEmpty()) {
-        if (LDrawFile::contains(subfileName)) {
+        if (LDrawFile::contains(subfileName, Qt::CaseInsensitive)) {
             emit gui->messageSig(LOG_TRACE, QObject::tr("MPD %1 '%2' already loaded").arg(fileType()).arg(subfileName));
         } else {
             if (contents.isEmpty()) {
@@ -2279,6 +2277,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         QString const projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
         QString subfile, fileDesc;
         for (const QString &stagedFile : stagedSubfiles) {
+            displayModel = false;
             if (stagedFile.count("|")) {
                 QStringList elements = stagedFile.split("|");
                 subfile = elements.first();
@@ -2291,7 +2290,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             emit gui->messageSig(LOG_DEBUG, QString("Processing staged %1subfile '%2'...")
                                                     .arg(fileDesc).arg(subfile));
 #endif
-            if (LDrawFile::contains(subfile)) {
+            if (LDrawFile::contains(subfile, Qt::CaseInsensitive)) {
                 if (displayModel)
                     setDisplayModel(subfile);
                 QString const subfileType = fileType(isUnofficialPart(subfile));
@@ -2582,16 +2581,14 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             }
 
             // subfile, helper and lsynth part check
-            if (subfileFound && ! _processedSubfiles.contains(subFile)) {
+            if (subfileFound && ! _processedSubfiles.contains(subFile, Qt::CaseInsensitive)) {
                 _processedSubfiles.append(subFile);
                 PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
-                if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
-                    if (displayModel) {
+                if (! pieceInfo && ! LDrawFile::contains(subFile, Qt::CaseInsensitive) && ! stagedSubfiles.contains(subFile, Qt::CaseInsensitive)) {
+                    if (displayModel)
                         stagedSubfiles.append(QString("%1|displaymodel").arg(subFile));
-                        displayModel = false;
-                    } else {
+                    else
                         stagedSubfiles.append(subFile);
-                    }
                     // determine if missing helper or lsynth part
                     if (helperPartsNotFound || lsynthPartsNotFound) {
                         int is_support_file = ExcludedParts::isExcludedSupportPart(subFile);
@@ -2849,6 +2846,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             QString const projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
             QString subfile, fileDesc;
             for (const QString &stagedFile : stagedSubfiles) {
+                displayModel = false;
                 if (stagedFile.count("|")) {
                     QStringList elements = stagedFile.split("|");
                     subfile = elements.first();

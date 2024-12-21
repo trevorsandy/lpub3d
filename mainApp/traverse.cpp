@@ -1622,7 +1622,7 @@ int Gui::drawPage(
                 // 0 !LPUB ASSEM MODEL_SCALE LOCAL  2.0000
                 // 0 !LPUB INSERT DISPLAY_MODEL
                 // 0 [ROT]STEP
-                // Note that LOCAL settings must be placed before INSERT PAGE meta command (Huh ???)
+                // Note that LOCAL settings must be placed before INSERT PAGE meta command
 
                 Where top = opts.current;
                 DisplayType displayType = DT_MODEL_DEFAULT;
@@ -4591,11 +4591,12 @@ int Gui::getBOMParts(
 
               if ( ! removed) {
 
-                  if (lpub->ldrawFile.isSubmodel(type) && !lpub->ldrawFile.isDisplayModel(type)) {
+                  if (lpub->ldrawFile.isSubmodel(type)) {
 
-                      Where current2(type,0);
-
-                      Gui::getBOMParts(current2,line);
+                      if (!lpub->ldrawFile.isDisplayModel(type)) {
+                          Where current2(type,0);
+                          Gui::getBOMParts(current2,line);
+                      }
 
                     } else {
 
