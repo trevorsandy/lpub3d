@@ -166,7 +166,7 @@ enum DisplayType { DT_DEFAULT,
                    DT_COVER_BACK,
                    DT_MODEL_DEFAULT,
                    DT_MODEL_COVER_PAGE_PREVIEW,
-                   DT_MODEL_CUSTOM,
+                   DT_MODEL_DISPLAY,
                    DT_MODEL_FINAL
 };
 

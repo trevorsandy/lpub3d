@@ -847,7 +847,7 @@ QStringList Step::configureModelStep(const QStringList &csiParts, Where &current
   int stepNum = 0;
 
   if (displayStep) {
-    if ((highlightFirstStep = displayStep == DT_MODEL_CUSTOM))
+    if ((highlightFirstStep = displayStep == DT_MODEL_DISPLAY))
       stepNum = stepNumber.number > 1 ? stepNumber.number : static_cast<int>(displayStep);
     else
       stepNum = -1;

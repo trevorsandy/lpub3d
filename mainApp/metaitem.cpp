@@ -3391,7 +3391,7 @@ int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
       return here.lineNumber /*DT_FINAL_MODEL*/;
     } else if (rc == InsertDisplayModelRc ) {                //check for inserted display model
       emit lpub->messageSig(LOG_INFO, QObject::tr("Display model detected at line: %1").arg(here.lineNumber));
-      return thisLine(here)  /*DT_DISPLAY_MODEL*/;
+      return thisLine(here)  /*DT_MODEL_DISPLAY*/;
     } else if (rc == InsertCoverPageRc ) {                   //check for inserted cover page
       emit lpub->messageSig(LOG_INFO, QObject::tr("Cover page detected at line: %1").arg(here.lineNumber));
       saveHere = Where();                                    // this step is occupied so clear saveHere

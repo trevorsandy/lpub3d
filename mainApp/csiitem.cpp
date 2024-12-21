@@ -542,7 +542,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QString display                    = fullContextMenu ? tr("Step") :
                                          step->displayStep == DT_MODEL_DEFAULT
                                          ? tr("Display Model")
-                                         : step->displayStep == DT_MODEL_CUSTOM
+                                         : step->displayStep == DT_MODEL_DISPLAY
                                              ? tr("Custom Model")
                                              : step->displayStep == DT_MODEL_FINAL
                                                  ? tr("Final Model")

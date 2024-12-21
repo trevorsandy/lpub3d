@@ -1639,7 +1639,7 @@ int Gui::drawPage(
                     curMeta.LPub.assem.showStepNumber.setValue(false);
                     opts.displayModel = true;
                     if (Gui::stepContains(top,partTypeLineRx)) {
-                        displayType = DT_MODEL_CUSTOM; // Is this here to distinguish parts added ? No - it's here to distinguish an inserted submodel
+                        displayType = DT_MODEL_DISPLAY; // Is this here to distinguish parts added ? No - it's here to distinguish an inserted submodel
                         opts.csiParts.clear();
                         opts.lineTypeIndexes.clear();
                     }
@@ -1729,7 +1729,7 @@ int Gui::drawPage(
             case FadeRc:
             case SilhouetteRc:
             case ColourRc:
-                if (step && step->displayStep == DT_MODEL_CUSTOM)
+                if (step && step->displayStep == DT_MODEL_DISPLAY)
                     CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
                 break;
 
@@ -6163,6 +6163,7 @@ QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents
       bool buildModIgnore     = false;
       bool buildModItems      = false;
       bool buildModApplicable = false;
+      bool displayModelLine   = false;
       bool isDataFile         = false;
 
       QString                 buildModKey;
@@ -6184,8 +6185,10 @@ QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents
       Rc    rc;
       Meta  meta;
       for (int i = 0; i < contents.size() && !Gui::abortProcess(); i++) {
-          QString line = contents[i];
+          if (displayModelLine)
+              continue;
 
+          QString line = contents[i];
           if (line.contains(LDrawFile::_fileRegExp[DAT_RX]))
               isDataFile = true;
           if (isDataFile) {
@@ -6194,7 +6197,6 @@ QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents
           }
 
           QStringList tokens;
-
           split(line,tokens);
           if (tokens.size()) {
               if (tokens[0] != "0") {
@@ -6206,13 +6208,18 @@ QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents
                   rc =  meta.parse(line,here,false);
 
                   switch (rc) {
+                  // do not capture display model lines
+                  case InsertDisplayModelRc:
+                      displayModelLine = true;
+                      break;
+
                   case FadeRc:
                   case SilhouetteRc:
                   case ColourRc:
                       CsiItem::partLine(line,pla,i/*relativeTypeIndx*/,rc);
                       break;
 
-                      /* Buffer exchange */
+                  // Buffer exchange
                   case BufferStoreRc:
                       bfx[meta.bfx.value()] = csiParts;
                       break;
@@ -6271,8 +6278,10 @@ QStringList Gui::writeToTmp(const QString &fileName, const QStringList &contents
                       }
                       break;
 
+                  case NoStepRc:
                   case RotStepRc:
                   case StepRc:
+                      displayModelLine = false;
                       buildModApplicable = false;
                       topOfStep.lineNumber = i;
                       break;
@@ -6534,8 +6543,9 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
 
     QStringList fileContent;
 
-    bool partIgnore     = false;
-    bool buildModIgnore = false;
+    bool partIgnore       = false;
+    bool buildModIgnore   = false;
+    bool displayModelLine = false;
 
     QHash<QString, QStringList> bfx;
 
@@ -6543,6 +6553,9 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
     Meta  meta;
 
     for (int i = top.lineNumber; i < content->size(); i++) {
+        if (displayModelLine)
+            continue;
+
         QString line = content->at(i);
         QStringList tokens;
         split(line,tokens);
@@ -6551,10 +6564,22 @@ QStringList Gui::getModelFileContent(QStringList *content, const QString &fileNa
               if (! buildModIgnore && ! partIgnore)
               fileContent << line;
           } else {
+
               Where here(fileName,i);
               rc =  meta.parse(line,here,false);
 
               switch (rc) {
+              /* do not capture display model lines */
+              case InsertDisplayModelRc:
+              displayModelLine = true;
+              break;
+
+              case NoStepRc:
+              case RotStepRc:
+              case StepRc:
+              displayModelLine = false;
+              break;
+
               /* buffer exchange */
               case BufferStoreRc:
               bfx[meta.bfx.value()] = fileContent;
