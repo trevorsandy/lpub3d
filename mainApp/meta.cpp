@@ -4896,64 +4896,77 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
       }
     }
   }
+  int a = index, b = argv.size();
+  if (argc >= 6)
+    // a = index (4) + (type & color) = 6
+    a = index+2;
   if (argc > 1) {
+    // argc = 2, argv = 6
     _value.part  = argv[index];
     _value.color = argv[index+1];
   }
   if (argc == 1) {
+    // sub : argv = 5
     _value.part  = argv[index];
     _value.color = originalColor;
     _value.type  = rc = PliBeginSub1Rc;
   } else if (argc == 2) {
+    // sub, color : argv = 6
     _value.type  = rc = PliBeginSub2Rc;
   } else if (argc == 3) {
+    // sub, color, scale : argv = 7
     _value.part  = argv[index];
     _value.color = argv[index+1];
     argv[index+2].toFloat(&ok[0]);
     if (ok[0])
       _value.type = rc = PliBeginSub3Rc;
   } else if (argc == 4) {
+    // sub, color, scale, fov : argv = 8
     argv[index+2].toFloat(&ok[0]);
     argv[index+3].toFloat(&ok[1]);
     ok[0] &= ok[1];
     if (ok[0])
-      _value.type = rc = PliBeginSub4Rc;;
+      _value.type = rc = PliBeginSub4Rc;
   } else if (argc == 6) {
-    int j = 0;
-    for (int i = index+2; i < index+6; i++) {
+    // sub, color, scale, fov, caX, caY : argv = 10
+    int j = 0; ok[j] = false;
+    for (int i = a; i < b; i++) {
         argv[i].toFloat(&ok[j]);j++; }
-    for (int i = 0; i < 4; i++) {
-        if (!ok[i]) ok[0] = false; break; }
+    for (int i = 0; i <= j; i++) {
+      if (!ok[i]) ok[0] = false; break; }
     if (ok[0])
       _value.type = rc = PliBeginSub5Rc;
   } else if (argc == 9) {
-    int j = 0;
-    for (int i = index+2; i < index+9; i++) {
+    // sub, color, scale, fov, caX, caY, targetX,Y,Z : argv = 13
+    int j = 0; ok[j] = false;
+    for (int i = a; i < b; i++) {
       argv[i].toFloat(&ok[j]);j++; }
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i <= j; i++) {
       if (!ok[i]) ok[0] = false; break; }
     if (ok[0])
-      _value.type = rc = PliBeginSub6Rc;      // target
-  } else if (argc == 10) {;
-    int j = 0;
-    for (int i = index+2; i < index+9; i++) {
+      _value.type = rc = PliBeginSub6Rc;
+  } else if (argc == 10) {
+    // sub, color, scale, fov, caX, caY, rotstepX,Y,Z,Transform : argv = 14
+    int j = 0; --b/*exclude Transform*/; ok[j] = false;
+    for (int i = a; i < b; i++) {
       argv[i].toFloat(&ok[j]);j++; }
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i <= j; i++) {
       if (!ok[i]) ok[0] = false; break; }
-    if (ok[0] && argv[index+9].contains(rx))
-      _value.type = rc = PliBeginSub7Rc;       // Rotstep
+    if (ok[0] && argv[b].contains(rx))
+      _value.type = rc = PliBeginSub7Rc;
   } else if (argc == 13) {
-    int j = 0;
-    for (int i = index+2; i < index+12; i++) {
+    // sub, color, scale, fov, caX, caY, targetX,Y,Z, rotstepX,Y,Z,Transform : argv = 17
+    int j = 0; --b/*exclude Transform*/; ok[j] = false;
+    for (int i = a; i < b; i++) {
       argv[i].toFloat(&ok[j]);j++; }
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i <= j; i++) {
       if (!ok[i]) ok[0] = false; break; }
-    if (ok[0] && argv[index+12].contains(rx))
+    if (ok[0] && argv[b].contains(rx))
       _value.type = rc = PliBeginSub8Rc;     // target and rotstep
   }
   if (rc != FailureRc) {
     // add attributes - advance past part and color +2
-    for (int i = index+2; i < argv.size(); i++)
+    for (int i = a; i < argv.size(); i++)
       attributes.append(argv.at(i)+";");
     // append line number to end of attributes - used by Pli::partLine()
     attributes.append(QString::number(here.lineNumber));
