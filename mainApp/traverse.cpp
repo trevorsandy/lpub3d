@@ -2507,9 +2507,10 @@ int Gui::drawPage(
                                         curMeta,
                                         opts.calledOut,
                                         multiStep);
-
                         range->append(step);
                     }
+
+                    step->setBottomOfStep(opts.current);
 
                     QString caseType;
                     if (bfxLoad) {
@@ -2592,6 +2593,7 @@ int Gui::drawPage(
                       * STEP - Actual parts added, simple, mulitStep or calledOut (no render graphics)
                       */
                         if (step) {
+                            step->setBottomOfStep(opts.current);
 
                             Page *page = dynamic_cast<Page *>(steps);
                             if (page) {
@@ -2813,6 +2815,7 @@ int Gui::drawPage(
                                     page->selectedSceneItems   = selectedSceneItems;
 
                                     if (step) {
+                                        step->setBottomOfStep(opts.current);
                                         page->displayPage   = step->displayStep;
                                         step->lightList     = lightList;
                                         step->viewerStepKey = QString("%1;%2;%3%4")
@@ -2923,12 +2926,12 @@ int Gui::drawPage(
                                     }
 
                                     if (step) {
+                                        step->setBottomOfStep(opts.current);
                                         const QString cover = frontCover ? tr("front cover") : tr("back cover");
                                         emit gui->messageSig(LOG_INFO_STATUS, tr("Set cover page model preview..."));
                                         emit gui->messageSig(LOG_INFO, tr("Set cover page model preview at %1 for %2, step number %3...")
                                                                           .arg(cover).arg(topOfStep.modelName).arg(stepNum));
                                         const QString fileName = Preferences::preferredRenderer == RENDERER_NATIVE ? SUBMODEL_IMAGE_BASENAME : SUBMODEL_COVER_PAGE_PREVIEW_BASENAME;
-                                        step->setBottomOfStep(opts.current);
                                         step->displayStep = DT_MODEL_COVER_PAGE_PREVIEW;
                                         steps->meta.LPub.subModel.showStepNum.setValue(stepNum);
                                         QFuture<int> future = QtConcurrent::run([&]() {
