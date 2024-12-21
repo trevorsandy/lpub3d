@@ -340,11 +340,14 @@ void lcView::ShowTrainTrackPopup()
 
 	ListView->SetCustomParts(Parts);
 
-	connect(ListView, &QListView::doubleClicked, [Menu, ListView, ActiveModel]()
-		{
-			ActiveModel->AddPiece(ListView->GetCurrentPart());
-			Menu->close();
-		});
+	connect(ListView, &QListView::doubleClicked, [this, Menu, ListView, ActiveModel]()
+	{
+		ActiveModel->AddPiece(ListView->GetCurrentPart(), mTrackToolSection);
+		lcObject* Focus = ActiveModel->GetFocusObject();
+		if (Focus && Focus->IsPiece())
+			ActiveModel->UpdateTrainTrackConnections((lcPiece*)Focus);
+		Menu->close();
+	});
 
 	Menu->exec(QCursor::pos());
 
@@ -1032,9 +1035,9 @@ void lcView::OnDraw()
 		lcModel* ActiveModel = GetActiveModel();
 
 		if ((Tool == lcTool::Select || Tool == lcTool::Move) && mTrackButton == lcTrackButton::None && ActiveModel->AnyObjectsSelected())
-			mViewManipulator->DrawSelectMove(mTrackButton, mTrackTool);
+			mViewManipulator->DrawSelectMove(mTrackButton, mTrackTool, mTrackToolSection);
 		else if (GetCurrentTool() == lcTool::Move && mTrackButton != lcTrackButton::None)
-			mViewManipulator->DrawSelectMove(mTrackButton, mTrackTool);
+			mViewManipulator->DrawSelectMove(mTrackButton, mTrackTool, mTrackToolSection);
 		else if ((Tool == lcTool::Rotate || (Tool == lcTool::Select && mTrackButton != lcTrackButton::None && mTrackTool >= lcTrackTool::RotateX && mTrackTool <= lcTrackTool::RotateXYZ)) && ActiveModel->CanRotateSelection())
 /*** LPub3D Mod - Rotate step angles ***/
 		{
@@ -2284,7 +2287,6 @@ void lcView::UpdateTrackTool()
 			std::tie(NewTrackTool, NewTrackSection) = mViewManipulator->UpdateSelectMove();
 			mTrackToolFromOverlay = NewTrackTool != lcTrackTool::MoveXYZ && NewTrackTool != lcTrackTool::Select;
 			Redraw = NewTrackTool != mTrackTool || NewTrackSection != mTrackToolSection;
-			mTrackToolSection = NewTrackSection;
 
 			if (CurrentTool == lcTool::Select && NewTrackTool == lcTrackTool::Select && mMouseModifiers == Qt::NoModifier)
 			{
@@ -2405,6 +2407,8 @@ void lcView::UpdateTrackTool()
 	}
 
 	mTrackTool = NewTrackTool;
+	mTrackToolSection = NewTrackSection;
+
 	UpdateCursor();
 
 	if (Redraw)

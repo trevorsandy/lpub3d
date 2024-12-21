@@ -2516,7 +2516,7 @@ bool lcModel::RemoveCameraIndex(size_t CameraIdx)
 }
 /*** LPub3D Mod end ***/
 
-void lcModel::AddPiece(PieceInfo* PieceInfo)
+void lcModel::AddPiece(PieceInfo* PieceInfo, quint32 Section)
 {
 	if (!PieceInfo)
 		PieceInfo = gMainWindow->GetCurrentPieceInfo();
@@ -2544,7 +2544,7 @@ void lcModel::AddPiece(PieceInfo* PieceInfo)
 
 		if (PieceInfo->GetTrainTrackInfo() && Last->mPieceInfo->GetTrainTrackInfo())
 		{
-			std::optional<lcMatrix44> TrainTrackTransform = lcTrainTrackInfo::GetPieceInsertTransform(Last, PieceInfo);
+			std::optional<lcMatrix44> TrainTrackTransform = lcTrainTrackInfo::GetPieceInsertTransform(Last, PieceInfo, Section);
 
 			if (TrainTrackTransform)
 			{

@@ -2896,7 +2896,7 @@ void Preferences::rendererPreferences()
     updatePOVRayIniFile(SkipExisting);
 
     // Blender config file path
-    blenderConfigDir = QString("%1/Blender/setup/addon_setup/config").arg(lpub3d3rdPartyConfigDir);
+    blenderConfigDir = QString("%1/Blender/addons/%2/config").arg(lpub3d3rdPartyConfigDir).arg(BLENDER_RENDER_ADDON_FOLDER);
 
     // Blender LDraw config file
     QString const blenderLDrawConfigFileKey("BlenderLDrawConfigFile");
