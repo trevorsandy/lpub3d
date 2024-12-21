@@ -165,6 +165,7 @@ private slots:
     void redraw();
     void update(bool state);
     void deleteSelection();
+    void selectLine();
     void enableSave();
     void highlightCurrentLine();
     void topOfDocument();
@@ -309,6 +310,7 @@ protected:
     QAction  *updateAct;
     QAction  *delAct;
     QAction  *selAllAct;
+    QAction  *selLineAct;
     QAction  *findAct;
     QAction  *toggleCmmentAct;
     QAction  *showAllCharsAct;

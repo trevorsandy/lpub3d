@@ -605,6 +605,13 @@ void EditWindow::createActions()
     lpub->actions.insert(delAct->objectName(), Action(QStringLiteral("File.Delete"), delAct));
     connect(delAct, SIGNAL(triggered()), this, SLOT(deleteSelection()));
 
+    selLineAct = new QAction(QIcon(":/resources/selectline.png"), tr("Select &Line"), this);
+    selLineAct->setObjectName("selLineAct.2");
+    selLineAct->setShortcut(QStringLiteral("Ctrl+L"));
+    selLineAct->setStatusTip(tr("Select current line"));
+    lpub->actions.insert(selLineAct->objectName(), Action(QStringLiteral("File.Select Line"), selLineAct));
+    connect(selLineAct, SIGNAL(triggered()), this, SLOT(selectLine()));
+
     selAllAct = new QAction(QIcon(":/resources/selectall.png"), tr("&Select All"), this);
     selAllAct->setObjectName("selAllAct.2");
     selAllAct->setShortcut(QStringLiteral("Ctrl+A"));
@@ -844,6 +851,7 @@ void EditWindow::disableActions()
     updateAct->setEnabled(false);
 
     redrawAct->setEnabled(false);
+    selLineAct->setEnabled(false);
     selAllAct->setEnabled(false);
     findAct->setEnabled(false);
     gotoLineAct->setEnabled(false);
@@ -883,6 +891,7 @@ void EditWindow::enableActions()
     editModelFileAct->setEnabled(true);
 
     redrawAct->setEnabled(true);
+    selLineAct->setEnabled(true);
     selAllAct->setEnabled(true);
     findAct->setEnabled(true);
     gotoLineAct->setEnabled(true);
@@ -991,6 +1000,7 @@ void EditWindow::createToolBars()
     standardToolBar->addAction(copyAct);
     standardToolBar->addAction(pasteAct);
     standardToolBar->addAction(findAct);
+    standardToolBar->addAction(selLineAct);
     standardToolBar->addAction(selAllAct);
     standardToolBar->addAction(showAllCharsAct);
     standardToolBar->addAction(preferencesAct);
@@ -1094,6 +1104,16 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
 #endif
 //*/
     return INVALID_CURRENT_STEP;
+}
+
+void EditWindow::selectLine()
+{
+    QTextCursor cursor = _textEdit->textCursor();
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+    cursor.endEditBlock();
+    _textEdit->setTextCursor(cursor);
 }
 
 void EditWindow::moveSelection(bool moveUp)
@@ -2859,12 +2879,14 @@ void EditWindow::update(bool state)
   updateSig();
 }
 
-void EditWindow::deleteSelection() {
+void EditWindow::deleteSelection()
+{
     _textEdit->cut();
     _textEdit->textCursor().deleteChar();
 }
 
-void EditWindow::clearWindow() {
+void EditWindow::clearWindow()
+{
   _textEdit->document()->clear();
   _textEdit->document()->setModified(false);
   clearEditorHighlightLines();

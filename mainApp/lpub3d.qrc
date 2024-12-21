@@ -295,6 +295,7 @@
         <file alias="select_by_name16.png">resources/select_by_name16.png</file>
         <file alias="select_invert.png">resources/select_invert.png</file>
         <file alias="select_invert16.png">resources/select_invert16.png</file>
+		<file alias="selectline.png">resources/selectline.png</file>
         <file alias="select_none.png">resources/select_none.png</file>
         <file alias="select_none16.png">resources/select_none16.png</file>
         <file alias="selectall.png">resources/selectall.png</file>
