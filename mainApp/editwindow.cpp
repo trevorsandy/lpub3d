@@ -1068,13 +1068,14 @@ int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
     const QString stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineIndex, top.modelIndex,top.lineNumber, bottom.modelIndex, bottom.lineNumber);
 
     if (!stepKey.isEmpty()) {
-        if (lpub->currentStep && lpub->currentStep->viewerStepKey.startsWith(&stepKey))
+        Step *currentStep = lpub->currentStep;
+        if (currentStep && currentStep->viewerStepKey.startsWith(&stepKey))
             return EXISTING_CURRENT_STEP;
 
         // set current step
         lpub->setCurrentStep(stepKey);
 
-        if (lpub->currentStep) {
+        if (currentStep) {
 /* DEBUG - COMMENT TO ENABLE
 #ifdef QT_DEBUG_MODE
             emit lpub->messageSig(LOG_DEBUG,tr("Loaded step for line %1 model: %2, page: %3, step: %4, line scope: %5-%6")
@@ -1172,9 +1173,14 @@ bool EditWindow::setValidPartLine()
     bool isSubstituteAlt = false;
     bool isDisplayType = false;
     bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
-    if (lpub->currentStep) isDisplayType = lpub->currentStep->displayStep != DT_DEFAULT;
+    const int lineNumber = cursor.blockNumber();
+    const bool stepSet = modelFileEdit() ? false : setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
+
+    Step *currentStep = lpub->currentStep;
+    if (currentStep) isDisplayType = currentStep->displayStep != DT_DEFAULT;
 
     enablePartLineTools(false);
+
     if (isReadOnly) {
         editColorAct->setVisible(false);
         editPartAct->setVisible(false);
@@ -1231,15 +1237,12 @@ bool EditWindow::setValidPartLine()
     else
         return false;
 
-    const int lineNumber = cursor.blockNumber();
-    const bool stepSet = modelFileEdit() ? false : setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
-
     // substitute partKey
     QString subPartKey = QString("%1|%2").arg(QFileInfo(partType).completeBaseName()).arg(QString::number(colorCode));
 
     // set substitute flag
-    if (lpub->currentStep && stepSet && !isSubstitute) {
-        const PliPart* pliPart = lpub->currentStep->pli.getPart(QString(subPartKey).replace("|","_"));
+    if (currentStep && stepSet && !isSubstitute) {
+        const PliPart* pliPart = currentStep->pli.getPart(QString(subPartKey).replace("|","_"));
         if (pliPart)
             isSubstituteAlt = pliPart->subType;
         // we have a partType that is not in the PLI so check if it is an excluded part
@@ -1341,7 +1344,8 @@ void EditWindow::showContextMenu(const QPoint &pt)
     if (!fileName.isEmpty()) {
         bool isPliControlFile = modelFileEdit() && fileName == Preferences::pliControlFile;
         bool isDisplayType = false;
-        if (lpub->currentStep) isDisplayType = lpub->currentStep->displayStep != DT_DEFAULT;
+        Step *currentStep = lpub->currentStep;
+        if (currentStep) isDisplayType = currentStep->displayStep != DT_DEFAULT;
         if (_subFileListPending) {
             emit getSubFileListSig();
             while (_subFileListPending)
@@ -1556,26 +1560,25 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
     box.setStandardButtons (QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     box.setDefaultButton   (QMessageBox::Save);
     box.setWindowTitle("Substitute PLI Part");
-
-    if (lpub->currentStep) {
-        Step* step = lpub->currentStep;
+    Step *currentStep = lpub->currentStep;
+    if (currentStep) {
         const QString key = QString("%1_%2").arg(elements.at(sType)).arg(elements.at(sColorCode));
-        const PliPart* pliPart = step->pli.getPart(key);
+        const PliPart* pliPart = currentStep->pli.getPart(key);
         if (pliPart) {
             QStringList defaultList;
             if (action == sUpdate) {
-                const float modelScale = step->pli.pliMeta.modelScale.value();
-                const bool customViewpoint = step->pli.pliMeta.cameraAngles.customViewpoint();
-                const bool noCA = !customViewpoint && step->pli.pliMeta.rotStep.value().type.toUpper() == QLatin1String("ABS");
+                const float modelScale = currentStep->pli.pliMeta.modelScale.value();
+                const bool customViewpoint = currentStep->pli.pliMeta.cameraAngles.customViewpoint();
+                const bool noCA = !customViewpoint && currentStep->pli.pliMeta.rotStep.value().type.toUpper() == QLatin1String("ABS");
                 defaultList.append(QString::number(double(modelScale)));
-                defaultList.append(QString::number(double(step->pli.pliMeta.cameraFoV.value())));
-                defaultList.append(QString::number(noCA ? double(0.0f) : double(step->pli.pliMeta.cameraAngles.value(0))));
-                defaultList.append(QString::number(noCA ? double(0.0f) : double(step->pli.pliMeta.cameraAngles.value(1))));
+                defaultList.append(QString::number(double(currentStep->pli.pliMeta.cameraFoV.value())));
+                defaultList.append(QString::number(noCA ? double(0.0f) : double(currentStep->pli.pliMeta.cameraAngles.value(0))));
+                defaultList.append(QString::number(noCA ? double(0.0f) : double(currentStep->pli.pliMeta.cameraAngles.value(1))));
                 defaultList.append(QString(QString("%1 %2 %3")
-                                           .arg(double(step->pli.pliMeta.target.x()))
-                                           .arg(double(step->pli.pliMeta.target.y()))
-                                           .arg(double(step->pli.pliMeta.target.z()))).split(" "));
-                defaultList.append(QString(renderer->getRotstepMeta(step->pli.pliMeta.rotStep,true)).split("_"));
+                                           .arg(double(currentStep->pli.pliMeta.target.x()))
+                                           .arg(double(currentStep->pli.pliMeta.target.y()))
+                                           .arg(double(currentStep->pli.pliMeta.target.z()))).split(" "));
+                defaultList.append(QString(renderer->getRotstepMeta(currentStep->pli.pliMeta.rotStep,true)).split("_"));
             }
             // treat parts with '_' in the name - encode
             if (pliPart->type.count("_")) {
