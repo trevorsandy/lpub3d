@@ -3437,11 +3437,6 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
         setGoToPageCombo->setStatusTip("Use dropdown to select page");
         setGoToPageCombo->setEnabled(false);
 
-        progressLabel = new QLabel(this);
-        progressLabel->setMinimumWidth(200);
-        progressBar = new QProgressBar();
-        progressBar->setMaximumWidth(300);
-
         progressLabelPerm = new QLabel();
         progressLabelPerm->setMinimumWidth(200);
         progressBarPerm = new QProgressBar();
@@ -3471,19 +3466,7 @@ Gui::Gui() : pageMutex(QMutex::Recursive)
         connect (m_progressDialog, SIGNAL (cancelClicked()),
                 this,             SLOT (  cancelExporting()));
 
-        connect(this, SIGNAL(progressBarInitSig()),
-                this, SLOT(  progressBarInit()));
-        connect(this, SIGNAL(progressMessageSig(const QString &)),
-                this, SLOT(  progressBarSetText(const QString &)));
-        connect(this, SIGNAL(progressRangeSig(int,int)),
-                this, SLOT(  progressBarSetRange(int,int)));
-        connect(this, SIGNAL(progressSetValueSig(int)),
-                this, SLOT(  progressBarSetValue(int)));
-        connect(this, SIGNAL(progressResetSig()),
-                this, SLOT(  progressBarReset()));
-        connect(this, SIGNAL(progressStatusRemoveSig()),
-                this, SLOT(  progressStatusRemove()));
-
+        // Gui - right side progress bar
         connect(this, SIGNAL(progressBarPermInitSig()),
                 this, SLOT(  progressBarPermInit()));
         connect(this, SIGNAL(progressPermMessageSig(const QString &)),
@@ -3948,52 +3931,6 @@ void Gui::reloadModelFileAfterColorFileGen() {
             box.setDefaultButton   (QMessageBox::Ok);
             box.exec();
         }
-    }
-}
-
-// left side progress bar - no longer used
-void Gui::progressBarInit() {
-  if (Gui::okToInvokeProgressBar()) {
-      gui->progressBar->setMaximumHeight(15);
-      gui->statusBar()->addWidget(gui->progressLabel);
-      gui->statusBar()->addWidget(gui->progressBar);
-      gui->progressLabel->setAlignment(Qt::AlignRight);
-      gui->progressLabel->show();
-      gui->progressBar->show();
-  }
-}
-
-void Gui::progressBarSetText(const QString &progressText)
-{
-  if (Gui::okToInvokeProgressBar()) {
-      gui->progressLabel->setText(progressText);
-      emit gui->messageSig(LOG_INFO, progressText);
-    }
-}
-void Gui::progressBarSetRange(int minimum, int maximum)
-{
-  if (Gui::okToInvokeProgressBar()) {
-      gui->progressBar->setRange(minimum,maximum);
-    }
-}
-void Gui::progressBarSetValue(int value)
-{
-  if (Gui::okToInvokeProgressBar()) {
-      gui->progressBar->setValue(value);
-      QApplication::processEvents();
-    }
-}
-void Gui::progressBarReset()
-{
-  if (Gui::okToInvokeProgressBar()) {
-      gui->progressBar->reset();
-    }
-}
-
-void Gui::progressStatusRemove() {
-  if (Gui::okToInvokeProgressBar()) {
-      gui->statusBar()->removeWidget(gui->progressBar);
-      gui->statusBar()->removeWidget(gui->progressLabel);
     }
 }
 

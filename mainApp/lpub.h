@@ -1477,14 +1477,6 @@ public slots:
   static void UpdateAllViews();
   static void ReloadVisualEditor();
 
-  // left side progress bar
-  void progressBarInit();
-  void progressBarSetText(const QString &progressText);
-  void progressBarSetRange(int minimum, int maximum);
-  void progressBarSetValue(int value);
-  void progressBarReset();
-  void progressStatusRemove();
-
   // right side progress bar
   void progressBarPermInit();
   void progressBarPermSetText(const QString &progressText);
@@ -1711,9 +1703,7 @@ private:
   lcPreview             *preview;
   EditWindow            *editWindow;         // the sub file editable by the user
   EditWindow            *editModeWindow;     // the model file editable by the user in
-  QProgressBar          *progressBar;        // left side progress bar
   QProgressBar          *progressBarPerm;    // Right side progress bar
-  QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  // 
   WaitingSpinnerWidget  *waitingSpinner;     // waiting spinner animation
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
