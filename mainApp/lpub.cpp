@@ -429,9 +429,15 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool silent/*true*/, bool fil
   if (Gui::m_lastDisplayedPage && Preferences::modeGUI) {
     QSettings Settings;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY))) {
-      bool wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
-      if (!wasExporting)
-        goToPageNum = Settings.value(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)).toInt();
+      int validValue = Settings.value(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)).toInt();
+      if (validValue) {
+        bool wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
+        if (wasExporting)
+          Gui::m_lastDisplayedPage = false;
+        else
+          goToPageNum = validValue;
+      } else
+        Gui::m_lastDisplayedPage = false;
     }
   }
 
@@ -867,15 +873,10 @@ bool Gui::continuousPageDialog(PageDirection d)
       // check if possible to load last opened page
       if (Gui::m_lastDisplayedPage) {
           QSettings Settings;
-          if (Settings.contains(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY))) {
-              bool wasExporting = Settings.value(QString("%1/%2").arg(RESTART, RESTART_EXPORTING_KEY)).toBool();
-              if (!wasExporting) {
-                  goToPageNum = Settings.value(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)).toInt();
-                  pageLineEditText = QString("%1-%2").arg(Gui::displayPageNum).arg(goToPageNum);
-                  displayPause = PAGE_CYCLE_DISPLAY_DEFAULT;
-                  Preferences::doNotShowPageProcessDlg = true;
-              }
-          }
+          goToPageNum = Settings.value(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)).toInt();
+          pageLineEditText = QString("%1-%2").arg(Gui::displayPageNum).arg(goToPageNum);
+          displayPause = PAGE_CYCLE_DISPLAY_DEFAULT;
+          Preferences::doNotShowPageProcessDlg = true;
       }
 
       if (Preferences::doNotShowPageProcessDlg) {

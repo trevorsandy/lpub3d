@@ -6202,8 +6202,12 @@ bool Preferences::getPreferences()
         {
             loadLastDisplayedPage = dialog->loadLastDisplayedPage();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LoadLastDisplayedPage"),loadLastDisplayedPage);
-            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Restore Last Opened Page on Restart is %1")
-                                  .arg(loadLastOpenedFile ? On : Off));
+            if (!loadLastDisplayedPage) {
+                if (Settings.contains(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)))
+                    Settings.setValue(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY),QVariant(0));
+            }
+            emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Restore Last Opened Page on Last Opened File is %1")
+                                  .arg(loadLastDisplayedPage ? On : Off));
         }
 
         if (extendedSubfileSearch != dialog->extendedSubfileSearch())
