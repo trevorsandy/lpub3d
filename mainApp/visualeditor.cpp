@@ -1235,16 +1235,14 @@ void Gui::PreviewPiece(const QString &partType, int colorCode, bool dockable, QR
         return;
     } else {
         gui->preview = new lcPreview();
-        lcViewWidget* viewWidget = new lcViewWidget(nullptr, gui->preview);
-
-        if (gui->preview && viewWidget)
-        {
-            viewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-
-            if (gui->preview->SetCurrentPiece(partType, colorCode))
-            {
-                viewWidget->SetPreviewPosition(parentRect, position);
-                return;
+        if (gui->preview) {
+            lcViewWidget* viewWidget = new lcViewWidget(nullptr, gui->preview);
+            if (viewWidget) {
+                viewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+                if (gui->preview->SetCurrentPiece(partType, colorCode)) {
+                    viewWidget->SetPreviewPosition(parentRect, position);
+                    return;
+                }
             }
         }
     }
