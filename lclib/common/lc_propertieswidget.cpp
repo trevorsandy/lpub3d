@@ -322,7 +322,7 @@ void lcPropertiesWidget::FloatChanged()
 
 		Model->RotateSelectedObjects(Rotation - InitialRotation, true, false, true, true);
 	}
-	else if ( Piece || Light )
+	else if (Piece || Light)
 	{
 		Model->SetObjectsProperty(mFocusObject ? std::vector<lcObject*>{ mFocusObject } : mSelection, PropertyId, Value);
 	}
