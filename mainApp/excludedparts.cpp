@@ -32,7 +32,6 @@ ExcludedParts::ExcludedParts()
     qRegisterMetaType<Part>("Part");
     qRegisterMetaType<ExcludedPartType>("ExcludedPartType");
     if (excludedParts.size() == 0) {
-        bool rxFound = false;
         QString excludedPartsFile = Preferences::excludedPartsFile;
         QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
         QRegExp helperRx("^Helper", Qt::CaseInsensitive);
@@ -58,7 +57,7 @@ ExcludedParts::ExcludedParts()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+                if (sLine.contains(rxin)) {
                    rx.setPattern(rxin.cap(1));
                    //logDebug() << "ExcludedParts RegExp Pattern: " << rxin.cap(1);
                    break;

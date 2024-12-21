@@ -1282,7 +1282,6 @@ static const QString messageInsert(QObject::tr("Failed to open %1.<br>"
 Annotations::Annotations()
 {
     returnString = QString();
-    bool rxFound = false;
     AnnotationErrors.clear();
 
     QString message, title;
@@ -1304,7 +1303,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+				if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "TitleAnnotations RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1358,7 +1357,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+				if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "FreeFormAnnotations RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1396,7 +1395,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+				if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "AnnotationStyle RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1458,7 +1457,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+				if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "Bricklink Colors RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1512,7 +1511,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+				if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "LD2BL ColorsXRef RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1566,7 +1565,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+				if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "LD2BL CodesXRef RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1622,7 +1621,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+				if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "LD2RB ColorsXRef RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1676,7 +1675,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+				if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "LD2RB CodesXRef RegExp Pattern: " << rxin.cap(1);
                     break;

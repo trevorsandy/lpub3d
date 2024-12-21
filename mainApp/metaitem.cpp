@@ -1044,7 +1044,7 @@ int MetaItem::removeLastStep(
       if (rc == StepGroupDividerRc) {             // (DIVIDER)
         divider = thirdStep;
         ++thirdStep;
-        rc = scanForwardStepGroup(thirdStep);
+        scanForwardStepGroup(thirdStep);
       }
 
   //-----------------------------------------------------
@@ -1157,19 +1157,15 @@ void MetaItem::addPrevMultiStep(
   // STEP PART STEP END       PART STEP BEGIN PART STEP PART STEP END
   // STEP PART STEP END BEGIN PART STEP       PART STEP PART STEP END
 
-  if (firstChange) {
+  if (firstChange)
     beginMacro("AddPreviousStep2");
-    firstChange = false;
-  }
 
   // Handle end of step/group
-  if (rc1 == EndOfFileRc && partsAdded) {
+  if (rc1 == EndOfFileRc && partsAdded)
     insertMeta(walk,step);
-  }
 
-  if (begin.lineNumber == 0) {
+  if (begin.lineNumber == 0)
     appendMeta(walk,stepGroupEnd);
-  }
 
   Where prevStep = topOfSteps - 1;
   scanBackward(prevStep,StepMask);
@@ -3088,9 +3084,8 @@ void MetaItem::insertPicture()
         filePath = filePath.replace(cwd,".");
     QString meta = QString("0 !LPUB INSERT PICTURE \"%1\" OFFSET 0.5 0.5") .arg(filePath);
     Where insertPosition;
-    bool multiStep = false;
     if (lpub->currentStep) {
-        if ((multiStep = lpub->currentStep->multiStep))
+        if (lpub->currentStep->multiStep)
             insertPosition = lpub->currentStep->bottomOfSteps() - 1;
         else
             insertPosition = lpub->currentStep->topOfStep();

@@ -32,7 +32,6 @@ QMap<QString, QString>  PliSubstituteParts::substituteParts;
 PliSubstituteParts::PliSubstituteParts()
 {
     if (substituteParts.size() == 0) {
-        bool rxFound = false;
         QString substitutePartsFile = Preferences::pliSubstitutePartsFile;
         if (!substitutePartsFile.isEmpty()) {
             QFile file(substitutePartsFile);
@@ -56,7 +55,7 @@ PliSubstituteParts::PliSubstituteParts()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "SubstituteParts RegExp Pattern: " << rxin.cap(1);
                     break;

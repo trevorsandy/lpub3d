@@ -1082,12 +1082,6 @@ bool PointerItem::rectLineIntersect(
         intersect.setY(height);
       } else {
         placement = Left;
-        int y = intersect_left.y();
-        y = y < base
-              ? base
-              : y > height - base
-                ? height - base
-                : y;
         intersect.setY(intersect_left.y());
       }
       intersect.setX(0);
