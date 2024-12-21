@@ -112,9 +112,14 @@ public:
       ldsearchDirPreferences();
     }
 
-    void populateUpdateSearcDirs(const QStringList &searchDirs)
+    void populateUpdateSearchDirs(const QStringList &searchDirs)
     {
       _updateLDSearchDirs = searchDirs;
+    }
+
+    QStringList &getUpdateSearchDirs()
+    {
+      return _updateLDSearchDirs;
     }
 
     void ldsearchDirPreferences();

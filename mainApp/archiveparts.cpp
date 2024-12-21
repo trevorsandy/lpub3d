@@ -30,12 +30,13 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  *
  */
 bool ArchiveParts::Archive(
-    const QString &zipArchive,
-    const QDir &dir,
-    QString &result,
-    int &resultSeverity,
-    const QString &comment,
-    bool overwriteCustomPart) {
+        const QString &zipArchive,
+        const QDir &dir,
+        QString &result,
+        int &resultSeverity,
+        const QString &comment,
+        bool overwriteCustomPart)
+{
 
   //qDebug() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
 
@@ -395,4 +396,11 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
       list << finfo.filePath();
     }
   }
+}
+
+int ArchiveParts::ProcessedParts(const QString &dir)
+{
+    QStringList processedParts;
+    ArchiveParts::RecurseAddDir(dir, processedParts);
+    return processedParts.count();
 }

@@ -4318,19 +4318,23 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
   if (Process)
       gui->partWorkerLDSearchDirs.ldsearchDirPreferences();
 
-  QStringList items = Preferences::ldSearchDirs;
   QString message;
-  if (items.count()) {
-      message = tr("Archiving search directory parts. Please wait...");
+  int partCount = 0;
+  int searchDirs = gui->partWorkerLDSearchDirs.getUpdateSearchDirs().count();
+  if (searchDirs > 1)
+      for (QString const &dirPath : gui->partWorkerLDSearchDirs.getUpdateSearchDirs())
+          partCount += ArchiveParts::ProcessedParts(dirPath);
+  if (searchDirs) {
+      message = tr("Archiving %1. Please wait...").arg(partCount > 1 ? QString("%1 search directory parts").arg(partCount) : tr("search directory"));
       emit gui->messageSig(LOG_INFO_STATUS,message);
       gui->m_progressDialog->setWindowFlags(gui->m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
-      gui->m_progressDialog->setWindowTitle(QString("LDraw Archive Library Update"));
-      gui->m_progressDialog->setLabelText(QString("Archiving search directory parts..."));
-      if (OnDemand) {
+      gui->m_progressDialog->setWindowTitle(tr("LDraw Archive Library Update"));
+      gui->m_progressDialog->setLabelText(tr("Archiving search directory parts..."));
+      if (OnDemand || searchDirs == 1) {
           gui->m_progressDialog->setRange(0,0);
           gui->m_progressDialog->setValue(1);
       } else {
-          gui->m_progressDialog->setRange(0,items.count());
+          gui->m_progressDialog->setRange(0,partCount);
       }
       gui->m_progressDialog->setAutoHide(true);
       gui->m_progressDialog->setModal(true);
@@ -4343,48 +4347,49 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       job->moveToThread(thread);
       QEventLoop *wait = new QEventLoop();
 
-      disconnect (gui->m_progressDialog, SIGNAL (cancelClicked()),
-                  gui,                   SLOT (cancelExporting()));
+      disconnect (gui->m_progressDialog, SIGNAL(cancelClicked()),
+                  gui,                   SLOT(  cancelExporting()));
       connect(gui->m_progressDialog,     SIGNAL(cancelClicked()),
-              job,                       SLOT(requestEndThreadNow()));
-      connect(job,                       SIGNAL(progressMessageSig (QString)),
-              gui->m_progressDialog,     SLOT(setLabelText(QString)));
+              job,                       SLOT(  requestEndThreadNow()));
+      connect(job,                       SIGNAL(progressMessageSig(QString)),
+              gui->m_progressDialog,     SLOT(  setLabelText(QString)));
       if (!OnDemand)
           connect(job,                   SIGNAL(progressSetValueSig(int)),
-              gui->m_progressDialog,     SLOT(setValue(int)));
+              gui->m_progressDialog,     SLOT(  setValue(int)));
 
       if (Update)
           connect(thread,           SIGNAL(started()),
-                  job,              SLOT(updateLDSearchDirsParts()));
+                  job,              SLOT(  updateLDSearchDirsParts()));
       else
           connect(thread,           SIGNAL(started()),
-                  job,              SLOT(processLDSearchDirParts()));
+                  job,              SLOT(  processLDSearchDirParts()));
 
       connect(thread,               SIGNAL(finished()),
-              thread,               SLOT(deleteLater()));
+              thread,               SLOT(  deleteLater()));
       connect(job,                  SIGNAL(partsArchiveResultSig(int)),
-              gui,                  SLOT(workerJobResult(int)));
+              gui,                  SLOT(  workerJobResult(int)));
       connect(gui,                  SIGNAL(requestEndThreadNowSig()),
-              job,                  SLOT(requestEndThreadNow()));
+              job,                  SLOT(  requestEndThreadNow()));
       connect(job,                  SIGNAL(partsArchiveFinishedSig()),
-              thread,               SLOT(quit()));
+              thread,               SLOT(  quit()));
 
       if (OnDemand)
           connect(job,              SIGNAL(partsArchiveFinishedSig()),
-                  job,              SLOT(deleteLater()));
+                  job,              SLOT(  deleteLater()));
 
       wait->connect(job,            SIGNAL(partsArchiveFinishedSig()),
-                    wait,           SLOT(quit()));
+                    wait,           SLOT(  quit()));
 
       gui->workerJobResult(0);
       thread->start();
-      wait->exec();
+      while(wait->exec())
+          QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
-      if (!OnDemand)
-          gui->m_progressDialog->setValue(items.count());
+      if (!OnDemand && searchDirs > 1)
+          gui->m_progressDialog->setValue(partCount);
 
-      connect (gui->m_progressDialog, SIGNAL (cancelClicked()),
-               gui,                   SLOT (cancelExporting()));
+      connect (gui->m_progressDialog, SIGNAL(cancelClicked()),
+               gui,                   SLOT(  cancelExporting()));
 
       gui->m_progressDialog->hide();
       QString partsLabel = gui->m_workerJobResult == 1 ? "part" : "parts";
@@ -8075,6 +8080,10 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
       QStringList validDirs, invalidDirs, newDirs;
 
       for (const QString &searchDir : searchDirs) {
+
+        // empty line with carriage return
+        if (searchDir == "")
+            continue;
 
         bool match = false;
         const QString dir = QDir::toNativeSeparators(searchDir);

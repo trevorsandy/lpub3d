@@ -25,9 +25,9 @@ class ArchiveParts : public QObject
 
 public:
   explicit ArchiveParts(QObject *parent = 0);
-  ~ArchiveParts()
-  {}
-  static bool Archive(const QString &zipArchive,
+  ~ArchiveParts() {}
+  static bool Archive(
+      const QString &zipArchive,
       const QDir &dir,
             QString &result,
             int &resultSeverity, /* 1=error,2=warning */
@@ -37,6 +37,8 @@ public:
     static void RecurseAddDir(
       const QDir &dir,
       QStringList &list);
+
+    static int ProcessedParts(const QString &dir);
 
     static bool GetExistingArchiveFileList(
             QStringList &zipDirFileList,

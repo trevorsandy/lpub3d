@@ -1133,8 +1133,8 @@ bool PartWorker::createCustomPartFiles(const PartType partType, bool  overwriteC
                         // generate custom color entry
                         QString const colourCode = tokens[1];
                         // add color line to local list - always request to create entry
-						if (!Gui::colourEntryExist(customPartColourList,colourCode,partType))
-							customPartColourList << Gui::createColourEntry(colourCode,partType);
+                        if (!Gui::colourEntryExist(customPartColourList,colourCode,partType))
+                            customPartColourList << Gui::createColourEntry(colourCode,partType);
                         // set custom color - if fadeStepsUseColour, do not add custom color prefix
                         tokens[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
                     }
@@ -1356,25 +1356,27 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
 
   int partCount = 0;
   int totalPartCount = 0;
+  int searchDirs = ldPartsDirs.size();
   QString summary;
 
   tf.start();
 
-  //emit progressMessageSig(tr("Archiving %1 parts...\nProcessing: %2")
-  //                        .arg(comment).arg(QDir::toNativeSeparators(ldPartsDirs[0])));
-
-  for (int i = 0; i < ldPartsDirs.size() && endThreadNotRequested(); i++) {
+  for (int i = 0; i < searchDirs && endThreadNotRequested(); i++) {
       t.start();
 
       QDir partDir(ldPartsDirs[i]);
 
-  //    emit progressSetValueSig(i);
-
       emitSplashMessage(tr("60% - Archiving %1, please wait...")
-                           .arg(QDir(ldPartsDirs[i]).dirName()));
+                           .arg(partDir.dirName()));
+
+      emit progressMessageSig(tr("Archiving %1 parts...\nProcessing: %2")
+                              .arg(comment).arg(partDir.absolutePath()));
+
+      if (searchDirs > 1)
+          emit progressSetValueSig(ArchiveParts::ProcessedParts(partDir.absolutePath()));
 
       if (!archiveParts.Archive( archiveFile,
-                                 partDir.absolutePath(),
+                                 partDir,
                                  returnMessage,
                                  returnMessageSeverity,
                                  tr("Append %1 parts").arg(comment),
@@ -1386,20 +1388,21 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
              emit gui->messageSig(LOG_NOTICE,returnMessage);
          continue;
       }
+
       bool ok;
       partCount = returnMessage.toInt(&ok);
       if (ok) {
           totalPartCount += partCount;
-          summary = totalPartCount == 0 ? "parts" :
+          summary = totalPartCount == 0 ? tr("parts") :
                     totalPartCount == 1 ? tr("[Total %1] part").arg(totalPartCount) :
                                           tr("[Total %1] parts").arg(totalPartCount);
       }
 
-   //   emit progressMessageSig(tr("Archiving %1 parts...\nProcessing: %2\nArchived %3 %4")
-   //                              .arg(comment)
-   //                              .arg(QDir::toNativeSeparators(ldPartsDirs[i]))
-   //                              .arg(partCount)
-   //                              .arg(summary));
+      emit progressMessageSig(tr("Archiving %1 parts...\nProcessing: %2\nArchived %3 %4")
+                                 .arg(comment)
+                                 .arg(partDir.absolutePath())
+                                 .arg(partCount)
+                                 .arg(summary));
 
       emit gui->messageSig(LOG_INFO, tr("Archived %1 %2 from %3 %4")
                                         .arg(partCount)
