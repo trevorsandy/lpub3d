@@ -37,6 +37,10 @@ lcModelListDialog::lcModelListDialog(QWidget* Parent, const std::vector<std::uni
 	QSettings Settings;
 	ui->SetActiveModel->setChecked(Settings.value("Settings/ModelListSetActive", true).toBool());
 
+/*** LPub3D Mod - step submodels ***/
+	setWindowTitle(tr("Step %1").arg(ui->ModelList->count() > 1 ? tr("Submodels") : tr("Submodel")));
+/*** LPub3D Mod end ***/
+
 	UpdateButtons();
 }
 
@@ -97,6 +101,11 @@ void lcModelListDialog::UpdateButtons()
 
 	ui->MoveUp->setEnabled(MoveUp);
 	ui->MoveDown->setEnabled(MoveDown);
+
+/*** LPub3D Mod - step submodels ***/
+	ui->NewModel->setVisible(false);
+	ui->DeleteModel->setVisible(false);
+/*** LPub3D Mod end ***/
 }
 
 void lcModelListDialog::accept()

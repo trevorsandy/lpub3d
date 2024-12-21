@@ -139,11 +139,14 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_PIECE_RESET_PIVOT_POINT]->setObjectName("ResetPivotPointAct.4");
     lpub->actions.insert("ResetPivotPointAct.4", Action(QStringLiteral("3DViewer.Reset Pivot Point"), gMainWindow->mActions[LC_PIECE_RESET_PIVOT_POINT]));
 
-    //gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]->setObjectName("EditSelectedSubmodelAct.4");
-    //lpub->actions.insert("EditSelectedSubmodelAct.4", Action(QStringLiteral("3DViewer.Edit Selected Submodel"), gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]));
+    gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]->setObjectName("EditSelectedSubmodelAct.4");
+    lpub->actions.insert("EditSelectedSubmodelAct.4", Action(QStringLiteral("3DViewer.Edit Selected Submodel"), gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]));
 
-    //gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]->setObjectName("EndSubmodelEditAct.4");
-    //lpub->actions.insert("EndSubmodelEditAct.4", Action(QStringLiteral("3DViewer.End Submodel Editing"), gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]));
+    gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]->setObjectName("EndSubmodelEditAct.4");
+    lpub->actions.insert("EndSubmodelEditAct.4", Action(QStringLiteral("3DViewer.End Submodel Editing"), gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]));
+
+    gMainWindow->mActions[LC_MODEL_LIST]->setObjectName("SubmodelListAct.4");
+    lpub->actions.insert("SubmodelListAct.4", Action(QStringLiteral("3DViewer.Submodel List"), gMainWindow->mActions[LC_MODEL_LIST]));
 
     gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]->setObjectName("EditResetTransformAct.4");
     lpub->actions.insert("EditResetTransformAct.4", Action(QStringLiteral("3DViewer.Tools.Transform.Apply Transform"), gMainWindow->mActions[LC_EDIT_ACTION_RESET_TRANSFORM]));
@@ -840,6 +843,10 @@ void Gui::create3DMenus()
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_DELETE]);
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]);
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_RESET_PIVOT_POINT]);
+     gMainWindow->GetPieceMenu()->addSeparator();
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]);
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_MODEL_LIST]);
      gMainWindow->GetPieceMenu()->addSeparator();
      // Show/Hide Piece menus
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]);

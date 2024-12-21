@@ -367,7 +367,8 @@ lcModel* Project::CreateNewModel(bool ShowModel)
 		if (ActiveView)
 			ActiveView->GetCamera()->SetViewpoint(lcViewpoint::Home);
 
-		gMainWindow->UpdateTitle();
+		if (gMainWindow)
+			gMainWindow->UpdateTitle();
 	}
 	else
 		SetActiveModel(mActiveModel);
