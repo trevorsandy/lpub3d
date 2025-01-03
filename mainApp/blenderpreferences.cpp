@@ -1025,7 +1025,9 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
         connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(update()));
         mUpdateTimer.start(500);
 
-        if (!moduleChange) {
+        // Create Blender config directory
+        QDir configDir(Preferences::blenderConfigDir);
+        if (!moduleChange || !configDir.exists()) {
             mProgressBar = new QProgressBar(mContent);
             mProgressBar->setRange(0,0);
             mProgressBar->setValue(1);
@@ -3136,6 +3138,9 @@ void BlenderPreferences::loadDefaultParameters(QByteArray& buffer, int which)
 bool BlenderPreferences::exportParameterFile() {
 
     QString const parameterFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
+    QDir configDir(Preferences::blenderConfigDir);
+    if(!configDir.exists())
+        configDir.mkpath(".");
     QFile file(parameterFile);
 
     if (!BlenderPreferences::overwriteFile(file.fileName()))
