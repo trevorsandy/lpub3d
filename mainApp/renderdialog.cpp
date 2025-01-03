@@ -763,6 +763,8 @@ void RenderDialog::on_RenderButton_clicked()
                 return;
             }
         } else {
+            ui->RenderProgress->setRange(mBlendProgValue, mBlendProgMax);
+            ui->RenderProgress->setValue(1);
 #ifdef Q_OS_WIN
             mProcess->start(shellProgram, QStringList() << "/C" << script.fileName());
 #else
@@ -840,10 +842,17 @@ void RenderDialog::ReadStdOut()
     QString StdOut = QString(mProcess->readAllStandardOutput());
     mStdOutList.append(StdOut);
     QString renderType;
+    bool progress = false;
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QRegularExpression rxRenderProgress;
+    rxRenderProgress.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+#else
     QRegExp rxRenderProgress;
     rxRenderProgress.setCaseSensitivity(Qt::CaseInsensitive);
-    bool const blenderVersion3 = Preferences::blenderVersion.startsWith("v3");
-    if (blenderVersion3)
+#endif
+    int blenderVersionNum = QString(Preferences::blenderVersion.at(1)).toInt();
+    bool const blenderVersion3OrGreater = blenderVersionNum > 2;
+    if (blenderVersion3OrGreater)
     {
         rxRenderProgress.setPattern("Sample (\\d+)\\/(\\d+)");
         renderType = QLatin1String("Sample");
@@ -851,10 +860,21 @@ void RenderDialog::ReadStdOut()
         rxRenderProgress.setPattern("(\\d+)\\/(\\d+) Tiles");
         renderType = QLatin1String("Tile");
     }
-    if (StdOut.contains(rxRenderProgress))
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QRegularExpressionMatch expression = rxRenderProgress.match(StdOut);
+    if ((progress = expression.hasMatch()))
+    {
+        mBlendProgValue = expression.captured(1).toInt();
+        mBlendProgMax   = expression.captured(2).toInt();
+    }
+#else
+    if ((progress = StdOut.contains(rxRenderProgress)))
     {
         mBlendProgValue = rxRenderProgress.cap(1).toInt();
         mBlendProgMax   = rxRenderProgress.cap(2).toInt();
+    }
+#endif
+    if (progress) {
         ui->RenderProgress->setMaximum(mBlendProgMax);
         ui->RenderProgress->setValue(mBlendProgValue);
         emit gui->messageSig(LOG_INFO, tr("Rendered %1 %2/%3")
