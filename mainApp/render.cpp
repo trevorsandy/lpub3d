@@ -318,6 +318,9 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
 
     // description and name are already added to mono image
     if (imageType != Options::MON) {
+        lines.prepend(QString("0 !LICENSE %1").arg(VER_MODEL_FILE_LICENSE_STR));
+        lines.prepend(QString("0 !LDRAW_ORG %1").arg(VER_UNOFFICIAL_MODEL_STR));
+        lines.prepend(QString("0 Author: %1").arg(Preferences::defaultAuthor));
         lines.prepend(QString("0 Name: %1").arg(modelName));
         lines.prepend(QString("0 %1").arg(baseName));
     }
@@ -4338,25 +4341,26 @@ int Render::createNativeModelFile(
 
       /* add sub model content to nativeRotatedParts file */
       if (! nativeSubfileParts.empty()) {
-          bool _singleSubfile = false;
           QString rotStepLine;
+          int rotStepLineIndex = -1;
           // check if main model and submodel shares the same name
           if (!singleSubfile)
               mpdModel = nativeParts.at(0).startsWith(mpdModelMeta);
           if (mpdModel && nativeParts.at(0) == nativeSubfileParts.at(0)) {
               int typeCount = 0;
               bool mpdModelNotTransformed = false;
-              for (const QString &line : nativeParts) {
+              for (int i = 0; i < nativeParts.count(); i++) {
+                  const QString &line = nativeParts.at(i);
                   if (line[0] != '0') {
                       typeCount++;
                       if (typeCount == 1)
                           mpdModelNotTransformed = line.contains(QLatin1String(" 0 0 0 1 0 0 0 1 0 0 0 1 "));
-                  }
-                  else if (line.startsWith("0 // ROTSTEP "))
+                  } else if (line.startsWith("0 // ROTSTEP ")) {
                       rotStepLine = line;
+                      rotStepLineIndex = i;
+                  }
               }
-              _singleSubfile = mpdModelNotTransformed && nativeSubfiles.size() == 1;
-              if (_singleSubfile) {
+              if (mpdModelNotTransformed && nativeSubfiles.size() == 1) {
                   nativeParts.clear();
                   nativeSubfiles.clear();
               }
@@ -4368,7 +4372,7 @@ int Render::createNativeModelFile(
           }
 
           if (singleSubfile && !rotStepLine.isEmpty())
-              nativeParts.insert(3,rotStepLine);
+              nativeParts.insert(rotStepLineIndex,rotStepLine);
       }
 
       /* remove scenario where main model and submodel share the same name*/
@@ -4427,6 +4431,9 @@ int Render::mergeNativeSubfiles(QStringList &subFiles,
           if (imageType != Options::MON) {
               nativeSubfileParts << QString("0 %1").arg(modelName);
               nativeSubfileParts << QString("0 Name: %1").arg(nativeSubfiles[index]);
+              nativeSubfileParts << QString("0 Author: %1").arg(Preferences::defaultAuthor);
+              nativeSubfileParts << QString("0 !LDRAW_ORG %1").arg(VER_UNOFFICIAL_MODEL_STR);
+              nativeSubfileParts << QString("0 !LICENSE %1").arg(VER_MODEL_FILE_LICENSE_STR);
           }
 
           /* read the actual submodel file */
@@ -4543,6 +4550,9 @@ int Render::mergeSubmodelContent(QStringList &submodelParts)
                 submodelParts << QString("0 FILE %1").arg(submodel);
                 submodelParts << QString("0 %1").arg(modelName);
                 submodelParts << QString("0 Name: %1").arg(submodel);
+                submodelParts << QString("0 Author: %1").arg(Preferences::defaultAuthor);
+                submodelParts << QString("0 !LDRAW_ORG %1").arg(VER_UNOFFICIAL_MODEL_STR);
+                submodelParts << QString("0 !LICENSE %1").arg(VER_MODEL_FILE_LICENSE_STR);
                 submodelParts << content;
                 submodelParts << QLatin1String("0 NOFILE");
                 if (writeContent(content, submodels) != 0)
