@@ -1227,11 +1227,12 @@ public:
 
   static void setNativeRenderer();
 
+  static void SaveCurrent3DViewerModel(const QString &modelFile);
+
   bool compareVersionStr(const QString &first, const QString &second);
 
   void createOpenWithActions(int maxPrograms = 0);
 
-  void saveCurrent3DViewerModel(const QString &modelFile);
 
   QStringList get3DViewerPOVLightList() const;
 

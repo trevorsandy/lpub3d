@@ -249,10 +249,11 @@ enum ExportMode { ERROR_ENCOUNTERED = -3,  //-3 to pass error encountered to vis
                   EXPORT_ELEMENT,          // 12 not implemented from console
                   EXPORT_HTML_PARTS,       // 13
                   EXPORT_HTML_STEPS,       // 14
-                  POVRAY_RENDER,           // 15
-                  BLENDER_RENDER,          // 16
-                  BLENDER_IMPORT,          // 17
-                  GENERATE_BOM             // 18
+                  EXPORT_LDRAW_MODEL,      // 15
+                  POVRAY_RENDER,           // 16
+                  BLENDER_RENDER,          // 17
+                  BLENDER_IMPORT,          // 18
+                  GENERATE_BOM             // 19
 };
 enum PartSource {
     EDITOR_CLR         = -2,               //  -2

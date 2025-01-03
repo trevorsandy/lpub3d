@@ -3164,6 +3164,7 @@ void lcMainWindow::ImportInventory()
 	else
 		delete NewProject;
 }
+
 bool lcMainWindow::SaveProject(const QString& FileName)
 {
 	QString SaveFileName = FileName;
@@ -3311,7 +3312,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_FILE_SAVEAS:
-		SaveProject(QString());
+/*** LPub3D Mod - save current model as ***/
+		Gui::SaveCurrent3DViewerModel(QString());
+		//SaveProject(QString());
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_FILE_SAVE_IMAGE:

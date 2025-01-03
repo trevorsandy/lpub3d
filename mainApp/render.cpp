@@ -4175,7 +4175,7 @@ const QString Render::getRenderModelFile(int renderType, bool saveCurrentModel) 
 
         if (saveCurrentModel) {
             QFuture<void> future = QtConcurrent::run([&]() {
-                gui->saveCurrent3DViewerModel(modelFile);
+                gui->SaveCurrent3DViewerModel(modelFile);
             });
             future.waitForFinished();
         }

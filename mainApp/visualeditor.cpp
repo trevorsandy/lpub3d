@@ -91,6 +91,9 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT]->setObjectName("AreaLightAct.4");
     lpub->actions.insert("AreaLightAct.4", Action(QStringLiteral("3DViewer.Tools.Lights.AreaLight"), gMainWindow->mActions[LC_EDIT_ACTION_AREA_LIGHT]));
 
+    gMainWindow->mActions[LC_FILE_SAVEAS]->setObjectName("SaveAsAct.4");
+    lpub->actions.insert("SaveAsAct.4", Action(QStringLiteral("3DViewer.Save As.LDraw"), gMainWindow->mActions[LC_FILE_SAVEAS]));
+
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setObjectName("SaveImageAct.4");
     lpub->actions.insert("SaveImageAct.4", Action(QStringLiteral("3DViewer.Save Image"), gMainWindow->mActions[LC_FILE_SAVE_IMAGE]));
 
@@ -461,6 +464,11 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE_ROTATION]->setIcon(QIcon(":/resources/edit_transform_absolute_rotation.png"));
     gMainWindow->mActions[LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION]->setIcon(QIcon(":/resources/edit_transform_relative_rotation.png"));
 
+    QIcon FileSaveAsIcon;
+    FileSaveAsIcon.addFile(":/resources/editldraw.png");
+    FileSaveAsIcon.addFile(":/resources/editldraw16.png");
+    gMainWindow->mActions[LC_FILE_SAVEAS]->setIcon(FileSaveAsIcon);
+
     QIcon EditToolsIcon;
     EditToolsIcon.addFile(":/resources/edittools.png");
     EditToolsIcon.addFile(":/resources/edittools16.png");
@@ -698,10 +706,6 @@ void Gui::create3DMenus()
 {
      /*
       * These menu items are displayed under the LPub3D Visual Editor top-level menu item
-      *
-      * Not used
-     FileMenuViewer = menuBar()->addMenu(tr("&Step"));
-     FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
      */
      ViewerExportMenu = new QMenu(tr("&Export As..."), this);
      ViewerExportMenu->setIcon(QIcon(":/resources/exportas.png"));
@@ -783,6 +787,8 @@ void Gui::create3DMenus()
      ViewerMenu->addSeparator();
      // Save Image menu
      ViewerMenu->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
+     // Save Step As menu
+     ViewerMenu->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
      // Export As menu
      ViewerMenu->addMenu(ViewerExportMenu);
      ViewerMenu->addSeparator();
@@ -2161,6 +2167,15 @@ bool Gui::loadBanner(const int &type, const QString &bannerPath)
             bannerData << "1 320 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptm.dat";
             bannerData << "1 320 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptl.dat";
             break;
+        case EXPORT_LDRAW_MODEL:
+            banner = "LDraw";
+            description = tr("Export Current (%1)").arg(banner);
+            bannerData << "1 462 -19.1869 -4.0043 -59.6067 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptl.dat";
+            bannerData << "1 462 -1.3668 -4.0043 -50.5269 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptd.dat";
+            bannerData << "1 462 16.4534 -4.0043 -41.447 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptr.dat";
+            bannerData << "1 462 34.2736 -4.0043 -32.3671 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bpta.dat";
+            bannerData << "1 462 52.0937 -4.0043 -23.2873 0.891007 -0.411364 -0.192061 0 0.42305 -0.906106 0.45399 0.807347 0.37694 3070bptw.dat";
+            break;
         case BLENDER_RENDER:
             banner = "Blender";
             description = tr("Render Image (%1)").arg(banner);
@@ -2773,25 +2788,48 @@ QStringList Gui::get3DViewerPOVLightList() const
     return lightStringList;
 }
 
-void Gui::saveCurrent3DViewerModel(const QString &modelFile)
+void Gui::SaveCurrent3DViewerModel(const QString &_ModelFile)
 {
     Step *currentStep = lpub->currentStep;
 
     if (!currentStep)
         return;
 
-    //* local ldrawFile and step used for debugging
+//* local ldrawFile and step used for debugging
 #ifdef QT_DEBUG_MODE
     LDrawFile *ldrawFile = &lpub->ldrawFile;
     Q_UNUSED(ldrawFile)
 #endif
-    //*/
+//*/
 
-    lcView* ActiveView   = gMainWindow->GetActiveView();
+    Project* Project = lcGetActiveProject();
+    lcView* ActiveView = gMainWindow->GetActiveView();
+    if (!Project || !ActiveView)
+        return;
     lcModel* ActiveModel = ActiveView->GetActiveModel();
+
+    QString ModelFile = _ModelFile;
+
+    bool ModelBannerLoaded = false;
 
     if (ActiveModel)
     {
+        // Get the model file name
+        if (ModelFile.isEmpty()) {
+            LPub::loadBanner(EXPORT_LDRAW_MODEL);
+            ModelBannerLoaded = true;
+            ModelFile = QFileInfo(currentStep->topOfStep().modelName).completeBaseName();
+            ModelFile = ModelFile.replace(ModelFile.indexOf(ModelFile.at(0)),1,ModelFile.at(0).toUpper());
+            if (!(currentStep->displayStep >= DT_MODEL_DEFAULT || currentStep->subModel.viewerSubmodel))
+                ModelFile += tr("-Step-%1").arg(currentStep->stepNumber.number);
+            bool IsMPDModel = Project->GetModels().size() > 1;
+            ModelFile.append(IsMPDModel ? QString(".mpd") : QString(".ldr"));
+            QString Filter = IsMPDModel ? tr("Supported Files (*.mpd);;All Files (*.*)") : tr("Supported Files (*.ldr *.dat *.mpd);;All Files (*.*)");
+            ModelFile = QFileDialog::getSaveFileName(gui, tr("Save Model"), ModelFile, Filter);
+            if (ModelFile.isEmpty())
+                return;
+        }
+
         // Get the current camera
         lcCamera* Camera = ActiveView->GetCamera();
 
@@ -2809,12 +2847,12 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         }
 
         // Save the current model
-        if (!lcGetActiveProject()->Save(modelFile))
-            emit messageSig(LOG_ERROR, tr("Failed to save current model to file [%1]").arg(modelFile));
+        if (!Project->Save(ModelFile))
+            emit gui->messageSig(LOG_ERROR, tr("Failed to save current model to file [%1]").arg(ModelFile));
 
         if (currentStep->displayStep >= DT_MODEL_DEFAULT || currentStep->subModel.viewerSubmodel)
         {
-            QFile vf(modelFile);
+            QFile vf(ModelFile);
             if (vf.open(QFile::ReadOnly | QFile::Text)) {
                 QTextStream in(&vf);
                 in.setCodec(QTextCodec::codecForName("UTF-8"));
@@ -2827,7 +2865,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
                 }
                 vf.close();
 
-                QFile rf(modelFile);
+                QFile rf(ModelFile);
                 if (rf.open(QFile::WriteOnly | QIODevice::Truncate | QFile::Text)) {
                     QTextStream out(&rf);
                     out.setCodec(QTextCodec::codecForName("UTF-8"));
@@ -2847,11 +2885,11 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
                     rf.close();
                 } else {
                     emit gui->messageSig(LOG_ERROR, tr("Cannot write render file: [%1]<br>%2.")
-                                         .arg(modelFile).arg(rf.errorString()));
+                                         .arg(ModelFile).arg(rf.errorString()));
                 }
             } else {
                 emit gui->messageSig(LOG_ERROR, tr("Cannot read viewer file: [%1]<br>%2.")
-                                     .arg(modelFile).arg(vf.errorString()));
+                                     .arg(ModelFile).arg(vf.errorString()));
             }
         }
 
@@ -2870,6 +2908,9 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
             Camera = new lcCamera(true);
             ActiveView->SetCamera(Camera, false);
         }
+
+        if (ModelBannerLoaded)
+            currentStep->loadTheViewer();
     }
 }
 

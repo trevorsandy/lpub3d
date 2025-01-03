@@ -371,13 +371,15 @@ void lcView::ShowContextMenu() const
 
 	Popup->addMenu(gMainWindow->GetEditMenu());
 
+	Popup->addAction(Actions[LC_FILE_SAVEAS]);
+/***
 	Popup->addSeparator();
 
 	Popup->addAction(Actions[LC_EDIT_SELECT_ALL]);
 	Popup->addAction(Actions[LC_EDIT_SELECT_NONE]);
 	Popup->addAction(Actions[LC_EDIT_SELECT_INVERT]);
 	Popup->addAction(Actions[LC_EDIT_SELECT_BY_NAME]);
-
+***/
 	Popup->addSeparator();
 
 	Popup->addMenu(gMainWindow->GetToolsMenu());
@@ -407,7 +409,6 @@ void lcView::ShowContextMenu() const
 	Popup->addMenu(gMainWindow->GetShadingMenu());
 
 	Popup->addSeparator();
-
 /***
 	Popup->addMenu(gMainWindow->GetToolsMenu());
 	Popup->addMenu(gMainWindow->GetViewpointMenu());
@@ -417,7 +418,6 @@ void lcView::ShowContextMenu() const
 
 	Popup->addSeparator();
 ***/
-
 	Popup->addAction(Actions[LC_VIEW_SPLIT_HORIZONTAL]);
 	Popup->addAction(Actions[LC_VIEW_SPLIT_VERTICAL]);
 	Popup->addAction(Actions[LC_VIEW_REMOVE_VIEW]);

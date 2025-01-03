@@ -122,6 +122,7 @@
         <file alias="editld2rbxref.png">resources/editld2rbxref.png</file>
         <file alias="editldgliteconf.png">resources/editldgliteconf.png</file>
         <file alias="editldraw.png">resources/editldraw.png</file>
+		<file alias="editldraw16.png">resources/editldraw16.png</file>
         <file alias="editldrawcolourparts.png">resources/editldrawcolourparts.png</file>
         <file alias="editldviewconf.png">resources/editldviewconf.png</file>
         <file alias="editortablocked.png">resources/editortablocked.png</file>
