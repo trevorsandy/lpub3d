@@ -484,6 +484,7 @@ public:
   bool deleteFinalModelStep(bool = false);
   bool insertFinalModelStep();
 
+  void insertDisplayModel();
   void insertPicture();
   void insertText();
   void insertBOM();

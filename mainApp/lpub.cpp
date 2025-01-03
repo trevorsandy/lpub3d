@@ -296,6 +296,11 @@ void Gui::deletePage()
   lpub->mi.deletePage();
 }
 
+void Gui::insertDisplayModel()
+{
+  lpub->mi.insertPicture();
+}
+
 void Gui::addPicture()
 {
   lpub->mi.insertPicture();
@@ -5265,6 +5270,14 @@ void Gui::createActions()
     lpub->actions.insert(addPictureAct->objectName(), Action(QStringLiteral("Edit.Add Picture"), addPictureAct));
     connect(addPictureAct, SIGNAL(triggered()), gui, SLOT(addPicture()));
 
+    QAction *insertDisplayModelAct = new QAction(QIcon(":/resources/insertdisplaymodel.png"),tr("Insert Display Model"),gui);
+    insertDisplayModelAct->setObjectName("insertDisplayModelAct.1");
+    insertDisplayModelAct->setShortcut(QStringLiteral("Ctrl+Alt+K"));
+    insertDisplayModelAct->setStatusTip(tr("Insert a Display Model page command"));
+    insertDisplayModelAct->setEnabled(false);
+    lpub->actions.insert(insertDisplayModelAct->objectName(), Action(QStringLiteral("Edit.Insert Display Model"), insertDisplayModelAct));
+    connect(insertDisplayModelAct, SIGNAL(triggered()), gui, SLOT(insertDisplayModel()));
+
     QAction *addTextAct = new QAction(QIcon(":/resources/addtext.png"),tr("Add Text"),gui);
     addTextAct->setObjectName("addTextAct.1");
     addTextAct->setShortcut(QStringLiteral("Ctrl+Alt+T"));
@@ -6655,6 +6668,7 @@ void Gui::enableActions()
   gui->getAct("projectSetupAct.1")->setEnabled(true);
   gui->getAct("fadeStepsSetupAct.1")->setEnabled(true);
   gui->getAct("highlightStepSetupAct.1")->setEnabled(true);
+  gui->getAct("insertDisplayModelAct.1")->setEnabled(true);
   gui->getAct("addPictureAct.1")->setEnabled(true);
   gui->getAct("removeLPubFormatDocumentAct.1")->setEnabled(true);
   gui->getAct("removeLPubFormatBomAct.1")->setEnabled(true);
@@ -6762,6 +6776,7 @@ void Gui::disableActions()
   gui->getAct("projectSetupAct.1")->setEnabled(false);
   gui->getAct("fadeStepsSetupAct.1")->setEnabled(false);
   gui->getAct("highlightStepSetupAct.1")->setEnabled(false);
+  gui->getAct("insertDisplayModelAct.1")->setEnabled(false);
   gui->getAct("addPictureAct.1")->setEnabled(false);
   gui->getAct("removeLPubFormatBomAct.1")->setEnabled(false);
   gui->getAct("removeLPubFormatDocumentAct.1")->setEnabled(false);
@@ -6990,6 +7005,7 @@ void Gui::createMenus()
     editMenu->addAction(gui->getAct("insertNumberedPageAct.1"));
     editMenu->addAction(gui->getAct("appendNumberedPageAct.1"));
     editMenu->addAction(gui->getAct("deletePageAct.1"));
+    editMenu->addAction(gui->getAct("insertDisplayModelAct.1"));
     editMenu->addAction(gui->getAct("addPictureAct.1"));
     editMenu->addAction(gui->getAct("addTextAct.1"));
     editMenu->addAction(gui->getAct("addBomAct.1"));
@@ -7336,6 +7352,7 @@ void Gui::createToolBars()
     editToolBar->addAction(gui->getAct("insertNumberedPageAct.1"));
     editToolBar->addAction(gui->getAct("appendNumberedPageAct.1"));
     editToolBar->addAction(gui->getAct("deletePageAct.1"));
+    editToolBar->addAction(gui->getAct("insertDisplayModelAct.1"));
     editToolBar->addAction(gui->getAct("addPictureAct.1"));
     editToolBar->addAction(gui->getAct("addTextAct.1"));
     editToolBar->addAction(gui->getAct("addBomAct.1"));

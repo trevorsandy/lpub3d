@@ -1935,6 +1935,7 @@ private slots:
     void insertNumberedPage();
     void appendNumberedPage();
     void deletePage();
+    void insertDisplayModel();
     void addPicture();
     void addText();
     void addBom();

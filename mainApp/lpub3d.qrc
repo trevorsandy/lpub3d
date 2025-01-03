@@ -178,6 +178,7 @@
         <file alias="importldd.png">resources/importldd.png</file>
         <file alias="importsetinventory.png">resources/importsetinventory.png</file>
         <file alias="insertcoverpage.png">resources/insertcoverpage.png</file>
+        <file alias="insertdisplaymodel.png">resources/insertdisplaymodel.png</file>
         <file alias="insertpage.png">resources/insertpage.png</file>
         <file alias="instructionsetup.png">resources/instructionsetup.png</file>
         <file alias="italic.png">resources/italic.png</file>

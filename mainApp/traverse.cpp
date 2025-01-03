@@ -1636,6 +1636,15 @@ int Gui::drawPage(
                         return static_cast<int>(HitInvalidLDrawLine);
                     }
                 } else { /*InsertDisplayModelRc*/
+                    QString parseErrorMsg;
+                    if (lpub->page.coverPage)
+                        parseErrorMsg = tr("Cannot insert a display model to a cover page.");
+                    if (multiStep)
+                        parseErrorMsg = tr("Cannot insert a display model to a multi-step page.");
+                    if (opts.calledOut)
+                        parseErrorMsg = tr("Cannot insert a display model to a called out page.");
+                    if (!parseErrorMsg.isEmpty())
+                        emit gui->parseErrorSig(parseErrorMsg,opts.current);
                     curMeta.LPub.assem.showStepNumber.setValue(false);
                     opts.displayModel = true;
                     if (Gui::stepContains(top,partTypeLineRx)) {

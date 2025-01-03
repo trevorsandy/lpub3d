@@ -2918,6 +2918,7 @@ void MetaItem::insertNumberedPage()
   QString meta = "0 !LPUB INSERT PAGE";
   insertPage(meta);
 }
+
 void MetaItem::appendNumberedPage()
 {
   QString meta = "0 !LPUB INSERT PAGE";
@@ -3071,6 +3072,49 @@ void MetaItem::deletePage()
   }
   endMacro();
  }
+
+void MetaItem::insertDisplayModel()
+{
+  if (lpub->page.coverPage) {
+      emit gui->messageSig(LOG_ERROR, QObject::tr("Inserting a display model to a cover page is not allowed."));
+      return;
+  }
+
+  if (lpub->currentStep) {
+      if (lpub->currentStep->multiStep) {
+          emit gui->messageSig(LOG_ERROR, QObject::tr("Inserting a display model to a multi-step page is not allowed."));
+          return;
+      }
+
+      if (lpub->currentStep->calledOut) {
+          emit gui->messageSig(LOG_ERROR, QObject::tr("Inserting a display model to a called out page is not allowed."));
+          return;
+      }
+  }
+
+  QString meta = "0 !LPUB INSERT DISPLAY_MODEL";
+
+  Where topOfStep = Gui::topOfPages[Gui::displayPageNum-1];
+
+  scanPastGlobal(topOfStep);
+
+  QString line = lpub->ldrawFile.readLine(topOfStep.modelName,topOfStep.lineNumber + 1); // appended line
+  QStringList argv;
+  split(line,argv);
+  bool skipStepMeta = (argv.size() >= 2 &&
+                       argv[0] == "0"   &&
+                       (argv[1] == "STEP" ||
+                        argv[1] == "ROTSTEP"));
+
+  QString pageMeta = "0 !LPUB INSERT PAGE";
+  Where here = topOfStep + 1;
+  beginMacro("InsertDisplayModel");
+  if (!skipStepMeta)
+      appendMeta(topOfStep,"0 STEP");
+  appendPage(pageMeta, here);
+  appendMeta(here,meta);
+  endMacro();
+}
 
 void MetaItem::insertPicture()
 {
