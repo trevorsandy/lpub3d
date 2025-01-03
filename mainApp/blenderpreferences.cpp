@@ -1292,9 +1292,10 @@ bool BlenderPreferences::downloadAndExtractBlenderAddon(const QString &blenderDi
         extracted = addonList.size();
         if (!extracted)
             emit gui->messageSig(LOG_ERROR, tr("Failed to extract %1 to %2")
-                                               .arg(blenderAddonFile).arg(blenderDir));
-        emit gui->messageSig(LOG_INFO, tr("%1 items archive extracted to %2")
-                                          .arg(addonList.size()).arg(blenderDir));
+                                 .arg(blenderAddonFile).arg(blenderDir));
+        else
+            emit gui->messageSig(LOG_INFO, tr("%1 items archive extracted to %2")
+                                 .arg(addonList.size()).arg(blenderDir));
     } else if (addonAction == ADDON_NO_ACTION)
         return true;
 
@@ -2467,14 +2468,16 @@ void BlenderPreferences::saveSettings()
     }
     Preferences::setBlenderVersionPreference(value);
 
-    if (gBlenderAddonPreferences->mDocumentRender)
-        value = Preferences::blenderPreferencesFile.isEmpty()
-                    ? QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_DOCUMENT_CONFIG_FILE)
-                    : Preferences::blenderPreferencesFile;
-    else
-        value = Preferences::blenderLDrawConfigFile.isEmpty()
-                    ? QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_ADDON_CONFIG_FILE)
-                    : Preferences::blenderLDrawConfigFile;
+    if (gBlenderAddonPreferences->mDocumentRender) {
+        value = Preferences::blenderPreferencesFile;
+        if (!value.contains(BLENDER_RENDER_ADDON_FOLDER))
+            value = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_DOCUMENT_CONFIG_FILE);
+    } else {
+        value = Preferences::blenderLDrawConfigFile;
+        if (!value.contains(BLENDER_RENDER_ADDON_FOLDER))
+            value = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_ADDON_CONFIG_FILE);
+    }
+
     Preferences::setBlenderLDrawConfigPreference(QDir::toNativeSeparators(value));
 
     QString searchDirectoriesKey;
