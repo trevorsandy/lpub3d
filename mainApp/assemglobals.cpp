@@ -70,7 +70,6 @@ GlobalAssemDialog::GlobalAssemDialog(
   QVBoxLayout *layout = new QVBoxLayout(tabwidget);
   QGridLayout *boxGrid = new QGridLayout();
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
-  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
 
   GlobalSizeWidget sw(QSize(200,300), QSize(200,200));
   layout->addWidget(&sw);
@@ -166,7 +165,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   child = new NumberGui("",stepNumber,box);
   data->children.append(child);
 
-  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
   childtabwidget->addTab(widget,widget->objectName());

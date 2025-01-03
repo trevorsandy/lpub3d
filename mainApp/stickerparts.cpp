@@ -33,7 +33,6 @@ QList<QString>  StickerParts::stickerParts;
 StickerParts::StickerParts()
 {
     if (stickerParts.size() == 0) {
-        bool rxFound = false;
         QString stickerPartsFile = Preferences::stickerPartsFile;
         QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
         if (!stickerPartsFile.isEmpty()) {
@@ -57,7 +56,7 @@ StickerParts::StickerParts()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+                if (sLine.contains(rxin)) {
                    rx.setPattern(rxin.cap(1));
                    //logDebug() << "StickerParts RegExp Pattern: " << rxin.cap(1);
                    break;

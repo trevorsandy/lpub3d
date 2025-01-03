@@ -886,8 +886,10 @@ void Preferences::fprintMessage(const QString &message, bool stdError)
 #endif
         FILE *fp;
         fp = fopen(qUtf8Printable(logFilePath), "a");  //open file in append mode.
-        fprintf(fp, "%s", qUtf8Printable(printMessage));
-        fclose(fp);                                //close file.
+        if (fp) {
+            fprintf(fp, "%s", qUtf8Printable(printMessage));
+            fclose(fp);                                //close file.
+        }
 
         fprintf(stdError ? stderr : stdout, "%s", qUtf8Printable(printMessage));
         fflush(stdError ? stderr : stdout);        //write to console

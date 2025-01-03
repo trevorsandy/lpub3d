@@ -208,11 +208,13 @@ void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
 
     painter->setPen(gridPen);
 
-    qreal left = int(rect.left()) - (int(rect.left()) % mGridSize);
-    qreal top = int(rect.top()) - (int(rect.top()) % mGridSize);
+    int left = int(rect.left()) - (int(rect.left()) % mGridSize);
+    int top = int(rect.top()) - (int(rect.top()) % mGridSize);
+    int right = int(rect.right());
+    int bottom = int(rect.bottom());
     QVector<QPointF> points;
-    for (qreal x = left; x < rect.right(); x += mGridSize) {
-        for (qreal y = top; y < rect.bottom(); y += mGridSize) {
+    for (int x = left; x < right; x += mGridSize) {
+        for (int y = top; y < bottom; y += mGridSize) {
             points.append(QPointF(x,y));
         }
     }

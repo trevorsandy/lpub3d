@@ -2746,7 +2746,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
         for (int i = 0; i < THEME_NUM_COLORS; i++) {
             if (mThemeColors[i] != Preferences::themeColors[i]) {
                 editedColors.insert(i, mThemeColors[i].toUpper());
-                LC_PROFILE_KEY key = LC_PROFILE_KEY(-1);
+                LC_PROFILE_KEY key = LC_PROFILE_KEY(0);
                 switch (i)
                 {
                 case THEME_DARK_VIEWER_BACKGROUND_COLOR:
@@ -2841,7 +2841,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                     break;
                 }
 
-                if (key > LC_PROFILE_KEY(-1)) {
+                if (key > LC_PROFILE_KEY(0)) {
                     int alpha = 255;
                     switch (key)
                     {

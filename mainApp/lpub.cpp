@@ -842,7 +842,6 @@ bool Gui::continuousPageDialog(PageDirection d)
   Gui::pageDirection = d;
   int pageCount = 0;
   int _maxPages = 0;
-  int goToPageNum = Gui::displayPageNum;
   int displayPause  = Preferences::pageDisplayPause;
   Gui::prevMaxPages  = Gui::maxPages;
   bool terminateProcess = false;
@@ -863,7 +862,7 @@ bool Gui::continuousPageDialog(PageDirection d)
       // check if possible to load last opened page
       if (Gui::m_lastDisplayedPage) {
           QSettings Settings;
-          goToPageNum = Settings.value(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)).toInt();
+          int goToPageNum = Settings.value(QString("%1/%2").arg(SETTINGS, LAST_DISPLAYED_PAGE_NUM_KEY)).toInt();
           pageLineEditText = QString("%1-%2").arg(Gui::displayPageNum).arg(goToPageNum);
           displayPause = PAGE_CYCLE_DISPLAY_DEFAULT;
           Preferences::doNotShowPageProcessDlg = true;

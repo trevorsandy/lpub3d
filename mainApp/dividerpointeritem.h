@@ -68,9 +68,13 @@ public:
 
 private:
   /* Drag the tip of the pointer, and calculate a good
-   * location for the pointer to connect to the callout. */
+   * location for the pointer to connect to the callout.
+   *
+   * As this is called from the constructor, it is not set
+   * to vitrual.
+   */
 
-  virtual bool autoLocFromTip();
+  bool autoLocFromTip();
 
   /* Drag the MidBase point of the pointer, and calculate a good
    * location for the pointer to connect to the callout. */

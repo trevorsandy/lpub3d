@@ -931,8 +931,8 @@ void CsiItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                             pointerItem->updatePointer(deltaI);
                     }
                 }
+                changePlacementOffset(step->topOfStep(),&step->csiPlacement.placement,CsiType);
             }
-            changePlacementOffset(step->topOfStep(),&step->csiPlacement.placement,CsiType);
             endMacro();
         }
     }

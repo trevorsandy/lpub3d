@@ -220,13 +220,13 @@ void BackgroundItem::setBackground(
       QFuture<void> future = QtConcurrent::run([&]() {
           QPen pen(QPen(QBrush(QColor(Preferences::sceneGridColor)), 2, Qt::SolidLine));
           painter.setPen(pen);
+          QRect rect = pixmap->rect();
           int gridSize = GridSizeTable[Preferences::gridSizeIndex];
-          QRectF rect = pixmap->rect();
-          qreal left = int(rect.left()) - (int(rect.left()) % gridSize);
-          qreal top = int(rect.top()) - (int(rect.top()) % gridSize);
+          int left = rect.left() - (rect.left() % gridSize);
+          int top = rect.top() - (rect.top() % gridSize);
           QVector<QPointF> points;
-          for (qreal x = left; x < rect.right(); x += gridSize) {
-              for (qreal y = top; y < rect.bottom(); y += gridSize) {
+          for (int x = left; x < rect.right(); x += gridSize) {
+              for (int y = top; y < rect.bottom(); y += gridSize) {
                   points.append(QPointF(x,y));
               }
           }

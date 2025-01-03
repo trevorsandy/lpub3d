@@ -328,12 +328,9 @@ void BlenderPreferencesDialog::resetSettings()
 
 void BlenderPreferencesDialog::accept()
 {
-    if (BlenderPreferences::settingsModified()) {
-        mApplyButton->setEnabled(false);
-        mPreferences->apply(QDialog::Accepted);
-        QDialog::accept();
-    } else
-        QDialog::reject();
+    mApplyButton->setEnabled(false);
+    mPreferences->apply(QDialog::Accepted);
+    QDialog::accept();
 }
 
 void BlenderPreferencesDialog::reject()
@@ -494,7 +491,7 @@ BlenderPreferences::BlenderPreferences(
 
     if (mAddonVersion.isEmpty()) {
         mModulesBox->setEnabled(false);
-        mAddonUpdateButton->setEnabled(false);
+        mAddonUpdateButton->setEnabled(true);
         mImportActBox->setChecked(true); // default addon module
     } else {
         mAddonVersionEdit->setText(mAddonVersion);
@@ -1184,10 +1181,7 @@ void BlenderPreferences::configureBlenderAddon(bool testBlender, bool addonUpdat
             // Install Blender addon
             gBlenderAddonPreferences->statusUpdate(true/*addon*/, false/*error*/, tr("Installing..."));
 
-            // Create Blender config directory
-            QDir configDir(Preferences::blenderConfigDir);
-            if(!QDir(configDir).exists())
-                configDir.mkpath(".");
+            emit gBlenderAddonPreferences->settingChangedSig(true);
         }
 
         // Save initial settings

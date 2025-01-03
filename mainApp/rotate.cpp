@@ -715,7 +715,7 @@ int Render::splitIMParts(const QStringList &rotatedParts,
      // Current
      if (!isFadeMeta && (!isPrevSteps || isPrevEnd) && !isFileHeader && !isCustColour && !isColComment) {
          isCurrStep = true;
-         isPrevSteps = isPrevEnd = isCustColour = isColComment = isFileHeader = false;
+         isPrevSteps = isPrevEnd = false;
        }
 
     if (isPrevSteps || (isPrevSteps && isPrevEnd))
