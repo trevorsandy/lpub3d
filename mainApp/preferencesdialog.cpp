@@ -606,7 +606,7 @@ void PreferencesDialog::setPreferences()
 
   int REV = QString::fromLatin1(VER_REVISION_STR).toInt();
   QString version = qApp->applicationVersion();
-  QString revision = REV ? QString("Revision %1 ").arg(VER_REVISION_STR) : QString();
+  QString revision = REV ? QString(" Revision %1 ").arg(VER_REVISION_STR) : QString();
   QStringList updatableVersions = Preferences::availableVersions.split(",",SkipEmptyParts);
 #ifdef QT_DEBUG_MODE
   updatableVersions.prepend(version);
