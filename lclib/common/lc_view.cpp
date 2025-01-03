@@ -423,11 +423,9 @@ void lcView::ShowContextMenu() const
 	Popup->addAction(Actions[LC_VIEW_REMOVE_VIEW]);
 	Popup->addAction(Actions[LC_VIEW_RESET_VIEWS]);
 
-/***
 	Popup->addSeparator();
 
 	Popup->addAction(Actions[LC_VIEW_PREFERENCES]);
-***/
 /*** LPub3D Mod end ***/
 
 	Popup->exec(QCursor::pos());

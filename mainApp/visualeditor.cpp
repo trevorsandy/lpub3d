@@ -776,9 +776,6 @@ void Gui::create3DMenus()
 
      // Viewer menus
      ViewerMenu = menuBar()->addMenu(tr("&Visual Editor"));
-     // Visual Editor Preferences menu
-     //ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
-     //ViewerMenu->addSeparator();
      // Render menu
      ViewerMenu->addAction(blenderRenderAct);
      ViewerMenu->addAction(blenderImportAct);
@@ -875,6 +872,8 @@ void Gui::create3DMenus()
      ViewerZoomSliderMenu->addAction(viewerZoomSliderAct);
      gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]->setMenu(ViewerZoomSliderMenu);
      ViewerMenu->addSeparator();
+     // Visual Editor Preferences menu
+     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
      // Visual Editor about menu
      ViewerMenu->addAction(gMainWindow->mActions[LC_HELP_ABOUT]);
 

@@ -131,11 +131,11 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent)
 	ui->checkForUpdates->hide();
 	ui->RestoreTabLayout->hide();
 	ui->ColorTheme->setDisabled(true);
-	ui->label_29->hide();					//label Language
-	ui->label_10->hide();					//label check for updates
+	ui->label_29->hide();	//label Language
+	ui->label_10->hide();	//label check for updates
 	ui->fixedDirectionKeys->hide();
-	ui->tabWidget->removeTab(4);			//hide tabKeyboard
-	ui->tabWidget->removeTab(4);			//hide mouse
+	ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabRendering));
+	ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabKeyboard));
 /*** LPub3D Mod end ***/
 
 }
