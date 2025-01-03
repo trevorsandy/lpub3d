@@ -148,6 +148,9 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]->setObjectName("EndSubmodelEditAct.4");
     lpub->actions.insert("EndSubmodelEditAct.4", Action(QStringLiteral("3DViewer.End Submodel Editing"), gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]));
 
+    gMainWindow->mActions[LC_PIECE_INLINE_SELECTED_MODELS]->setObjectName("InlineSelectedSubmodelAct.4");
+    lpub->actions.insert("InlineSelectedSubmodelAct.4", Action(QStringLiteral("3DViewer.Inline Selected Submodel"), gMainWindow->mActions[LC_PIECE_INLINE_SELECTED_MODELS]));
+
     gMainWindow->mActions[LC_MODEL_LIST]->setObjectName("SubmodelListAct.4");
     lpub->actions.insert("SubmodelListAct.4", Action(QStringLiteral("3DViewer.Submodel List"), gMainWindow->mActions[LC_MODEL_LIST]));
 
@@ -847,11 +850,16 @@ void Gui::create3DMenus()
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]);
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_RESET_PIVOT_POINT]);
      gMainWindow->GetPieceMenu()->addSeparator();
+     // Piece menu - Submodels
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]);
+     gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_INLINE_SELECTED_MODELS]);
+     gMainWindow->GetPieceMenu()->addSeparator();
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]);
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_MODEL_LIST]);
      gMainWindow->GetPieceMenu()->addSeparator();
-     // Show/Hide Piece menus
+     // Piece menu - Show/Hide
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]);
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_SELECTED]);
      gMainWindow->GetPieceMenu()->addAction(gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]);
