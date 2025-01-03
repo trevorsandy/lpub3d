@@ -603,12 +603,11 @@ void RenderDialog::on_RenderButton_clicked()
                                         "'EXEC_DEFAULT', "
                                         "resolution_width=%1, resolution_height=%2, "
                                         "render_percentage=%3, model_file=r'%4', "
-                                        "image_file=r'%5', preferences_file=r'%6'")
+                                        "image_file=r'%5'")
                                 .arg(mWidth).arg(mHeight)
                                 .arg(renderPercentage)
                                 .arg(QDir::toNativeSeparators(mModelFile).replace("\\","\\\\"))
-                                .arg(QDir::toNativeSeparators(ui->OutputEdit->text()).replace("\\","\\\\"))
-                                .arg(QDir::toNativeSeparators(Preferences::blenderLDrawConfigFile).replace("\\","\\\\")));
+                                .arg(QDir::toNativeSeparators(ui->OutputEdit->text()).replace("\\","\\\\")));
         if (Preferences::blenderImportModule == QLatin1String("MM"))
             pythonExpression.append(", use_ldraw_import_mm=True");
         if (searchCustomDir)
