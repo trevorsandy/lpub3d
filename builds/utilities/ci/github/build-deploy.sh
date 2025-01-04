@@ -1,6 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 04, 2024
+# Last Update January 04, 2025
+# Copyright (C) 2025 by Trevor SANDY
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -269,6 +270,7 @@ echo && echo -n "Remove download artifacts that should not be published..." && \
   -name '*_Assets.zip' -o \
   -name '*_assets.tar.gz' -o \
   -name '*.debian.tar.xz' -o \
+  -name '*-debug*.tar.zst' -o \
   -name '*-debug*.rpm' -o \
   -name '*.buildinfo' -o \
   -name '*.changes' -o \
