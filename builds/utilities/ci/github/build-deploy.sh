@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 02, 2024
+# Last Update January 04, 2024
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -189,9 +189,8 @@ export LP3D_HOST_SSH_KEY="${LP3D_SFDEPLOY}_ed25519"
 gpgconf --kill gpg-agent  # in case agent_genkey fail...
 gpg --generate-key --batch <<eoGPGConf
   %echo Started!
-  Key-Type: default
-  Key-Length: default
-  Subkey-Type: default
+  Key-Type: RSA
+  Subkey-Type: RSA
   Name-Real: Trevor SANDY
   Name-Comment: Yessir
   Name-Email: trevor.sandy@gmail.com
