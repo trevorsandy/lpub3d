@@ -1,6 +1,6 @@
 /*
  * Copyright 2013-2014 Christian Loose <christian.loose@hamburg.de>
- * Copyright (C) 2022 - 2024 Trevor SANDY. All rights reserved.
+ * Copyright (C) 2022 - 2025 Trevor SANDY. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

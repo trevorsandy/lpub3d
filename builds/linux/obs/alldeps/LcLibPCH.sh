@@ -16,7 +16,7 @@
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
 #  Last Update: June 04, 2023
-#  Copyright (C) 2022 - 2024 by Trevor SANDY
+#  Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # sample commands [from application root - e.g. lpub3d/]:
 # source builds/linux/obs/alldeps/LcLibPCH.sh

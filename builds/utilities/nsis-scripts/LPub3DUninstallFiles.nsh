@@ -1,6 +1,6 @@
 ;LPub3D Uninstall Files Script Include
 ;Last Update: May 31, 2022
-;Copyright (C) 2016 - 2024 by Trevor SANDY
+;Copyright (C) 2016 - 2025 by Trevor SANDY
 
 ;Delete new files...
 

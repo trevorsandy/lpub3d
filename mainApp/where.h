@@ -6,7 +6,7 @@
 
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 
-** Copyright (C) 2015 - 2024 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2025 Trevor SANDY. All rights reserved.
 
 **
 

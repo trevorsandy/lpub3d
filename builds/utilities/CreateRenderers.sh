@@ -4,7 +4,7 @@
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
 # Last Update December 06, 2024
-# Copyright (C) 2017 - 2024 by Trevor SANDY
+# Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
 # sample commands - called from root of repository directory - e.g. lpub3d

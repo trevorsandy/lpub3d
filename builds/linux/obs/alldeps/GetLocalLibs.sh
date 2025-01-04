@@ -6,7 +6,7 @@
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
 #  Last Update: September 17, 2024
-#  Copyright (C) 2017 - 2024 by Trevor SANDY
+#  Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 # sample command [call from root build directory - e.g. lpub3d/]:
 # source builds/linux/obs/alldeps/GetLocalLibs.sh

@@ -1,6 +1,6 @@
 ;LPub3D Setup Script
 ;Last Update: June 11, 2021
-;Copyright (C) 2016 - 2024 by Trevor SANDY
+;Copyright (C) 2016 - 2025 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
 

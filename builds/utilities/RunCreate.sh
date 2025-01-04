@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
 # Last Update September 27, 2024
-# Copyright (C) 2024 by Trevor SANDY
+# Copyright (C) 2024 - 2025 by Trevor SANDY
 
 function ShowHelp() {
     echo

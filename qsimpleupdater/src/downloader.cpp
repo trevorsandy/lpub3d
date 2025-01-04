@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2014-2016 Alex Spataru <alex_spataru@outlook.com>
  * Copyright (C) 2017 Gilmanov Ildar <https://github.com/gilmanov-ildar>
- * Copyright (C) 2018 - 2024 Trevor SANDY. All rights reserved.
+ * Copyright (C) 2018 - 2025 Trevor SANDY. All rights reserved.
  *
  * This file is part of the QSimpleUpdater library, which is released under
  * the DBAD license, you can read a copy of it below:

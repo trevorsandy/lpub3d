@@ -4,7 +4,7 @@
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
 #  Last Update: Jan 14, 2023
-#  Copyright (C) 2017 - 2024 by Trevor SANDY
+#  Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
 

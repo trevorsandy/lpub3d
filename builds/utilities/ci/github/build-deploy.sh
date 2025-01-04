@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
 # Last Update January 04, 2025
-# Copyright (C) 2025 by Trevor SANDY
+# Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #

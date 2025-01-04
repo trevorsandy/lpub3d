@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
 # Last Update: October 19, 2024
-# Copyright (C) 2024 by Trevor SANDY
+# Copyright (C) 2019 - 2025 by Trevor SANDY
 
 set +x
 

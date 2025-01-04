@@ -293,4 +293,4 @@ sudo rpm -U LPub3D-2.4.8.0.3723_20241019-1.fc36.x86_64.rpm
 [ldview]:            https://github.com/trevorsandy/ldview
 [povray]:            https://github.com/trevorsandy/povray
 
-Copyright (C) 2015 - 2024 by Trevor SANDY
+Copyright (C) 2015 - 2025 by Trevor SANDY

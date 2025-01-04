@@ -8,7 +8,7 @@
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
 #  Last Update: November 11, 2022
-#  Copyright (C) 2017 - 2024 by Trevor SANDY
+#  Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 # sample command [call from root build directory - e.g. lpub3d/]:
 # source builds/linux/obs/alldeps/GetQt5Libs.sh

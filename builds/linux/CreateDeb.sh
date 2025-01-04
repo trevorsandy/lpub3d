@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
 # Last Update November 11, 2024
-# Copyright (C) 2017 - 2024 by Trevor SANDY
+# Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux deb distribution
 # To run:
 # $ chmod 755 CreateDeb.sh

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
 # Last Update November 26, 2024
-# Copyright (C) 2016 - 2024 by Trevor SANDY
+# Copyright (C) 2016 - 2025 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
