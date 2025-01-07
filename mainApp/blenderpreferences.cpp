@@ -93,7 +93,7 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettings [NUM_S
     /*17   LBL_POSITION_CAMERA       */ {"positioncamera",                 "1",        QObject::tr("Position Camera"),        QObject::tr("Position the camera to show the whole model")},
     /*18   LBL_REMOVE_DOUBLES        */ {"removedoubles",                  "1",        QObject::tr("No Duplicate Vertices"),  QObject::tr("Remove duplicate vertices (recommended)")},
     /*19   LBL_RENDER_WINDOW         */ {"renderwindow",                   "1",        QObject::tr("Display Render Window"),  QObject::tr("Specify whether to display the render window during Blender user interface image file render")},
-    /*10   LBL_USE_ARCHIVE_LIBS      */ {"usearchivelibrary",              "0",        QObject::tr("Use Archive Libraries"),  QObject::tr("Add any archive (zip) libraries in the LDraw file path to the library search list")},
+    /*10   LBL_USE_ARCHIVE_LIBRARY   */ {"usearchivelibrary",              "0",        QObject::tr("Use Archive Libraries"),  QObject::tr("Add any archive (zip) libraries in the LDraw file path to the library search list - impacts performance")},
     /*21   LBL_SEARCH_ADDL_PATHS     */ {"searchadditionalpaths",          "0",        QObject::tr("Search Additional Paths"),QObject::tr("Specify whether to search additional LDraw paths")},
     /*22   LBL_SMOOTH_SHADING        */ {"smoothshading",                  "1",        QObject::tr("Smooth Shading"),         QObject::tr("Smooth faces and add an edge-split modifier (recommended)")},
     /*23   LBL_TRANSPARENT_BACKGROUND*/ {"transparentbackground",          "0",        QObject::tr("Transparent Background"), QObject::tr("Specify whether to render a background (affects 'Photo-realistic look only)")},
@@ -176,7 +176,7 @@ BlenderPreferences::BlenderSettings  BlenderPreferences::mDefaultSettingsMM [NUM
     /* 34 LBL_TRANSPARENT_BACKGROUND_MM           */ {"transparentbackground",         "0",          QObject::tr("Transparent Background"),   QObject::tr("Specify whether to render a background")},
     /* 35 LBL_TREAT_SHORTCUT_AS_MODEL             */ {"treatshortcutasmodel",          "0",          QObject::tr("Treat Shortcuts As Models"),QObject::tr("Split shortcut parts into their constituent pieces as if they were models")},
     /* 36 LBL_TRIANGULATE                         */ {"triangulate",                   "0",          QObject::tr("Triangulate Faces"),        QObject::tr("Triangulate all faces")},
-    /* 37 LBL_USE_ARCHIVE_LIBRARY_MM              */ {"usearchivelibrary",             "0",          QObject::tr("Use Archive Libraries"),    QObject::tr("Add any archive (zip) libraries in the LDraw file path to the library search list")},
+    /* 37 LBL_USE_ARCHIVE_LIBRARY_MM              */ {"usearchivelibrary",             "0",          QObject::tr("Use Archive Libraries"),    QObject::tr("Add any archive (zip) libraries in the LDraw file path to the library search list - impacts performance")},
     /* 38 LBL_USE_FREESTYLE_EDGES                 */ {"usefreestyleedges",             "0",          QObject::tr("Use Freestyle Edges"),      QObject::tr("Render LDraw edges using freestyle")},
     /* 39 LBL_VERBOSE_MM                          */ {"verbose",                       "1",          QObject::tr("Verbose output"),           QObject::tr("Output all messages while working, else only show warnings and errors")},
 
@@ -2301,6 +2301,24 @@ void BlenderPreferences::loadSettings()
     if (!QDir(QString("%1/addons/%2").arg(blenderDir).arg(BLENDER_RENDER_ADDON_FOLDER)).isReadable())
         Preferences::setBlenderImportModule(QString());
 
+    bool useArchiveLibrary = false;
+    auto ldrawPartsLibrary = [&] (QString const& ldrawLibPath)
+    {
+        QString ldrawDir = ldrawLibPath;
+
+        const QFileInfo fileInfo(ldrawDir);
+        if (fileInfo.isFile())
+            ldrawDir = fileInfo.absolutePath();
+
+        const QString suffix = fileInfo.suffix().toLower();
+        const QFileInfo partInfo(QString("%1/p/1-4cyli.dat").arg(ldrawDir));
+        const QFileInfo ldconfigInfo(QString("%1/LDConfig.ldr").arg(ldrawDir));
+
+        useArchiveLibrary = suffix == "zip" && !(partInfo.exists() && ldconfigInfo.exists());
+
+        return QDir::toNativeSeparators(ldrawDir);
+    };
+
     // load default paths if paths not populated
     if (!BlenderPreferences::numPaths()) {
         QString const defaultBlendFile = QString("%1/config/%2").arg(blenderDir).arg(VER_BLENDER_DEFAULT_BLEND_FILE);
@@ -2309,7 +2327,7 @@ void BlenderPreferences::loadSettings()
         /* 1 PATH_BLENDFILE    */         << (Preferences::defaultBlendFile ? defaultBlendFile : QString())
         /* 2 PATH_ENVIRONMENT  */         << QString()
         /* 3 PATH_LDCONFIG     */         << Preferences::altLDConfigPath
-        /* 4 PATH_LDRAW        */         << Preferences::ldrawLibPath
+        /* 4 PATH_LDRAW        */         << ldrawPartsLibrary(Preferences::ldrawLibPath)
         /* 5 PATH_LSYNTH       */         << QString()
         /* 6 PATH_STUD_LOGO    */         << QString()
         /* 7 PATH_STUDIO_LDRAW */         << QString()
@@ -2334,6 +2352,8 @@ void BlenderPreferences::loadSettings()
                 BlenderPreferences::mDefaultSettings[i].label,
                 BlenderPreferences::mDefaultSettings[i].tooltip
             };
+            if (i == LBL_USE_ARCHIVE_LIBRARY)
+                BlenderPreferences::mBlenderSettings[i].value = QString::number(useArchiveLibrary);
         }
     }
 
@@ -2346,6 +2366,8 @@ void BlenderPreferences::loadSettings()
                 BlenderPreferences::mDefaultSettingsMM[i].label,
                 BlenderPreferences::mDefaultSettingsMM[i].tooltip
             };
+            if (i == LBL_USE_ARCHIVE_LIBRARY)
+                BlenderPreferences::mBlenderSettingsMM[i].value = QString::number(useArchiveLibrary);
         }
     }
 
@@ -2397,7 +2419,10 @@ void BlenderPreferences::loadSettings()
             QString const &key = QString("%1/%2").arg(IMPORTLDRAW, BlenderPreferences::mBlenderSettings[i].key);
             QString const &value = Settings.value(key, QString()).toString();
             if (!value.isEmpty()) {
-                BlenderPreferences::mBlenderSettings[i].value = value == "True" ? "1" : value == "False" ? "0" : value;
+                if (i == LBL_USE_ARCHIVE_LIBRARY && value == "False")
+                    BlenderPreferences::mBlenderSettings[i].value = QString::number(useArchiveLibrary);
+                else
+                    BlenderPreferences::mBlenderSettings[i].value = value == "True" ? "1" : value == "False" ? "0" : value;
             }
             if (i == LBL_IMAGE_WIDTH || i == LBL_IMAGE_HEIGHT || i == LBL_RENDER_PERCENTAGE) {
                 QString const &label = BlenderPreferences::mDefaultSettings[i].label;
@@ -2409,7 +2434,10 @@ void BlenderPreferences::loadSettings()
             QString const &key = QString("%1/%2").arg(IMPORTLDRAWMM, BlenderPreferences::mBlenderSettingsMM[i].key);
             QString const &value = Settings.value(key, QString()).toString();
             if (!value.isEmpty()) {
-                BlenderPreferences::mBlenderSettingsMM[i].value = value == "True" ? "1" : value == "False" ? "0" : value;
+                if (i == LBL_USE_ARCHIVE_LIBRARY_MM && value == "False")
+                    BlenderPreferences::mBlenderSettingsMM[i].value = QString::number(useArchiveLibrary);
+                else
+                    BlenderPreferences::mBlenderSettingsMM[i].value = value == "True" ? "1" : value == "False" ? "0" : value;
             }
             if (i == LBL_RENDER_PERCENTAGE_MM || i == LBL_RESOLUTION_WIDTH || i == LBL_RESOLUTION_HEIGHT) {
                 QString const &label = BlenderPreferences::mDefaultSettingsMM[i].label;
@@ -2427,10 +2455,11 @@ void BlenderPreferences::loadSettings()
                 QString errors;
                 gBlenderAddonPreferences->mProgressBar = nullptr;
                 gBlenderAddonPreferences->readStdOut(QString(ba), errors);
+                if (!errors.isEmpty())
+                    emit gui->messageSig(LOG_ERROR, errors);
             } else {
-                emit gui->messageSig(LOG_WARNING, tr("Failed to open log file: %1:\n%2")
-                                                      .arg(file.fileName())
-                                                      .arg(file.errorString()));
+                emit gui->messageSig(LOG_WARNING, tr("Blender config file was not found. Install log check failed:<br>%1:<br>%2")
+                                                      .arg(file.fileName()).arg(file.errorString()));
             }
         }
     }
