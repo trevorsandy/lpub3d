@@ -2509,16 +2509,23 @@ void BlenderPreferences::saveSettings()
 
     Preferences::setBlenderLDrawConfigPreference(QDir::toNativeSeparators(value));
 
-    QString searchDirectoriesKey;
+    QString searchDirectoriesKey = QLatin1String("additionalSearchPaths");
     QString parameterFileKey = QLatin1String("parameterFile");
     QString parameterFile = QString("%1/%2").arg(Preferences::blenderConfigDir).arg(VER_BLENDER_LDRAW_PARAMS_FILE);
 
     QSettings Settings(value, QSettings::IniFormat);
 
     auto concludeSettingsGroup = [&] () {
+        // write parameter file if it does not exist
         if (!QFileInfo(parameterFile).exists())
             BlenderPreferences::exportParameterFile();
-        QString const value = QDir::toNativeSeparators(Preferences::ldSearchDirs.join(","));
+
+        // write current and tmp working paths to additional searh paths
+        QString value = QDir::toNativeSeparators(QDir::currentPath());
+        value.append("," + QDir::toNativeSeparators(value + "/" + VER_PRODUCTNAME_STR + "/" + "tmp"));
+        if (!Preferences::ldSearchDirs.isEmpty())
+            value.append("," + QDir::toNativeSeparators(Preferences::ldSearchDirs.join(",")));
+
         Settings.setValue(searchDirectoriesKey, QVariant(value));
         Settings.endGroup();
     };
@@ -2553,8 +2560,6 @@ void BlenderPreferences::saveSettings()
 
     Settings.setValue(parameterFileKey, QVariant(QDir::toNativeSeparators(parameterFile)));
 
-    searchDirectoriesKey = QLatin1String("additionalSearchDirectories");
-
     concludeSettingsGroup();
 
     Settings.beginGroup(IMPORTLDRAWMM);
@@ -2580,8 +2585,6 @@ void BlenderPreferences::saveSettings()
         if (!key.isEmpty())
             Settings.setValue(key, QVariant(value));
     }
-
-    searchDirectoriesKey = QLatin1String("additionalSearchPaths");
 
     concludeSettingsGroup();
 
