@@ -259,7 +259,7 @@
   #define VER_COMPILED_ON                "Micorsoft Visual C++ 2022"
   #define VER_COMPILED_FOR               "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
   #define VER_COMPILED_WITH              "Qt qtver (MSVC2019 " VER_BUILD_ARCH_STR "bit)"
-  #define VER_IDE                        "Qt Creator 14.0.82 on Qt 6.8.2 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
+  #define VER_IDE                        "Qt Creator 15.0.82 on Qt 6.8.1 (MSVC 2022, " VER_BUILD_ARCH_STR "bit)"
 #endif
 
 #endif // VERSION_H
