@@ -814,6 +814,9 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 		if (Option[0] != '-' && Option[0] != '+')
 /*** LPub3D Mod end ***/
 		{
+			if (Option[0] == '@' && Option == RESTART_NOTICE)
+				continue;
+
 			if (QFileInfo(Option).isReadable())
 				Options.ProjectName = Option;
 			else
