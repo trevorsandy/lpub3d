@@ -129,6 +129,11 @@ esac
 # make sure we're in the repository root directory
 cd ${GITHUB_WORKSPACE}
 
+# prepare output directory
+[ ! -d "${LP3D_BUILDPKG_PATH}" ] && \
+mkdir -p ${LP3D_BUILDPKG_PATH} || :
+out_path="${LP3D_BUILDPKG_PATH}"
+
 # prepare third-party distribution directory
 [ ! -d "${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH}" ] && \
 mkdir -p ${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH} || :
