@@ -5887,12 +5887,8 @@ bool Preferences::getPreferences()
 #endif
             darkTheme  = displayTheme == THEME_DARK;
 
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"DisplayTheme"),displayTheme);
-
-            if (useSystemThemeChanged) {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"UseSystemTheme"),useSystemTheme);
+            if (useSystemThemeChanged)
                 emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Use System Theme is %1.").arg(useSystemTheme ? On : Off));
-            }
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Display Theme changed from %1 to %2.")
                                   .arg(darkTheme ? QMessageBox::tr("Dark Theme")    : QMessageBox::tr("Default Theme"))
@@ -6377,6 +6373,8 @@ bool Preferences::getPreferences()
 
         Preferences = Options.Preferences;
 
+        // Theme colours before applied change are saved here.
+        // New colours are saved in setTheme()
         Preferences.SaveDefaults();
 
         box.setIcon (QMessageBox::Question);

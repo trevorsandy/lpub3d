@@ -122,7 +122,7 @@ private:
     QString m_commandline_file;
 
     /// Theme set at startup
-    QString m_theme;
+	QString m_current_theme;
 
 #ifdef Q_OS_WIN
     /// Windows console information
