@@ -123,7 +123,8 @@ public:
                                      RotStepMeta &rotStep,
                                      QStringList &parts,
                                      FloatPairMeta &ca,
-                                     bool  applyCA = true);
+                                     bool  applyCA = true,
+                                     bool singleSubfile = false);
   static int             splitIMParts(const QStringList &rotatedParts,
                                       const QString &rotsComment,
                                       const QString &ldrName,

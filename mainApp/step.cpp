@@ -533,7 +533,8 @@ int Step::createCsi(
                           rotStepMeta,
                           futureParts,
                           cameraAngles,
-                          false/*applyCA*/) != 0) {
+                          false/*applyCA*/,
+                          singleSubfile) != 0) {
                   emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
                   pngName = QString(":/resources/missingimage.png");
                   futureParts.clear();

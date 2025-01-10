@@ -242,9 +242,9 @@ int Render::rotateParts(
           rc = mergeSubmodelContent(rotatedParts);
       } else {
           // rotate single subfile before merging content
-          if (singleSubfile)
-              rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
           rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType,singleSubfile);
+          if (singleSubfile)
+              rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer, singleSubfile);
       }
       if (rc)
           emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")
@@ -298,7 +298,8 @@ int Render::rotateParts(
         RotStepMeta   &rotStep,
         QStringList   &parts,
         FloatPairMeta &ca,
-        bool          applyCA /* true */)
+        bool          applyCA /* true */,
+        bool          singleSubfile)
 {
   bool cal = Preferences::applyCALocally;
   bool defaultRot = (cal && applyCA);
@@ -381,6 +382,10 @@ int Render::rotateParts(
     if (tokens.size() < 2) {
       continue;
     }
+
+    // stop at the first submodel for single subfile
+    if (singleSubfile && line == "0 NOFILE")
+      break;
 
     double v[4][3];
 
@@ -495,6 +500,10 @@ int Render::rotateParts(
     if (tokens.size() < 2) {
       continue;
     }
+
+    // stop at the first submodel for single subfile
+    if (singleSubfile && line == "0 NOFILE")
+      break;
 
     double v[4][3];
     double pm[3][3];
