@@ -2212,7 +2212,7 @@ void LPub::updateChangelog (const QString &url)
                            .arg(m_updater->getLatestVersion(url), REV ? QString(" Revision %1").arg(VER_REVISION_STR) : QString());
 #endif
         //populate releaseNotes
-        QString releaseNotesFile = QString("%1/%2/RELEASE_NOTES.html").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath);
+        QString releaseNotesFile = QString("%1/RELEASE_NOTES.html").arg(Preferences::lpub3dDocsResourcePath);
 
         QFile file(releaseNotesFile);
         if (! file.open(QFile::ReadOnly | QFile::Text)) {

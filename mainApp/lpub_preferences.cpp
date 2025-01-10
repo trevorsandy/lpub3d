@@ -1462,10 +1462,6 @@ void Preferences::lpubPreferences()
 
 #endif // X11_BINARY_BUILD
 
-#elif defined Q_OS_WIN
-
-    lpub3dDocsResourcePath   = QString("docs");
-
 #endif // Q_OS_MAC Q_OS_LINUX Q_OS_WIN
 
     lpub3dPath = cwd.absolutePath();
@@ -1490,6 +1486,8 @@ void Preferences::lpubPreferences()
 #endif // DEBUG_MODE_USE_BUILD_FOLDERS
 
 #ifdef Q_OS_WIN
+
+    lpub3dDocsResourcePath = QString("%1/docs").arg(Preferences::lpub3dPath);
 
     if (Settings.contains(QString("%1/%2").arg(SETTINGS, LPUB3D_DATA_PATH_KEY))) {
         lpubDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,LPUB3D_DATA_PATH_KEY)).toString();

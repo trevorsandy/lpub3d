@@ -235,7 +235,7 @@ void AboutDialog::showCreditDetails(bool clicked) {
     Q_UNUSED(clicked);
 
     //populate credits
-    QString creditsFile = QString("%1/%2/CREDITS.txt").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath);
+    QString creditsFile = QString("%1/CREDITS.txt").arg(Preferences::lpub3dDocsResourcePath);
 
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
