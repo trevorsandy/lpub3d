@@ -1809,9 +1809,34 @@ void LPub::removeLPubFormatting(int option)
  * Download with progress monotor
  *
  ***************************************************************************/
+bool LPub::sslIsSupported()
+{
+#ifndef QT_NO_SSL
+    if (!QSslSocket::supportsSsl()) {
+      emit gui->messageSig(LOG_ERROR, tr("SSL not supported, %1.")
+                           .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty()
+                                ? tr(", Build not detected")
+                                : tr(", Build: %1 %2")
+                                      .arg(QSslSocket::sslLibraryBuildVersionString(),
+                                          QSslSocket::sslLibraryVersionString().isEmpty()
+                                          ? tr(", Library not detected")
+                                          : tr(", Detected: %1")
+                                      .arg(QSslSocket::sslLibraryVersionString()))));
+        return false;
+    }
+
+    return true;
+#else
+    emit gui->messageSig(LOG_WARNING, tr("QT_NO_SSL Declaration Detected."));
+    return false;
+#endif
+}
 
 void LPub::downloadFile(QString URL, QString title, bool promptRedirect, bool showProgress)
 {
+    if (!LPub::sslIsSupported())
+        return;
+
     mTitle = title;
     mShowProgress = showProgress;
     mPromptRedirect = promptRedirect;
@@ -1850,10 +1875,16 @@ void LPub::updateDownloadProgress(qint64 bytesRead, qint64 totalBytes)
 void LPub::startRequest(QUrl url)
 {
     QNetworkRequest request(url);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0)) // default changed in Qt6
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
+    if (!mPromptRedirect)
+        request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+#elif (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     if (!mPromptRedirect)
         request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
 #endif
+#endif
+
     mHttpReply = mHttpManager->get(request);
 
     connect(mHttpReply, SIGNAL(downloadProgress(qint64,qint64)),

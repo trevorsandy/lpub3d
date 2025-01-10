@@ -800,10 +800,14 @@ bool Updater::sslIsSupported()
 #ifndef QT_NO_SSL
     if (!QSslSocket::supportsSsl()) {
         showErrorMessage(tr("SSL not supported, %1.")
-                            .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
-                            .arg(QSslSocket::sslLibraryBuildVersionString(),
-                                 QSslSocket::sslLibraryVersionString().isEmpty() ? tr(", Library not detected") : tr(", Detected: %1")
-                            .arg(QSslSocket::sslLibraryVersionString()))));
+                           .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty()
+                                ? tr(", Build not detected")
+                                : tr(", Build: %1 %2")
+                                      .arg(QSslSocket::sslLibraryBuildVersionString(),
+                                          QSslSocket::sslLibraryVersionString().isEmpty()
+                                          ? tr(", Library not detected")
+                                          : tr(", Detected: %1")
+                                      .arg(QSslSocket::sslLibraryVersionString()))));
         return false;
     }
 

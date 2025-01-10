@@ -145,6 +145,9 @@ public:
   /// Load banner
   static void loadBanner(const int &type);
 
+  /// Check if installed SSL library version is supported
+  static bool sslIsSupported();
+
   /// Download management public calls
   void downloadFile(QString URL,
                     QString,
