@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 04, 2024
+rem  Last Update: January 09, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -150,7 +150,7 @@ SET LDVIEW_EXE=LDView
 SET LPUB3D_TRACE_EXE=lpub3d_trace_cui
 
 SET OPENSSL_LIB=OpenSSL
-IF "%LP3D_VSVERSION%" EQU "2019" (
+IF "%LP3D_VSVERSION%" GEQ "2019" (
   SET OPENSSL_VER=v1.1
 ) ELSE (
   SET OPENSSL_VER=v1.0
