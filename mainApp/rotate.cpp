@@ -241,9 +241,10 @@ int Render::rotateParts(
       if (Preferences::buildModEnabled && imageType == Options::SMI) {
           rc = mergeSubmodelContent(rotatedParts);
       } else {
-          rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType,singleSubfile);
-          if (!rc && singleSubfile)
+          // rotate single subfile before merging content
+          if (singleSubfile)
               rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
+          rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType,singleSubfile);
       }
       if (rc)
           emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")

@@ -1,4 +1,4 @@
-LPub3D 2.4.9.7.4055 (10 01 2025 11:51:33)
+LPub3D 2.4.9.8.4056 (10 01 2025 11:57:57)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Regression - Library Update failed #804
+- Fix - Submodel preview rotation #803
 
 --------------------------------------------------------------------------------------------------
 
