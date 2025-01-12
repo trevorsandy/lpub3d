@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.9.4062" date="2025-01-12">
+            <release version="2.4.9.4063" date="2025-01-12">
                 <description>
-                    <p>LPub3D 12.01.2025 v2.4.9 r14 Continuous Build.
+                    <p>LPub3D 12.01.2025 v2.4.9 r15 Continuous Build.
                         - Regression - Library Update failed #804
                         - Fix - Submodel preview rotation #803
                     </p>
