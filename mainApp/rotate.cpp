@@ -383,13 +383,12 @@ int Render::rotateParts(
       continue;
     }
 
-    // stop at the first submodel for single subfile
-    if (singleSubfile && line == "0 NOFILE")
-      break;
-
     double v[4][3];
-
-    if (tokens[0] == "1") {
+    if (tokens[0] == "0") {
+      // on singleSubfile only rotate first subfile
+      if (singleSubfile && line == QLatin1String("0 NOFILE"))
+        break;
+    } else if (tokens[0] == "1") {
       v[0][0] = tokens[2].toFloat();
       v[0][1] = tokens[3].toFloat();
       v[0][2] = tokens[4].toFloat();
@@ -501,15 +500,15 @@ int Render::rotateParts(
       continue;
     }
 
-    // stop at the first submodel for single subfile
-    if (singleSubfile && line == "0 NOFILE")
-      break;
-
     double v[4][3];
     double pm[3][3];
     QString t1;
 
-    if (tokens[0] == "1") {
+    if (tokens[0] == "0") {
+      // on singleSubfile only rotate first subfile
+      if (singleSubfile && line == QLatin1String("0 NOFILE"))
+        break;
+    } else if (tokens[0] == "1") {
       int c = 2;
       v[0][0] = tokens[c].toFloat();
       v[0][1] = tokens[c+1].toFloat();
@@ -532,7 +531,6 @@ int Render::rotateParts(
                    "%8 %9 %10 "
                    "%11 %12 %13 "
                    "%14")
-
                    .arg(tokens[1])
                    .arg( v[0][0]) .arg( v[0][1]) .arg( v[0][2])
                    .arg(pm[0][0]) .arg(pm[0][1]) .arg(pm[0][2])

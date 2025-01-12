@@ -39,7 +39,8 @@
 #define VER_PUBLISHER_SUPPORT_STR           "https://github.com/trevorsandy/lpub3d/issues/new/choose"
 #define VER_LICENSE_INFO_STR                "http://www.gnu.org/licenses/gpl-3.0.html"
 #define VER_UNOFFICIAL_MODEL_STR            "Unofficial_Model"
-#define VER_MODEL_FILE_LICENSE_STR          "Redistributable under CCAL version 2.0 : see CAreadme.txt"
+#define VER_UNOFFICIAL_PART_STR             "Unofficial_Part"
+#define VER_LDRAW_FILE_LICENSE_STR          "Redistributable under CCAL version 2.0 : see CAreadme.txt"
 #ifdef OPT_PREFIX
   #define VER_OPT_PREFIX_STR                OPT_PREFIX
 #else

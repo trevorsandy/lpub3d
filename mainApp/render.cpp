@@ -257,14 +257,15 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
     QStringList tokens;
     Options::Mt imageType = static_cast<Options::Mt>(_type);
     DisplayType modelType = static_cast<DisplayType>(displayType);
-    QString baseName  = imageType == Options::SMI ? lpub->ldrawFile.description(_modelName) : QFileInfo(_modelName).completeBaseName();
-    bool isMPD        = imageType == Options::SMI || imageType == Options::MON;  // always MPD if imageType is SMI or MON[o] image
-    baseName          = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
     QString modelName = _modelName;
-    QFileInfo fileInfo(modelName);
-    QString type;
+    QString baseName  = imageType == Options::SMI ? lpub->ldrawFile.description(_modelName) : QFileInfo(_modelName).completeBaseName();
+    baseName          = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
+    bool isSpecial    = modelType >= DT_MODEL_DEFAULT;
+    bool isMPD        = imageType == Options::SMI || imageType == Options::MON;  // always MPD if imageType is SMI or MON[o] image
+    bool isModel      = isMPD || isSpecial || imageType == Options::CSI;         // all except Options::PLI
 
-    // Capture type name and test if MPD is a single subfile line
+    QString type;
+    // Test if lines contain submodel or inline unofficial part (i.e. isMPD)
     for (int i = 0; i < lines.size(); i++) {
         QString line = lines.at(i);
         split(line, tokens);
@@ -293,33 +294,40 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
         }
     }
 
-    bool appendModelName = isMPD && type.toLower() == modelName.toLower();
+    if (!isMPD)
+      isMPD = isModel;
+    bool appendNameHeader = isMPD && type.toLower() == modelName.toLower();
+    QFileInfo fileInfo(modelName);
 
     // special case where the modelName will match the line type name so we append '-Smi' to the modelName
     if (imageType == Options::SMI) {
          QString smi(SUBMODEL_IMAGE_BASENAME);
          baseName = baseName.append(QString("-%1").arg(smi.toUpper()));
-         if (appendModelName)
+         if (appendNameHeader)
             modelName = fileInfo.baseName().append(QString("-%1.%2").arg(smi.toUpper()).arg(fileInfo.suffix()));
     }
 
-    // case where PLI is an MPD - i.e. LDCad generated part, append name to to workaround Visual Editor abend
+    // case where PLI is an MPD - i.e. LDCad generated part, append name to workaround Visual Editor abend
     if (imageType == Options::PLI && isMPD) {
         modelName.prepend("Pli_");
         baseName.prepend("Pli_");
     }
 
     // special case where model file is a display model or final step in fade step document
-    if (modelType >= DT_MODEL_DEFAULT) {
+    if (isSpecial) {
         baseName = baseName.append("_Display_Model");
-        if (appendModelName)
+        if (appendNameHeader)
            modelName = fileInfo.baseName().append(QString("_Display_Model.%1").arg(fileInfo.suffix()));
     }
 
     // description and name are already added to mono image
     if (imageType != Options::MON) {
-        lines.prepend(QString("0 !LICENSE %1").arg(VER_MODEL_FILE_LICENSE_STR));
-        lines.prepend(QString("0 !LDRAW_ORG %1").arg(VER_UNOFFICIAL_MODEL_STR));
+        if (isMPD) {
+            if (!isModel)
+                lines.prepend(QString("0 BFC CERTIFY CCW"));
+            lines.prepend(QString("0 !LICENSE %1 ").arg(VER_LDRAW_FILE_LICENSE_STR));
+            lines.prepend(QString("0 !LDRAW_ORG %1").arg(isModel ? VER_UNOFFICIAL_MODEL_STR : VER_UNOFFICIAL_PART_STR));
+        }
         lines.prepend(QString("0 Author: %1").arg(Preferences::defaultAuthor));
         lines.prepend(QString("0 Name: %1").arg(modelName));
         lines.prepend(QString("0 %1").arg(baseName));
@@ -4414,27 +4422,17 @@ int Render::mergeNativeSubfiles(QStringList &subFiles,
   QStringList argv;
 
   if (nativeSubfiles.size()) {
-
       /* read in all detected sub model file content */
       for (int index = 0; index < nativeSubfiles.size(); index++) {
 
-          QString ldrName(QDir::currentPath() + "/" +
-                          Paths::tmpDir + "/" +
+          QString ldrName(QDir::currentPath() + QDir::separator() +
+                          Paths::tmpDir + QDir::separator() +
                           nativeSubfiles[index]);
 
           /* initialize the working submodel file - define header. */
           QString modelName = QFileInfo(nativeSubfiles[index]).completeBaseName()/*.toLower()*/;
           modelName = modelName.replace(
                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
-
-          nativeSubfileParts << QString("0 FILE %1").arg(nativeSubfiles[index]);
-          if (imageType != Options::MON) {
-              nativeSubfileParts << QString("0 %1").arg(modelName);
-              nativeSubfileParts << QString("0 Name: %1").arg(nativeSubfiles[index]);
-              nativeSubfileParts << QString("0 Author: %1").arg(Preferences::defaultAuthor);
-              nativeSubfileParts << QString("0 !LDRAW_ORG %1").arg(VER_UNOFFICIAL_MODEL_STR);
-              nativeSubfileParts << QString("0 !LICENSE %1").arg(VER_MODEL_FILE_LICENSE_STR);
-          }
 
           /* read the actual submodel file */
           QFile ldrfile(ldrName);
@@ -4443,8 +4441,10 @@ int Render::mergeNativeSubfiles(QStringList &subFiles,
                                    .arg(ldrName)
                                    .arg(ldrfile.errorString()));
               return -1;
-            }
+          }
+
           /* populate file contents into working submodel native parts */
+          QStringList nativeContent;
           QTextStream in(&ldrfile);
           while ( ! in.atEnd()) {
               QString nativeLine = in.readLine(0);
@@ -4468,8 +4468,8 @@ int Render::mergeNativeSubfiles(QStringList &subFiles,
                           customType = customType.replace(fadeSfx,".");
                           isCustomSubModel = lpub->ldrawFile.isSubmodel(customType);
                           isCustomPart = lpub->ldrawFile.isUnofficialPart(customType);
-                        }
-                    }
+                      }
+                  }
 
                   if (doHighlightStep) {
                       QString highlightSfx = QString("%1.").arg(HIGHLIGHT_SFX);
@@ -4480,8 +4480,8 @@ int Render::mergeNativeSubfiles(QStringList &subFiles,
                           customType = customType.replace(highlightSfx,".");
                           isCustomSubModel = lpub->ldrawFile.isSubmodel(customType);
                           isCustomPart = lpub->ldrawFile.isUnofficialPart(customType);
-                        }
-                    }
+                      }
+                  }
 
                   if (imageType == Options::MON) {
                       if (type.startsWith("mono_"))
@@ -4492,15 +4492,28 @@ int Render::mergeNativeSubfiles(QStringList &subFiles,
                       /* capture all subfiles (full string) to be processed when finished */
                       if (!newSubfiles.contains(type.toLower()))
                               newSubfiles << type.toLower();
-                    }
-                }
+                  }
+              }
               if (isGhost(nativeLine))
                   argv.prepend(GHOST_META);
               nativeLine = argv.join(" ");
-              nativeSubfileParts << nativeLine;
-            }
+              nativeContent << nativeLine;
+          }
+
+          nativeSubfileParts << QString("0 FILE %1").arg(nativeSubfiles[index]);
+          if (imageType != Options::MON) {
+              bool isModel = lpub->ldrawFile.isSubmodel(nativeSubfiles[index]);
+              nativeSubfileParts << QString("0 %1").arg(modelName);
+              nativeSubfileParts << QString("0 Name: %1").arg(nativeSubfiles[index]);
+              nativeSubfileParts << QString("0 Author: %1").arg(Preferences::defaultAuthor);
+              nativeSubfileParts << QString("0 !LDRAW_ORG %1").arg(isModel ? VER_UNOFFICIAL_MODEL_STR : VER_UNOFFICIAL_PART_STR);
+              nativeSubfileParts << QString("0 !LICENSE %1").arg(VER_LDRAW_FILE_LICENSE_STR);
+              if (!isModel)
+                  nativeSubfileParts << QString("0 BFC CERTIFY CCW");
+          }
+          nativeSubfileParts << nativeContent;
           nativeSubfileParts << QLatin1String("0 NOFILE");
-        }
+      }
 
       /* recurse and process any identified submodel files */
       if (newSubfiles.size() > 0) {
@@ -4509,8 +4522,8 @@ int Render::mergeNativeSubfiles(QStringList &subFiles,
           if ((rc = mergeNativeSubfiles(newSubfiles, nativeSubfileParts, doFadeStep, doHighlightStep,imageType)) != 0) {
               emit gui->messageSig(LOG_ERROR,QObject::tr("Failed to recurse viewer submodels"));
               return rc;
-            }
-        }
+          }
+      }
       subFileParts = nativeSubfileParts;
     }
   return 0;
@@ -4547,12 +4560,15 @@ int Render::mergeSubmodelContent(QStringList &submodelParts)
                 QString modelName = QFileInfo(submodel).completeBaseName();
                 modelName = modelName.replace(
                             modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
+                bool isModel = lpub->ldrawFile.isSubmodel(submodel);
                 submodelParts << QString("0 FILE %1").arg(submodel);
                 submodelParts << QString("0 %1").arg(modelName);
                 submodelParts << QString("0 Name: %1").arg(submodel);
                 submodelParts << QString("0 Author: %1").arg(Preferences::defaultAuthor);
-                submodelParts << QString("0 !LDRAW_ORG %1").arg(VER_UNOFFICIAL_MODEL_STR);
-                submodelParts << QString("0 !LICENSE %1").arg(VER_MODEL_FILE_LICENSE_STR);
+                submodelParts << QString("0 !LDRAW_ORG %1").arg(isModel ? VER_UNOFFICIAL_MODEL_STR : VER_UNOFFICIAL_PART_STR);
+                submodelParts << QString("0 !LICENSE %1").arg(VER_LDRAW_FILE_LICENSE_STR);
+                if (!isModel)
+                    submodelParts << QString("0 BFC CERTIFY CCW");
                 submodelParts << content;
                 submodelParts << QLatin1String("0 NOFILE");
                 if (writeContent(content, submodels) != 0)

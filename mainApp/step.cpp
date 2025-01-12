@@ -286,9 +286,9 @@ int Step::createCsi(
     }
 
   // define csi file paths
-  QString csiLdrFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
-  QString csiPngFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::assemDir);
-  QString csiLdrFile = QString("%1/%2").arg(csiLdrFilePath).arg(Gui::m_partListCSIFile ?
+  QString csiLdrFilePath = QString("%1%2%3").arg(QDir::currentPath(), QDir::separator(), Paths::tmpDir);
+  QString csiPngFilePath = QString("%1%2%3").arg(QDir::currentPath(), QDir::separator(), Paths::assemDir);
+  QString csiLdrFile = QString("%1%2%3").arg(csiLdrFilePath, QDir::separator(), Gui::m_partListCSIFile ?
                                QFileInfo(Gui::getCurFile()).completeBaseName()+"_snapshot.ldr" : "csi.ldr");
   QString keyPart1 = QString("%1").arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
@@ -338,7 +338,7 @@ int Step::createCsi(
   QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
   // populate png name
-  pngName = QDir::toNativeSeparators(QString("%1/%2.png").arg(csiPngFilePath).arg(key));
+  pngName = QDir::toNativeSeparators(QString("%1%2%3.png").arg(csiPngFilePath, QDir::separator(), key));
 
   // image path max length check - warning when approaching and hard stop when exceeded.
   int imagePathLength = pngName.size();
