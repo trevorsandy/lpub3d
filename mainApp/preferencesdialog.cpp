@@ -185,9 +185,7 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent) :
   /* Themes */
   ui.themeCombo->addItem(THEME_DEFAULT);
   ui.themeCombo->addItem(THEME_DARK);
-#ifndef Q_OS_MAC
   ui.themeCombo->addItem(THEME_SYSTEM);
-#endif
 
   resetSceneColorsFlag = false;
 
@@ -567,11 +565,7 @@ void PreferencesDialog::setPreferences()
 
   ui.ldvPreferencesBtn->setEnabled(Preferences::preferredRenderer == RENDERER_LDVIEW);
 
-#ifdef Q_OS_WIN
-  ui.themeCombo->setCurrentText(Preferences::useSystemTheme ? THEME_SYSTEM : Preferences::displayTheme);
-#else
   ui.themeCombo->setCurrentText(Preferences::displayTheme);
-#endif
 
   QPixmap colorPix(12, 12);
 

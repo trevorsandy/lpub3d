@@ -166,9 +166,7 @@
 #define VER_VEXIQ_LDRAWDIR_STR              "vexiqparts"
 #endif
 
-#ifdef Q_OS_LINUX
 #define VER_LPUB3D_THEME_CHECK_SCRIPT       "themecheck.sh"
-#endif
 
 #define VER_LEGO_LDRAWPART_STR              "/parts/1.dat"
 #define VER_TENTE_LDRAWPART_STR             "/parts/4circulo.dat"

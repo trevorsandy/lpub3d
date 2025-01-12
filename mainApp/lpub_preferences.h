@@ -114,7 +114,7 @@ class Preferences
     static bool setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
 
-    static void setOverwriteCustomParts(bool);  // NO SOURCE
+    static void setSystemTheme();
     static void setSceneGuidesPreference(bool);
     static void setSceneGuidesPositionPreference(int);
     static void setSceneGuidesLinePreference(int);
@@ -227,6 +227,7 @@ class Preferences
     static QString povrayScenePath;
     static QString dataLocation;
     static QString displayTheme;
+    static QString systemTheme;
     static QString ldvLights;
     static QString xmlMapPath;
     static QString optPrefix;

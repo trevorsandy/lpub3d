@@ -359,7 +359,7 @@ QString Application::getTheme()
 void Application::setTheme(bool appStarted /*true*/)
 {
   m_current_theme = Preferences::displayTheme;
-  bool setDarkTheme = m_current_theme == THEME_DARK;
+  bool setDarkTheme = Preferences::darkTheme;
   bool previousThemeWasDark = !setDarkTheme;
   lcColorTheme visualEditorColorTheme = setDarkTheme ? lcColorTheme::Dark : lcColorTheme::System;
 
@@ -369,24 +369,24 @@ void Application::setTheme(bool appStarted /*true*/)
       return quint32(LC_RGBA(c.red(), c.green(), c.blue(), alpha));
   };
 
-  auto setThemeColor = [&] (
-          LC_PROFILE_KEY key, QString darkHex, QString defaultHex, int alpha = 255) {
+  auto setThemeColor = [&] (LC_PROFILE_KEY key, QString darkHex, QString defaultHex, int alpha = 255)
+  {
       // check if is lclib object colour
       bool lcObjectColor = false;
 
       switch (key)
       {
-      case LC_PROFILE_OBJECT_SELECTED_COLOR:
-      case LC_PROFILE_OBJECT_FOCUSED_COLOR:
-      case LC_PROFILE_CAMERA_COLOR:
-      case LC_PROFILE_LIGHT_COLOR:
-      case LC_PROFILE_CONTROL_POINT_COLOR:
-      case LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR:
-      case LC_PROFILE_BM_OBJECT_SELECTED_COLOR:
-          lcObjectColor = true;
-          break;
-      default:
-          break;
+          case LC_PROFILE_OBJECT_SELECTED_COLOR:
+          case LC_PROFILE_OBJECT_FOCUSED_COLOR:
+          case LC_PROFILE_CAMERA_COLOR:
+          case LC_PROFILE_LIGHT_COLOR:
+          case LC_PROFILE_CONTROL_POINT_COLOR:
+          case LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR:
+          case LC_PROFILE_BM_OBJECT_SELECTED_COLOR:
+              lcObjectColor = true;
+              break;
+          default:
+              break;
       }
 
       // get previous viewer theme color (before change)
@@ -399,6 +399,7 @@ void Application::setTheme(bool appStarted /*true*/)
       if (pc == tc) {
           // get new theme color
           tc = getColorFromHex(setDarkTheme ? darkHex : defaultHex, alpha);
+
           // set view profile key
           if (lcObjectColor)
               lcSetProfileUInt(key, int(tc));
@@ -490,7 +491,6 @@ void Application::setTheme(bool appStarted /*true*/)
 
       // Set palette
       QPalette Palette = QApplication::palette();
-
       Palette.setColor(QPalette::Window, QColor(Preferences::themeColors[THEME_DARK_PALETTE_WINDOW]));                 // 49, 52, 55,    #313437
       Palette.setColor(QPalette::WindowText, QColor(Preferences::themeColors[THEME_DARK_PALETTE_WINDOW_TEXT]));        // 240, 240, 240  #F0F0F0
       Palette.setColor(QPalette::Base, QColor(Preferences::themeColors[THEME_DARK_PALETTE_BASE]));                     // 35, 38, 41     #232629
@@ -526,24 +526,20 @@ void Application::setTheme(bool appStarted /*true*/)
           visualEditorColorTheme = lcColorTheme::Dark;
       } else {
           QString styleSheetMessage = tr("Dark mode styleSheet. %1 (%2)")
-                                         .arg(styleSheetFile.errorString())
-                                         .arg(styleSheetFile.fileName());
-
+                                         .arg(styleSheetFile.errorString(), styleSheetFile.fileName());
           if (modeGUI()) {
               logInfo() << styleSheetMessage;
           } else {
               Preferences::fprintMessage(QString(styleSheetMessage.append("\n")));
           }
       }
-    }
-  else
-  if (m_current_theme == THEME_DEFAULT) {
+  } else if (m_current_theme == THEME_DEFAULT) {
       // Set default style settings
       QApplication::setStyle(QApplication::style()->objectName());
       QApplication::setPalette(qApp->style()->standardPalette());
       qApp->setStyleSheet( QString() );
       visualEditorColorTheme = lcColorTheme::System;
-    }
+  }
 
   // Set default scene colours
   if (!Preferences::customSceneBackgroundColor)
@@ -642,7 +638,6 @@ void Application::setTheme(bool appStarted /*true*/)
   // Set Main application colour theme - apply after interface colour update
   QSettings Settings;
   Settings.setValue(QString("%1/%2").arg(SETTINGS,"DisplayTheme"), Preferences::displayTheme);
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,"UseSystemTheme"),Preferences::useSystemTheme);
 
   // Set Visual Editor colour theme - apply after interface colour update
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(visualEditorColorTheme));
