@@ -1609,7 +1609,7 @@ int Pli::placePli(
     int    yConstraint,
     bool   packSubs,
     bool   sortType,
-    int   &cols,
+    int   &pliCols,
     int   &pliWidth,
     int   &pliHeight)
 {
@@ -1623,7 +1623,7 @@ int Pli::placePli(
   int topMargin = int(borderData.margin[1]+borderData.thickness);
   int botMargin = topMargin;
 
-  cols = 0;
+  pliCols = 0;
 
   pliWidth = 0;
   pliHeight = 0;
@@ -1633,8 +1633,8 @@ int Pli::placePli(
       if (parts[keys[i]]->height > yConstraint) {
           yConstraint = parts[keys[i]]->height;
           // return -2;
-        }
-    }
+      }
+  }
 
   QList< QPair<int, int> > margins;
 
@@ -1648,18 +1648,18 @@ int Pli::placePli(
           part = parts[key];
           if ( ! part->placed && left + part->width < xConstraint) {
               break;
-            }
-        }
+          }
+      }
 
       if (i == keys.size()) {
           return -1;
-        }
+      }
 
       /* Start new col */
 
       PliPart *prevPart = parts[keys[i]];
 
-      cols++;
+      pliCols++;
 
       int width = prevPart->width /* + partMarginX */;
       int widest = i;
@@ -1667,7 +1667,7 @@ int Pli::placePli(
       prevPart->left = left;
       prevPart->bot  = 0;
       prevPart->placed = true;
-      prevPart->col = cols;
+      prevPart->col = pliCols;
       nPlaced++;
 
       QPair<int, int> margin;
@@ -1719,22 +1719,24 @@ int Pli::placePli(
                       if (prevPart->rightEdge[ltop] + xMargin >
                           prevPart->width - part->width + part->leftEdge[top]) {
                           break;
-                        }
-                    }
-                }
+                      }
+                  }
+              }
+
               if (top == part->height) {
                   fits = true;
                   break;
-                }
-            }
-        }
+              }
+          }
+      }
+
       if (fits) {
           part->left = prevPart->left + prevPart->width - part->width;
           part->bot  = 0;
           part->placed = true;
-          part->col = cols;
+          part->col = pliCols;
           nPlaced++;
-        }
+      }
 
       // allocate new row
 
@@ -1757,7 +1759,6 @@ int Pli::placePli(
 
                   for (overlap = 1; overlap < prevPart->height && ! overlapped; overlap++) {
                       if (overlap > part->height) { // in over our heads?
-
                           // slide the part from the left to right until it bumps into previous
                           // part
                           for (int right = 0, left = 0;
@@ -1767,9 +1768,9 @@ int Pli::placePli(
                                   prevPart->leftEdge[left+overlap-part->height]) {
                                   overlapped = true;
                                   break;
-                                }
-                            }
-                        } else {
+                              }
+                          }
+                      } else {
                           // slide the part from the left to right until it bumps into previous
                           // part
                           for (int right = part->height - overlap - 1, left = 0;
@@ -1779,25 +1780,25 @@ int Pli::placePli(
                                   prevPart->leftEdge[left]) {
                                   overlapped = true;
                                   break;
-                                }
-                            }
-                        }
-                    }
+                              }
+                          }
+                      }
+                  }
 
                   // overlap = 0;
 
                   if (bot + part->height + splitMargin - overlap <= yConstraint) {
                       bot += splitMargin;
                       break;
-                    } else {
+                  } else {
                       overlapped = false;
-                    }
-                }
-            }
+                  }
+              }
+          }
 
           if (i == keys.size()) {
               break; // we can't go more Vertical in this column
-            }
+          }
 
           PliPart *part = parts[keys[i]];
 
@@ -1809,15 +1810,15 @@ int Pli::placePli(
           prevPart->left = left;
           prevPart->bot  = bot - overlap;
           prevPart->placed = true;
-          prevPart->col = cols;
+          prevPart->col = pliCols;
           nPlaced++;
 
           if (sortType) {
               if (prevPart->width > width) {
                   widest = i;
                   width = prevPart->width;
-                }
-            }
+              }
+          }
 
           int height = prevPart->height + splitMargin;
 
@@ -1830,9 +1831,9 @@ int Pli::placePli(
               // allocate new sub_col
 
               while (nPlaced < keys.size() && i < parts.size()) {
-
                   PliPart *part = parts[keys[i]];
                   int subMargin = 0;
+
                   for (i = 0; i < keys.size(); i++) {
                       part = parts[keys[i]];
                       if ( ! part->placed) {
@@ -1840,13 +1841,13 @@ int Pli::placePli(
                           if (subLeft + subMargin + part->width <= right &&
                               bot + part->height + part->topMargin <= top) {
                               break;
-                            }
-                        }
-                    }
+                          }
+                      }
+                  }
 
                   if (i == parts.size()) {
                       break;
-                    }
+                  }
 
                   int subWidth = part->width;
                   part->left = subLeft + subMargin;
@@ -1859,20 +1860,20 @@ int Pli::placePli(
                   // try to place sub_row
 
                   while (nPlaced < parts.size()) {
-
                       for (i = 0; i < parts.size(); i++) {
                           part = parts[keys[i]];
                           subMargin = qMax(prevPart->csiMargin.valuePixels(XX),part->csiMargin.valuePixels(XX));
+
                           if ( ! part->placed &&
                                subBot + part->height + splitMargin <= top &&
                                subLeft + subMargin + part->width <= right) {
                               break;
-                            }
-                        }
+                          }
+                      }
 
                       if (i == parts.size()) {
                           break;
-                        }
+                      }
 
                       part->left = subLeft + subMargin;
                       part->bot  = subBot;
@@ -1880,10 +1881,11 @@ int Pli::placePli(
                       nPlaced++;
 
                       subBot += part->height + splitMargin;
-                    }
+                  }
+
                   subLeft += subWidth;
-                }
-            } /* DISABLED CODE */
+              }
+          } /* DISABLED CODE */
 
           bot -= overlap;
 
@@ -1892,20 +1894,23 @@ int Pli::placePli(
           bot += height;
           if (bot > tallest) {
               tallest = bot;
-            }
-        }
+          }
+      }
+
       topMargin = qMax(topMargin,part->topMargin);
 
       left += width;
 
       part = parts[keys[widest]];
+
       if (part->annotWidth) {
           margin.second = qMax(part->styleMeta.margin.valuePixels(XX),part->csiMargin.valuePixels(XX));
-        } else {
+      } else {
           margin.second = part->csiMargin.valuePixels(XX);
-        }
+      }
+
       margins.append(margin);
-    }
+  }
 
   pliWidth = left;
 
@@ -1914,29 +1919,34 @@ int Pli::placePli(
   int lastMargin = 0;
   for (int col = 0; col < totalCols; col++) {
       lastMargin = margins[col].second;
+
       if (col == 0) {
           int bmargin = int(borderData.thickness + borderData.margin[0]);
           margin = qMax(bmargin,margins[col].first);
-        } else {
+      } else {
           margin = qMax(margins[col].first,margins[col].second);
-        }
+      }
+
       for (int i = 0; i < parts.size(); i++) {
           if (parts[keys[i]]->col >= col+1) {
               parts[keys[i]]->left += margin;
-            }
-        }
+          }
+      }
+
       pliWidth += margin;
-    }
+  }
+
   if (lastMargin < borderData.margin[0]+borderData.thickness) {
       lastMargin = int(borderData.margin[0]+borderData.thickness);
-    }
+  }
+
   pliWidth += lastMargin;
 
   pliHeight = tallest;
 
   for (int i = 0; i < parts.size(); i++) {
       parts[keys[i]]->bot += botMargin;
-    }
+  }
 
   pliHeight += botMargin + topMargin;
 
@@ -2855,7 +2865,7 @@ int Pli::sizePli(Meta *_meta, PlacementType _parentRelativeType, bool _perStep)
   return future.result();
 }
 
-int Pli::sizePli(ConstrainData::PliConstrain constrain, unsigned height)
+int Pli::sizePli(ConstrainData::PliConstrain constrain, unsigned size)
 {
   int rc = !parts.size();
   if (rc)
@@ -2865,7 +2875,10 @@ int Pli::sizePli(ConstrainData::PliConstrain constrain, unsigned height)
       QFuture<int> future = QtConcurrent::run([&] {
           ConstrainData constrainData;
           constrainData.type = constrain;
-          constrainData.constraint = height;
+          if (constrainData.type == ConstrainData::PliConstrainWidth )
+              constrainData.constraint.width = size;
+          else if (constrainData.type == ConstrainData::PliConstrainHeight)
+              constrainData.constraint.height = size;
           return resizePli(meta,constrainData);
       });
 
@@ -2879,7 +2892,6 @@ int Pli::resizePli(
     Meta *meta,
     ConstrainData &constrainData)
 {
-
   // preserve LOCAL (pushed) flag
   bool pushed = placement.pushed;
   switch (parentRelativeType) {
@@ -2892,7 +2904,8 @@ int Pli::resizePli(
     default:
       placement = meta->LPub.pli.placement;
       break;
-    }
+  }
+
   // preserve LOCAL (pushed) flag
   placement.pushed = pushed;
 
@@ -2903,78 +2916,77 @@ int Pli::resizePli(
   //   Constrain Area
   //   Constrain Square
 
-  int cols, height;
+  #define X_CONSTRAIN 10000000
+
   bool packSubs = pliMeta.pack.value();
   bool sortType = pliMeta.sort.value();
-  int pliWidth = 0,pliHeight = 0;
+  int height, pliWidth = 0,pliHeight = 0, pliCols = 0;
 
   if (constrainData.type == ConstrainData::PliConstrainHeight) {
-      int cols;
       int rc;
       rc = placePli(sortedKeys,
-                    10000000,
-                    int(constrainData.constraint),
+                    X_CONSTRAIN,
+                    int(constrainData.constraint.height),
                     packSubs,
                     sortType,
-                    cols,
+                    pliCols,
                     pliWidth,
                     pliHeight);
       if (rc == -2) {
           constrainData.type = ConstrainData::PliConstrainArea;
-        }
-    } else if (constrainData.type == ConstrainData::PliConstrainColumns) {
-      if (parts.size() <= constrainData.constraint) {
+      }
+  } else if (constrainData.type == ConstrainData::PliConstrainColumns) {
+      if (parts.size() <= constrainData.constraint.columns) {
           placeCols(sortedKeys);
           pliWidth = Placement::size[0];
           pliHeight = Placement::size[1];
-          cols = parts.size();
-        } else {
-          int bomCols = int(constrainData.constraint);
-
+          pliCols = parts.size();
+      } else {
           int maxHeight = 0;
           for (int i = 0; i < parts.size(); i++) {
               maxHeight += parts[sortedKeys[i]]->height + parts[sortedKeys[i]]->csiMargin.valuePixels(1);
-            }
+          }
 
           maxHeight += maxHeight;
 
-          if (bomCols) {
-              for (height = maxHeight/(4*bomCols); height <= maxHeight; height++) {
-                  int rc = placePli(sortedKeys,10000000,
+          int constraintCols = int(constrainData.constraint.columns);
+
+          if (constraintCols) {
+              for (height = maxHeight/(4*constraintCols); height <= maxHeight; height++) {
+                  int rc = placePli(sortedKeys,
+                                    X_CONSTRAIN,
                                     height,
                                     packSubs,
                                     sortType,
-                                    cols,
+                                    pliCols,
                                     pliWidth,
                                     pliHeight);
-                  if (rc == 0 && cols == bomCols) {
+                  if (rc == 0 && pliCols == constraintCols) {
                       break;
-                    }
-                }
-            }
-        }
-    } else if (constrainData.type == ConstrainData::PliConstrainWidth) {
-
+                  }
+              }
+          }
+      }
+  } else if (constrainData.type == ConstrainData::PliConstrainWidth) {
       int height = 0;
       for (int i = 0; i < parts.size(); i++) {
           height += parts[sortedKeys[i]]->height;
-        }
+      }
 
-      int cols;
       int good_height = height;
 
       for ( ; height > 0; height -= 4) {
-
-          int rc = placePli(sortedKeys,10000000,
+          int rc = placePli(sortedKeys,
+                            X_CONSTRAIN,
                             height,
                             packSubs,
                             sortType,
-                            cols,
+                            pliCols,
                             pliWidth,
                             pliHeight);
           if (rc) {
               break;
-            }
+          }
 
           int w = 0;
 
@@ -2983,47 +2995,47 @@ int Pli::resizePli(
               t = parts[sortedKeys[i]]->left + parts[sortedKeys[i]]->width;
               if (t > w) {
                   w = t;
-                }
-            }
-          if (w < constrainData.constraint) {
+              }
+          }
+
+          if (w < constrainData.constraint.width) {
               good_height = height;
-            }
-        }
-      placePli(sortedKeys,10000000,
+          }
+      }
+
+      placePli(sortedKeys,
+               X_CONSTRAIN,
                good_height,
                packSubs,
                sortType,
-               cols,
+               pliCols,
                pliWidth,
                pliHeight);
-    } else if (constrainData.type == ConstrainData::PliConstrainArea) {
+  } else if (constrainData.type == ConstrainData::PliConstrainArea) {
 
       int height = 0;
       for (int i = 0; i < parts.size(); i++) {
           height += parts[sortedKeys[i]]->height;
-        }
+      }
 
-      int cols;
       int min_area = height*height;
       int good_height = height;
-
       // step by 1/10 of inch or centimeter
-
       int step = int(toPixels(0.1f,DPI));
 
       for ( ; height > 0; height -= step) {
-
-          int rc = placePli(sortedKeys,10000000,
+          int rc = placePli(sortedKeys,
+                            X_CONSTRAIN,
                             height,
                             packSubs,
                             sortType,
-                            cols,
+                            pliCols,
                             pliWidth,
                             pliHeight);
 
           if (rc) {
               break;
-            }
+          }
 
           int h = 0;
           int w = 0;
@@ -3033,75 +3045,85 @@ int Pli::resizePli(
               t = parts[sortedKeys[i]]->bot + parts[sortedKeys[i]]->height;
               if (t > h) {
                   h = t;
-                }
+              }
               t = parts[sortedKeys[i]]->left + parts[sortedKeys[i]]->width;
               if (t > w) {
                   w = t;
-                }
-            }
+              }
+          }
+
           if (w*h < min_area) {
               min_area = w*h;
               good_height = height;
-            }
-        }
-      placePli(sortedKeys,10000000,
+          }
+      }
+
+      placePli(sortedKeys,
+               X_CONSTRAIN,
                good_height,
                packSubs,
                sortType,
-               cols,
+               pliCols,
                pliWidth,
                pliHeight);
-    } else if (constrainData.type == ConstrainData::PliConstrainSquare) {
+  } else if (constrainData.type == ConstrainData::PliConstrainSquare) {
 
       int height = 0;
       for (int i = 0; i < parts.size(); i++) {
           height += parts[sortedKeys[i]]->height;
-        }
+      }
 
-      int cols;
       int min_delta = height;
       int good_height = height;
       int step = int(toPixels(0.1f,DPI));
 
       for ( ; height > 0; height -= step) {
-
-          int rc = placePli(sortedKeys,10000000,
+          int rc = placePli(sortedKeys,
+                            X_CONSTRAIN,
                             height,
                             packSubs,
                             sortType,
-                            cols,
+                            pliCols,
                             pliWidth,
                             pliHeight);
 
           if (rc) {
               break;
-            }
+          }
 
           int h = pliWidth;
           int w = pliHeight;
-
           int delta = 0;
+
           if (w < h) {
               delta = h - w;
-            } else if (h < w) {
+          } else if (h < w) {
               delta = w - h;
-            }
+          }
+
           if (delta < min_delta) {
               min_delta = delta;
               good_height = height;
-            }
-        }
-      placePli(sortedKeys,10000000,
+          }
+      }
+
+      placePli(sortedKeys,
+               X_CONSTRAIN,
                good_height,
                packSubs,
                sortType,
-               cols,
+               pliCols,
                pliWidth,
                pliHeight);
-    }
+  }
 
   size[0] = pliWidth;
   size[1] = pliHeight;
+
+  constrainData.constraint.width = pliWidth;
+  constrainData.constraint.height = pliHeight;
+  constrainData.constraint.columns = pliCols;
+  pliMeta.constrain.setValue(constrainData);
 
   return 0;
 }
@@ -3694,7 +3716,7 @@ void PliBackgroundItem::resize(QPointF grabbed)
 
   ConstrainData constrainData;
   constrainData.type = ConstrainData::PliConstrainHeight;
-  constrainData.constraint = grabHeight;
+  constrainData.constraint.height = grabHeight;
 
   pli->resizePli(pli->meta, constrainData);
 
@@ -3726,7 +3748,7 @@ void PliBackgroundItem::change()
   ConstrainData constrainData;
 
   constrainData.type = ConstrainData::PliConstrainHeight;
-  constrainData.constraint = int(grabHeight);
+  constrainData.constraint.height = int(grabHeight);
 
   pli->pliMeta.constrain.setValue(constrainData);
 

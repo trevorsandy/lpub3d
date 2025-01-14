@@ -1251,6 +1251,7 @@ private:
   QLabel    *headingLabel;
   QComboBox *combo;
   QLineEdit *valueEdit;
+  QDoubleValidator *valueValidator;
 
   void enable();
 

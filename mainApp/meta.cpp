@@ -2524,12 +2524,11 @@ void FreeFormMeta::metaKeywords(QStringList &out, QString preamble)
 }
 /* ------------------ */
 
-ConstrainMeta::ConstrainMeta()
+ConstrainMeta::ConstrainMeta() : LeafMeta()
 {
-  _value[0].type = ConstrainData::PliConstrainArea;
-  _value[1].type = ConstrainData::PliConstrainArea;
   _default = true;
 }
+
 Rc ConstrainMeta::parse(QStringList &argv, int index,Where &here)
 {
   Rc rc = FailureRc;
@@ -2549,7 +2548,20 @@ Rc ConstrainMeta::parse(QStringList &argv, int index,Where &here)
         rx.setPattern("^(WIDTH|HEIGHT|COLS)$");
         if (argv[index].contains(rx)) {
           _value[pushed].type = ConstrainData::PliConstrain(tokenMap[argv[index]]);
-          _value[pushed].constraint = argv[index+1].toFloat(&ok);
+          switch (_value[pushed].type)
+          {
+          case ConstrainData::PliConstrainWidth:
+            _value[pushed].constraint.width = argv[index+1].toFloat(&ok);
+            break;
+          case ConstrainData::PliConstrainHeight:
+            _value[pushed].constraint.height = argv[index+1].toFloat(&ok);
+            break;
+          case ConstrainData::PliConstrainColumns:
+            _value[pushed].constraint.columns = argv[index+1].toFloat(&ok);
+            break;
+          default:
+            break;
+          }
           rc = OkRc;
         }
       }
@@ -2561,25 +2573,26 @@ Rc ConstrainMeta::parse(QStringList &argv, int index,Where &here)
   }
   return rc;
 }
+
 QString ConstrainMeta::format(bool local, bool global)
 {
   QString foo;
   switch (_value[pushed].type) {
-    case ConstrainData::PliConstrainArea:
-      foo = "AREA";
-      break;
-    case ConstrainData::PliConstrainSquare:
-      foo = "SQUARE";
-      break;
-    case ConstrainData::PliConstrainWidth:
-      foo = QString("WIDTH %1") .arg(double(_value[pushed].constraint),0,'f',4);
-      break;
-    case ConstrainData::PliConstrainHeight:
-      foo = QString("HEIGHT %1") .arg(double(_value[pushed].constraint),0,'f',4);
-      break;
-    default:
-      foo = QString("COLS %1") .arg(double(_value[pushed].constraint),0,'f',4);
-      break;
+  case ConstrainData::PliConstrainArea:
+    foo = "AREA";
+    break;
+  case ConstrainData::PliConstrainSquare:
+    foo = "SQUARE";
+    break;
+  case ConstrainData::PliConstrainWidth:
+    foo = QString("WIDTH %1") .arg(double(_value[pushed].constraint.width),0,'f',4);
+    break;
+  case ConstrainData::PliConstrainHeight:
+    foo = QString("HEIGHT %1") .arg(double(_value[pushed].constraint.height),0,'f',4);
+    break;
+  default:
+    foo = QString("COLS %1") .arg(_value[pushed].constraint.columns);
+    break;
   }
   return LeafMeta::format(local,global,foo);
 }

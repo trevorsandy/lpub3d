@@ -1,4 +1,4 @@
-LPub3D 2.4.9.16.4064 (14 01 2025 02:27:23)
+LPub3D 2.4.9.17.4065 (14 01 2025 02:29:53)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Inconsistency with parts list shape inputs #805
 - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
 - Regression - Library Update failed #804
 - Fix - Submodel preview rotation #803

@@ -2517,7 +2517,6 @@ private:
   ConstrainData _value[2];
   ConstrainData _result;
   bool _default;
-
 public:
   bool isDefault()
   {
@@ -2532,23 +2531,40 @@ public:
     pushed = 0;
     _default = true;
   }
-  ConstrainData valueUnit()
+  ConstrainData &valueUnit()
   {
     return _value[pushed];
   }
   ConstrainData &value()
   {
     _result = _value[pushed];
-    if (_result.type == ConstrainData::PliConstrainWidth ||
-        _result.type == ConstrainData::PliConstrainHeight) {
-      _result.constraint *= resolution();
+    switch (_result.type)
+    {
+    case ConstrainData::PliConstrainWidth:
+      _result.constraint.width *= resolution();
+      break;
+    case ConstrainData::PliConstrainHeight:
+      _result.constraint.height *= resolution();
+      break;
+    default:
+      break;
     }
     return _result;
   }
   void setValue(ConstrainData &value)
   {
-    value.constraint /= resolution();
     _default = false;
+    switch (value.type)
+    {
+    case ConstrainData::PliConstrainWidth:
+      value.constraint.width /= resolution();
+      break;
+    case ConstrainData::PliConstrainHeight:
+      value.constraint.height /= resolution();
+      break;
+    default:
+      break;
+    }
     _value[pushed] = value;
   }
   void setValueUnit(ConstrainData &value)

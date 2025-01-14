@@ -273,7 +273,7 @@ class Pli : public Placement {
     int  partSize();
     int  partSizeLDViewSCall();                          //LDView performance improvement
     int  resizePli(Meta *, ConstrainData &constrainData);
-    int  placePli(QList<QString> &, int,int,bool,bool,int&,int&,int&);
+    int  placePli(QList<QString> &, int, int, bool, bool, int&, int&, int&);
     void positionChildren(int height, qreal scaleX, qreal scaleY);
     int  addPli (int, QGraphicsItem *);
 

@@ -933,9 +933,11 @@ ConstrainGui::ConstrainGui(
   ConstrainMeta *_meta,
   QGroupBox     *parent)
 {
-  meta = _meta;
+  // store un-modified initial values
+  data = _meta->valueUnit();
 
-  data = meta->valueUnit();
+  // these will be updated as changes are incurred
+  meta = _meta;
 
   QHBoxLayout *layout;
 
@@ -956,23 +958,23 @@ ConstrainGui::ConstrainGui(
     headingLabel = nullptr;
   }
 
-  QString        string;
+  QString  string;
 
   ConstrainData constraint = meta->value();
 
   string = "";
 
   switch (constraint.type) {
-    case ConstrainData::PliConstrainArea:
-    case ConstrainData::PliConstrainSquare:
-    break;
     case ConstrainData::PliConstrainWidth:
+      string = QString("%1") .arg(constraint.constraint.width, 4,'f',2);
+    break;
     case ConstrainData::PliConstrainHeight:
-      string = QString("%1") .arg(constraint.constraint,
-                                  4,'f',2);
+      string = QString("%1") .arg(constraint.constraint.height, 4,'f',2);
     break;
     case ConstrainData::PliConstrainColumns:
-      string = QString("%1") .arg(int(constraint.constraint));
+      string = QString("%1") .arg(constraint.constraint.columns);
+    break;
+    default:
     break;
   }
 
@@ -990,7 +992,7 @@ ConstrainGui::ConstrainGui(
   /* Constraint */
 
   valueEdit = new QLineEdit(parent);
-  QDoubleValidator *valueValidator = new QDoubleValidator(valueEdit);
+  valueValidator = new QDoubleValidator(valueEdit);
   valueValidator->setRange(0.0f, 1000.0f);
   valueValidator->setDecimals(4);
   valueValidator->setNotation(QDoubleValidator::StandardNotation);
@@ -1012,14 +1014,14 @@ void ConstrainGui::typeChange(QString const &type)
   } else if (type == "Square") {
     _data.type = ConstrainData::PliConstrainSquare;
   } else if (type == "Width") {
-    string = QString::number(_data.constraint,'f',2);
     _data.type = ConstrainData::PliConstrainWidth;
+    string = QString::number(_data.constraint.width,'f',2);
   } else if (type == "Height") {
-    string = QString::number(_data.constraint,'f',2);
     _data.type = ConstrainData::PliConstrainHeight;
+    string = QString::number(_data.constraint.height,'f',2);
   } else {
-    string = QString::number(int(_data.constraint));
     _data.type = ConstrainData::PliConstrainColumns;
+    string = QString::number(_data.constraint.columns);
   }
   valueEdit->setText(string);
   meta->setValueUnit(_data);
@@ -1029,11 +1031,28 @@ void ConstrainGui::typeChange(QString const &type)
 
 void ConstrainGui::valueChange(QString const &string)
 {
-  float value = string.toFloat();
   ConstrainData _data = meta->valueUnit();
-  _data.constraint = value;
+  float newValue = string.toFloat();
+  float oldValue = 0.0f;
+  int type = combo->currentIndex();
+  switch (type) {
+  case ConstrainData::PliConstrainWidth:
+    _data.constraint.width = newValue;
+    oldValue = data.constraint.width;
+    break;
+  case ConstrainData::PliConstrainHeight:
+    _data.constraint.height = newValue;
+    oldValue = data.constraint.height;
+    break;
+  case ConstrainData::PliConstrainColumns:
+    _data.constraint.columns = newValue;
+    oldValue = data.constraint.columns;
+    break;
+  default:
+    break;
+  }
   meta->setValueUnit(_data);
-  modified = notEqual(value, data.constraint);
+  modified = notEqual(newValue, oldValue);
 }
 
 void ConstrainGui::setEnabled(bool enable)
@@ -1049,14 +1068,15 @@ void ConstrainGui::enable()
 {
   ConstrainData _data = meta->valueUnit();
   switch (_data.type) {
-    case ConstrainData::PliConstrainArea:
-      valueEdit->setDisabled(true);
+  case ConstrainData::PliConstrainArea:
+  case ConstrainData::PliConstrainSquare:
+    valueEdit->setValidator(nullptr);
+    valueEdit->setText(tr("Auto"));
+    valueEdit->setDisabled(true);
     break;
-    case ConstrainData::PliConstrainSquare:
-      valueEdit->setDisabled(true);
-    break;
-    default:
-      valueEdit->setEnabled(true);
+  default:
+    valueEdit->setValidator(valueValidator);
+    valueEdit->setEnabled(true);
     break;
   }
 }

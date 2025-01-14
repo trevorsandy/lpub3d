@@ -704,7 +704,7 @@ int SubModel::sizeSubModel(Meta *_meta, PlacementType _parentRelativeType, bool 
   return resizeSubModel(meta,constrainData);
 }
 
-int SubModel::sizeSubModel(ConstrainData::PliConstrain constrain, unsigned height)
+int SubModel::sizeSubModel(ConstrainData::PliConstrain constrain, unsigned size)
 {
   if (parts.size() == 0) {
     return 1;
@@ -713,8 +713,10 @@ int SubModel::sizeSubModel(ConstrainData::PliConstrain constrain, unsigned heigh
   if (meta) {
     ConstrainData constrainData;
     constrainData.type = constrain;
-    constrainData.constraint = height;
-
+    if (constrainData.type == ConstrainData::PliConstrainWidth )
+      constrainData.constraint.width = size;
+    else if (constrainData.type == ConstrainData::PliConstrainHeight)
+      constrainData.constraint.height = size;
     return resizeSubModel(meta,constrainData);
   }
   return 1;
@@ -724,7 +726,6 @@ int SubModel::resizeSubModel(
   Meta *meta,
   ConstrainData &constrainData)
 {
-
   switch (parentRelativeType) {
     case StepGroupType:
       placement = meta->LPub.multiStep.subModel.placement;
@@ -744,46 +745,47 @@ int SubModel::resizeSubModel(
   //   Constrain Area
   //   Constrain Square
 
-  int cols = 0, height = 0;
-  int subModelWidth = 0,subModelHeight = 0;
+  #define X_CONSTRAIN 10000000
+
+  int height = 0, subModelWidth = 0, subModelHeight = 0, subModelCols = 0;
 
   if (constrainData.type == ConstrainData::PliConstrainHeight) {
-    int cols;
     int rc;
     rc = placeSubModel(sortedKeys,
-                  10000000,
-                  int(constrainData.constraint),
-                  cols,
+                  X_CONSTRAIN,
+                  int(constrainData.constraint.height),
+                  subModelCols,
                   subModelWidth,
                   subModelHeight);
     if (rc == -2) {
       constrainData.type = ConstrainData::PliConstrainArea;
     }
   } else if (constrainData.type == ConstrainData::PliConstrainColumns) {
-      if (parts.size() <= constrainData.constraint) {
+      if (parts.size() <= constrainData.constraint.columns) {
         placeCols(sortedKeys);
         subModelWidth  = Placement::size[0];
         subModelHeight = Placement::size[1];
-        cols = parts.size();
+        subModelCols = parts.size();
       } else {
-      int bomCols = int(constrainData.constraint);
 
-      int maxHeight = 0;
-      for (int i = 0; i < parts.size(); i++) {
-        maxHeight += parts[sortedKeys[i]]->height + parts[sortedKeys[i]]->csiMargin.valuePixels(1);
-      }
+        int maxHeight = 0;
+        for (int i = 0; i < parts.size(); i++) {
+          maxHeight += parts[sortedKeys[i]]->height + parts[sortedKeys[i]]->csiMargin.valuePixels(1);
+        }
 
       maxHeight += maxHeight;
 
-      if (bomCols) {
-        for (height = maxHeight/(4*bomCols); height <= maxHeight; height++) {
+      int constraintCols = int(constrainData.constraint.columns);
+
+      if (constraintCols) {
+        for (height = maxHeight/(4*constraintCols); height <= maxHeight; height++) {
           int rc = placeSubModel(sortedKeys,
-                            10000000,
+                            X_CONSTRAIN,
                             height,
-                            cols,
+                            subModelCols,
                             subModelWidth,
                             subModelHeight);
-          if (rc == 0 && cols == bomCols) {
+          if (rc == 0 && subModelCols == constraintCols) {
             break;
           }
         }
@@ -796,14 +798,14 @@ int SubModel::resizeSubModel(
       height += parts[sortedKeys[i]]->height;
     }
 
-    int cols;
     int good_height = height;
 
     for ( ; height > 0; height -= 4) {
 
-      int rc = placeSubModel(sortedKeys,10000000,
+      int rc = placeSubModel(sortedKeys,
+                        X_CONSTRAIN,
                         height,
-                        cols,
+                        subModelCols,
                         subModelWidth,
                         subModelHeight);
       if (rc) {
@@ -819,13 +821,15 @@ int SubModel::resizeSubModel(
           w = t;
         }
       }
-      if (w < constrainData.constraint) {
+      if (w < constrainData.constraint.width) {
         good_height = height;
       }
     }
-    placeSubModel(sortedKeys,10000000,
+
+    placeSubModel(sortedKeys,
+             X_CONSTRAIN,
              good_height,
-             cols,
+             subModelCols,
              subModelWidth,
              subModelHeight);
   } else if (constrainData.type == ConstrainData::PliConstrainArea) {
@@ -835,7 +839,6 @@ int SubModel::resizeSubModel(
       height += parts[sortedKeys[i]]->height;
     }
 
-    int cols;
     int min_area = height*height;
     int good_height = height;
 
@@ -845,9 +848,10 @@ int SubModel::resizeSubModel(
 
     for ( ; height > 0; height -= step) {
 
-      int rc = placeSubModel(sortedKeys,10000000,
+      int rc = placeSubModel(sortedKeys,
+                        X_CONSTRAIN,
                         height,
-                        cols,
+                        subModelCols,
                         subModelWidth,
                         subModelHeight);
 
@@ -874,9 +878,11 @@ int SubModel::resizeSubModel(
         good_height = height;
       }
     }
-    placeSubModel(sortedKeys,10000000,
+
+    placeSubModel(sortedKeys,
+             X_CONSTRAIN,
              good_height,
-             cols,
+             subModelCols,
              subModelWidth,
              subModelHeight);
   } else if (constrainData.type == ConstrainData::PliConstrainSquare) {
@@ -886,16 +892,16 @@ int SubModel::resizeSubModel(
       height += parts[sortedKeys[i]]->height;
     }
 
-    int cols;
     int min_delta = height;
     int good_height = height;
     int step = int(toPixels(0.1f,DPI));
 
     for ( ; height > 0; height -= step) {
 
-      int rc = placeSubModel(sortedKeys,10000000,
+      int rc = placeSubModel(sortedKeys,
+                        X_CONSTRAIN,
                         height,
-                        cols,
+                        subModelCols,
                         subModelWidth,
                         subModelHeight);
 
@@ -917,15 +923,21 @@ int SubModel::resizeSubModel(
         good_height = height;
       }
     }
-    placeSubModel(sortedKeys,10000000,
+    placeSubModel(sortedKeys,
+             X_CONSTRAIN,
              good_height,
-             cols,
+             subModelCols,
              subModelWidth,
              subModelHeight);
   }
 
   size[0] = subModelWidth;
   size[1] = subModelHeight;
+
+  constrainData.constraint.width = subModelWidth;
+  constrainData.constraint.height = subModelHeight;
+  constrainData.constraint.columns = subModelCols;
+  subModelMeta.constrain.setValue(constrainData);
 
   return 0;
 }
@@ -1913,7 +1925,7 @@ void SubModelBackgroundItem::resize(QPointF grabbed)
 
   ConstrainData constrainData;
   constrainData.type = ConstrainData::PliConstrainHeight;
-  constrainData.constraint = grabHeight;
+  constrainData.constraint.height = grabHeight;
 
   subModel->resizeSubModel(subModel->meta, constrainData);
 
@@ -1945,7 +1957,7 @@ void SubModelBackgroundItem::change()
   ConstrainData constrainData;
 
   constrainData.type = ConstrainData::PliConstrainHeight;
-  constrainData.constraint = int(grabHeight);
+  constrainData.constraint.height = int(grabHeight);
 
   subModel->subModelMeta.constrain.setValue(constrainData);
 

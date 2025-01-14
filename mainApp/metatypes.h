@@ -761,9 +761,25 @@ public:
     PliConstrainSquare,
     PliConstrainWidth,
     PliConstrainHeight,
-    PliConstrainColumns
+    PliConstrainColumns,
+    PliConNum
   } type;
-  float        constraint;
+  struct Constraint
+  {
+    float width;
+    float height;
+    int  columns;
+    Constraint()
+      : width(0.0f),
+        height(0.0f),
+        columns(0)
+        {}
+  };
+  Constraint constraint;
+  ConstrainData()
+  {
+    type = ConstrainData::PliConstrainArea;
+  }
 };
 
 class SepData

@@ -7852,18 +7852,24 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_CONSTRAIN
         {
             QObject::tr(
-            "  Configure the area constrain properties.<br>"
+            "  Configure the shape constrain properties.<br>"
             "  Select the the constrain type from the<br>"
             "  drop-down list and use the line edit dialog<br>"
-            "  to enter the corresponding constraint type units.<br><br>"
-            "  Available types are:<br>"
-            "  - Area: Apply constraint using specified area.<br><br>"
-            "  - Square: Apply constraint using quadrilateral<br>"
-            "    of equal-length sides.<br><br>"
-            "  - Width: Apply constraint on specified width.<br><br>"
-            "  - Height: Apply constraint on specified height.<br><br>"
+            "  to enter the corresponding constraint type units.<br>"
+            "  Dots per %1 units have been multiplied by<br>"
+            "  resolution(%2).<br><br>"
+            "  Available constrain types are:<br>"
+            "  - Area: Apply constraint using the available area.<br>"
+            "    This property is automatically calculated.<br><br>"
+            "  - Square: Apply constraint using quadrilateral of<br>"
+            "    equal-length sides. This property is automatically<br>"
+            "    calculated.<br><br>"
+            "  - Width: Apply constraint on specified unit width.<br><br>"
+            "  - Height: Apply constraint on specified unit height.<br><br>"
             "  - Columns: Apply constraint on specified number<br>"
-            "    of comumns.%1<br>")
+            "    of comumns.%3<br>")
+            .arg(resolutionType() == DPI ? QObject::tr("inch") : QObject::tr("centimeter"))
+            .arg(resolution())
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_GUI_CONSTRAIN")
