@@ -4,7 +4,7 @@ LPub3D - An LDraw Building Instruction Editor
 https://trevorsandy.github.io/lpub3d
 Trevor Sandy <trevor.sandy@gmail.com>
 
-Visual Editor (LeoCAD version 23.03 sha e69bbf specifically adapted for LPub3D)
+Visual Editor (LeoCAD version 23.03 sha abcef7a specifically adapted for LPub3D)
 https://github.com/trevorsandy/leocad/
 Trevor Sandy <trevor.sandy@gmail.com>
 
@@ -20,24 +20,25 @@ LPub3D RayTrace-CUI (POV-Ray 3.8.0 "raytracer-cui" specifically adapted for LPub
 https://github.com/trevorsandy/povray/
 Trevor Sandy <trevor.sandy@gmail.com>
 
-LPub4
+LPub4 v4.0.0.14
 https://sourceforge.net/projects/lpub4/
 Kevin Clague <kevin.clague@gmail.com>
+Daniele Benedettelli <danielebenedettelli@gmail.com>
 
-LeoCAD 23.03 commit 4fce431
+LeoCAD 23.03 commit abcef7a
 https://github.com/leozide/leocad
 Leonardo Zide <leozide@gmail.com>
 
-LDGlite 1.3.4 commit 8497689
+LDGlite 1.3.4 commit 26ee190
 https://github.com/deeice/ldglite
 Don Heyse <dheyse@hotmail.com>
 
-LDView 4.5 commit 0f529
+LDView 4.5 commit 0f529ca
 https://github.com/tcobbs/ldview
 Travis Cobb <ldview@gmail.com>
 Peter Bartfai <pbartfai@stardust.hu>
 
-POV-Ray 3.8 commit ca89731
+POV-Ray 3.8 commit a98c812
 https://github.com/POV-Ray/povray
 Persistence of Vision Raytracer Pty. Ltd.
 
@@ -45,7 +46,7 @@ ImportLDraw - A Blender™ plug-in for importing LDraw™ file format models and
 https://github.com/TobyLobster/ImportLDraw
 Toby Nelson <tobymnelson@gmail.com>
 
-ExportLDraw - LDraw Handler for Blender 2.82+ and 3.0+ commit 9c32bc3
+ExportLDraw - LDraw Handler for Blender 2.82+ and 3.0+ commit 72dc8f7
 https://github.com/cuddlyogre/ExportLDraw
 Matthew Morrison [cuddlyogre]<cuddlyogre@gmail.com>
 

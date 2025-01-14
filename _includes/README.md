@@ -68,7 +68,7 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 
  - Click icon above to download and/or install distribution release.
  - **ARM** builds are available for the following distributions:
-	- [macOS 14 (arm64)](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019-arm64-macos.dmg)
+	- [macOS 14 (arm64)](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114-arm64-macos.dmg)
 	- [AlmaLinux 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/AlmaLinux_9/aarch64/lpub3d-2.4.8.3723-2.el9.aarch64.rpm)
 	- [CentOS 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_9_Stream/aarch64/lpub3d-2.4.8.3723-2.el9.aarch64.rpm)
 	- [Debian 12 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/Debian_11/arm64/lpub3d_2.4.8.3723-1_arm64.deb)
@@ -81,16 +81,16 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 ### Verify Windows Distribution Hash using PowerShell
 The following steps are using LPub3D Windows release hosted on [GitHub][github_releases].
 These steps can be applied to any LPub3D release where a GPG signature file is available.
-- Get the hash file [LPub3D-2.4.8.0.3723_20241019.exe.sha512](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019.exe.sha512)
+- Get the hash file [LPub3D-2.4.9.18.4065_20250114.exe.sha512](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114.exe.sha512)
 - Open a PowerShell session
-- Add the package download path to `PkgUrl`{:.posh}
-- Add the hash file sha512 hash to `PublishedHash`.{:.posh}
+- Add the package download path to `$PkgUrl`{:.posh}
+- Add the hash file sha512 hash to `$PublishedHash`.{:.posh}
 ```posh
-WebClient = [System.Net.WebClient]::new()
-PkgUrl = 'https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019.exe'
-PublishedHash = '457845f9267c8cd0bf0a93ab7e210a8ab085fcab73cea42072f1a356ddf9c260c709c8af045a5bd54ff0c4451dfd5b24be9f70a695f9758d51b789ee1122f384'
-FileHash = Get-FileHash -Algorithm SHA512 -InputStream ($WebClient.OpenRead($PkgUrl))
-FileHash.Hash -eq $PublishedHash
+$WebClient = [System.Net.WebClient]::new()
+$PkgUrl = 'https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114.exe'
+$PublishedHash = 'B0E9B05FF631A9D1388022C639E5D1C80B76C368540AE96DB2CD44865B95C5F3B3E98D334C78E71F988C2BFE13694EA958A9BB561F1254ACAE319A709302155D'
+$FileHash = Get-FileHash -Algorithm SHA512 -InputStream ($WebClient.OpenRead($PkgUrl))
+$FileHash.Hash -eq $PublishedHash
 ```
 - Cut and paste this code snippet into Powershell, a valid return value is `True`{:.sh}.
 
@@ -98,13 +98,13 @@ FileHash.Hash -eq $PublishedHash
 The following steps are using LPub3D AppImage release hosted on [GitHub][github_releases].
 These steps can be applied to any LPub3D release where a GPG signature file is available.
 - Get the GPG public key: [pubring.auto](https://raw.github.com/trevorsandy/lpub3d/master/builds/utilities/ci/secure/pubring.auto)
-- Get the release: [LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage)
-- Get the hash file: [LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512)
-- Get the GPG hash file signature: [LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512.sig](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512.sig)
+- Get the release: [LPub3D-2.4.9.18.4065_20250114-x86_64.AppImage](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114-x86_64.AppImage)
+- Get the hash file: [LPub3D-2.4.9.18.4065_20250114-x86_64.AppImage.sha512](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114-x86_64.AppImage.sha512)
+- Get the GPG hash file signature: [LPub3D-2.4.9.18.4065_20250114-x86_64.AppImage.sha512.sig](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114-x86_64.AppImage.sha512.sig)
 - Ensure GPG is installed and configured: `which gpg`{:.sh}
 - Import the public key file into GPG: `gpg --import pubring.auto`{:.sh}
-- Verify the against its hash file: `sha512sum -c LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512`{:.sh}
-- Verify the GPG hash file signature: `gpg --verify LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage.sha512.sig`{:.sh}
+- Verify the against its hash file: `sha512sum -c LPub3D-2.4.9.18.4065_20250114-x86_64.AppImage.sha512`{:.sh}
+- Verify the GPG hash file signature: `gpg --verify LPub3D-2.4.9.18.4065_20250114-x86_64.AppImage.sha512.sig`{:.sh}
 
 ### Quick Links
  - [Build and package LPub3D from source][build-from-source]
@@ -140,13 +140,17 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - [LPub3D meta commands UDL for Notepad++ (zip download)][resources-lpub3d-npp-udl]
 
 ### Features and Enhancements
-<div class="feature-list" markdown="1">
-
- - Show individual part instance in BOM and PLI [#766](https://github.com/trevorsandy/lpub3d/issues/766) <span style="color:red">(NEW!)</span>
- - Enhanced Blender LDraw model render, import, and export integration [#416](https://github.com/trevorsandy/lpub3d/issues/416) <span style="color:red">(NEW!)</span>
- - Apple silicon arm64 (M1/M2) builds [#761](https://github.com/trevorsandy/lpub3d/issues/761) <span style="color:red">(NEW!)</span>
- - Support base64 encoded !DATA meta command [#722](https://github.com/trevorsandy/lpub3d/issues/722) <span style="color:red">(NEW!)</span>
- - Display model STEP supports part lines [#704](https://github.com/trevorsandy/lpub3d/issues/704) <span style="color:red">(NEW!)</span>
+<div class="feature-list" markdown="1">                 
+ - Automatic restart [#790](https://github.com/trevorsandy/lpub3d/issues/790) <span style="color:red">(NEW!)</span>
+ - Load last opened page on load last opened file [#795](https://github.com/trevorsandy/lpub3d/issues/795) <span style="color:red">(NEW!)</span>
+ - Expanded command editor toolbar [#800](https://github.com/trevorsandy/lpub3d/issues/800) <span style="color:red">(NEW!)</span>
+ - Expanded visual editor toolbar and menu [#799](https://github.com/trevorsandy/lpub3d/issues/799) <span style="color:red">(NEW!)</span>
+ - Cycle each page on Update dialog [#798](https://github.com/trevorsandy/lpub3d/issues/798) <span style="color:red">(NEW!)</span>
+ - Show individual part instance in BOM and PLI [#766](https://github.com/trevorsandy/lpub3d/issues/766)
+ - Enhanced Blender LDraw model render, import, and export integration [#416](https://github.com/trevorsandy/lpub3d/issues/416)
+ - Apple silicon arm64 (M1/M2) builds [#761](https://github.com/trevorsandy/lpub3d/issues/761)
+ - Support base64 encoded !DATA meta command [#722](https://github.com/trevorsandy/lpub3d/issues/722)
+ - Display model STEP supports part lines [#704](https://github.com/trevorsandy/lpub3d/issues/704)
  - Enhanced STEP part fade and highlight behaviour [#710](https://github.com/trevorsandy/lpub3d/issues/710)
  - Model load status available from file menu action [#698](https://github.com/trevorsandy/lpub3d/issues/698)
  - Build modification - visual editor build modification actions [#633](https://github.com/trevorsandy/lpub3d/issues/633)
@@ -306,9 +310,9 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [macos-icon]:          {{ '/assets/images/macos.png' | relative_url }} "Ventura 13 (x86_64)"
 [windows-icon]:        {{ '/assets/images/windows.png' | relative_url }} "Microsoft Windows Server 2022 10.0.20348"
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019-x86_64-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.4.8/LPub3D-2.4.8.0.3723_20241019-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114-x86_64-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114-x86_64.AppImage
 
 [almalinux-icon]:      {{ '/assets/images/almalinux_logo.png' | relative_url }} "Alma Linux 9"
 [arch-icon]:           {{ '/assets/images/arch.png' | relative_url }} "Arch Linux"
@@ -382,7 +386,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [gh-actions-url]:      https://github.com/trevorsandy/lpub3d/actions
 
 [gh-rel-badge]:        https://img.shields.io/github/release/trevorsandy/lpub3d.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
-[gh-rel-url]:          https://github.com/trevorsandy/lpub3d/releases/latest "LPub3D-2.4.8.0.3723_20241019"
+[gh-rel-url]:          https://github.com/trevorsandy/lpub3d/releases/latest "LPub3D-2.4.9.18.4065_20250114"
 
 [gh-dl-badge]:         https://img.shields.io/github/downloads/trevorsandy/lpub3d/total.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
 [gh-dl-url]:           https://github.com/trevorsandy/lpub3d/releases
@@ -402,11 +406,11 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [gh-top-lang-badge]:   https://img.shields.io/github/languages/top/trevorsandy/lpub3d.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
 [gh-top-lang-url]:     https://github.com/trevorsandy/lpub3d
 
-[gh-comm-since-badge]: https://img.shields.io/github/commits-since/trevorsandy/lpub3d/v2.4.8.svg?label=revs&nbsp;since&nbsp;v2.4.8&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
-[gh-comm-since-url]:   https://github.com/trevorsandy/lpub3d/releases/tag/continuous "Revisions since v2.4.8"
+[gh-comm-since-badge]: https://img.shields.io/github/commits-since/trevorsandy/lpub3d/v2.4.9.svg?label=revs&nbsp;since&nbsp;v2.4.9&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
+[gh-comm-since-url]:   https://github.com/trevorsandy/lpub3d/releases/tag/continuous "Revisions since v2.4.9"
 
 [gh-maintained-badge]: https://img.shields.io/maintenance/yes/2025.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
-[gh-maintained-url]:   https://github.com/trevorsandy/lpub3d/projects/1 "Last edited 07-01-2025"
+[gh-maintained-url]:   https://github.com/trevorsandy/lpub3d/projects/1 "Last edited 14-01-2025"
 
 [sf-dw-badge]:         https://img.shields.io/sourceforge/dw/lpub3d.svg?logo=data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAyMDAxMDkwNC8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+PHN2ZyB2ZXJzaW9uPSIxLjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjMzMHB4IiBoZWlnaHQ9IjMzMHB4IiB2aWV3Qm94PSIwIDAgMzMwMCAzMzAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBtZWV0Ij48ZyBpZD0ibGF5ZXIxMDEiIGZpbGw9IiNmZmYiIHN0cm9rZT0ibm9uZSI+IDxwYXRoIGQ9Ik0xNTI4IDMwMTkgYy0xMCAtNSAtMTggLTIwIC0xOCAtMzIgMCAtMTYgMTczIC0xOTUgNjA3IC02MjkgNTYyIC01NjIgNjA2IC02MDkgNjA1IC02MzkgLTEgLTI5IC00OSAtODEgLTQ4MSAtNTEzIC0zMjMgLTMyMyAtNDgxIC00ODggLTQ4MSAtNTAyIDAgLTIzIDE5OCAtMjI0IDIyMSAtMjI0IDE5IDAgMTIzOSAxMjIxIDEyMzkgMTI0MCAwIDggLTI5MSAzMDYgLTY0NyA2NjIgbC02NDggNjQ4IC0xOTAgMCBjLTExMCAwIC0xOTcgLTUgLTIwNyAtMTF6Ii8+IDxwYXRoIGQ9Ik02ODIgMjIwNiBjLTQwMSAtNDAwIC02MTMgLTYxOSAtNjExIC02MjkgNCAtMTggMTI2MiAtMTI4MiAxMjkxIC0xMjk4IDIzIC0xMyAzNzUgLTEyIDM5OSAxIDEwIDYgMTkgMjEgMTkgMzMgMCAxNSAtMTcyIDE5NCAtNjA0IDYyNyAtMzMzIDMzMyAtNjA1IDYxMiAtNjA2IDYyMCAtMiA4IC0yIDI0IC0xIDM1IDEgMTIgMTkzIDIxMiA0ODEgNTAwIDMwOCAzMDggNDgwIDQ4NyA0ODAgNTAwIDAgMjMgLTE5NyAyMjUgLTIyMCAyMjUgLTggMCAtMjkxIC0yNzYgLTYyOCAtNjE0eiIvPiA8cGF0aCBkPSJNMTU5MiAyMjM5IGMtMTM5IC0yMyAtMjY5IC0xMjMgLTMzNiAtMjYwIC00NiAtOTUgLTYwIC0xNjkgLTUyIC0yODkgMTAgLTE2MiA1MSAtMjU4IDE4NiAtNDMxIDEwOCAtMTM4IDEzOCAtMTk2IDE1MyAtMjg4IDEyIC04MyAyNiAtOTAgNzMgLTM4IDgxIDg2IDEzNyAxODYgMTc5IDMxNyA0MCAxMjYgNTUgMjE2IDY2IDQwMCA2IDkxIDE2IDE3NiAyMiAxOTAgMTggMzcgNTEgMzcgNzYgMSA0OCAtNjYgNTUgLTEwNiA1NSAtMjg0IDAgLTEwOSA0IC0xNjYgMTEgLTE2NCAxNiA1IDUzIDkxIDgwIDE4NCA5MSAzMTIgLTg3IDYyMCAtMzgxIDY2MyAtMzggNSAtNzEgOSAtNzQgOSAtMyAtMSAtMjkgLTUgLTU4IC0xMHoiLz4gPC9nPjwvc3ZnPg==
 [sf-dw-badge-url]:     https://sourceforge.net/projects/lpub3d

@@ -1,4 +1,72 @@
-LPub3D 2.4.8.0.3723 (18 10 2024 06:26:50)
+LPub3D 2.4.9.18.4066 (14 01 2025 02:32:29)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Enhancement - Inconsistency with parts list shape inputs #805
+- HowTo - Set theme check script in extras folder for Linux and macOS distros #806
+- Regression - Library Update failed #804
+- Fix - Submodel preview rotation #803
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.9.0.4047 (07 01 2025 10:00:57)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Feature - Increase the capability to change Edge Lines size #772
+- Enhancement - Add reload file option to LDraw search directories dialog #801
+- Enhancement - Add renderer arguments and environment vars to global settings #775
+- Enhancement - Automatic restart #790
+- Enhancement - Change Local LEGO Elements to User-defined Elements #796
+- Enhancement - Enhanced extended subfile load path options #794
+- Enhancement - Expand command editor toolbars #800
+- Enhancement - Expand visual editor toolbars and menus #799
+- Enhancement - Expanded part filter options #786
+- Enhancement - Improve integration of BuildMods with fade steps and highlight step #776
+- Enhancement - Option to load last opened page on load last opened file #795
+- Enhancement - Option to show or hide the cycle each page on Update dialog #798
+- Change - AbEnd on insert a page pointer at the top of a STEP #789
+- Change - Add minizip unzOpen to quazip to avoid violating ODR #787
+- Change - AppImage build Qt Network SSL limitation #784
+- Change - Errors loading files with MODEL_PIECES meta-command #779
+- Change - Optionally add Models, LSynth and Helper paths to LDraw search list #791
+- Fix - Abnormal end on app close after view preference dialogue #773
+- Fix - Abnormal end when INSERT COVER_PAGE FRONT placed without STEP #774
+- Fix - False Fade Steps, Highlight Step message #777
+- Fix - High contrast stud style setting does not persist #781
+- Fix - macOS app execution blocked because of invalid code signature #783
+- Fix - Message reset dialog does not show the number of messages to reset #785
+- Fix - Parts in PLI are not always drawn on model #780
+- Fix - Part placed after CALLOUT does not display in the PLI #793
+- Fix - PLI substitution and rotation parse fail #797
+- Fix - TopOfStep modelIndex below model start #778
+- Fix - Treat submodel as substitute part error #747
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.8.0.3953 (19 10 2024 08:45:39)
 
 Features, enhancements, fixes and changes
 ------------
@@ -165,7 +233,7 @@ Revisions:
 - Fix - Open with programs menu action not enabled #629
 - Fix - Option Add pointer missing in Call Out #647
 - Fix - Primitives shown as missing parts in file load status #630
-- Fix - Remove LPub Formatting menu action does nothing #638
+- Fix - Remove LPUB Formatting menu action does nothing #638
 - Fix - Selecting a submodel in the Visual editor gives error #665
 - Fix - Set Attributes to Page Pointer globally #648
 - Fix - Settings for Coverpage and Backcover do not work #620
