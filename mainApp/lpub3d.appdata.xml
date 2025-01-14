@@ -78,9 +78,10 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.9.4063" date="2025-01-12">
+            <release version="2.4.9.4064" date="2025-01-14">
                 <description>
-                    <p>LPub3D 12.01.2025 v2.4.9 r15 Continuous Build.
+                    <p>LPub3D 14.01.2025 v2.4.9 r16 Continuous Build.
+                        - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
                         - Regression - Library Update failed #804
                         - Fix - Submodel preview rotation #803
                     </p>

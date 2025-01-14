@@ -4463,61 +4463,61 @@ void Preferences::setSystemTheme()
     bool error = false;
     systemTheme = THEME_DEFAULT;
     QString themeCheckScript = QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath, VER_LPUB3D_THEME_CHECK_SCRIPT));
-
     if (!QFileInfo(themeCheckScript).isReadable()) {
-        QTemporaryDir tempDir;
-        if (!tempDir.isValid()) {
-            error = true;
-            logWarning() << qUtf8Printable(QObject::tr("Cannot create theme check temp path."));
-        } else {
-            themeCheckScript = QString("%1/theme.sh").arg(tempDir.path());
-            QString const scriptCommand = QString(
+        QString const scriptCommand = QString(
 #ifdef Q_OS_MACOS
-                "export l=log\n\n"
-                "(defaults read -g AppleInterfaceStyle\n"
-                ") >$l.out 2>&1 && scheme=$(cat \"$l.out\" | awk '{print tolower($0)}') && rm $l.out\n\n"
-                "[ -f $l.out ] && cat $l.out && exit 0 || :\n\n"
-                "[ \"$scheme\" = \"dark\" ] && exit 1 || echo $scheme && exit 0\n"
+            "# Trevor SANDY"
+            "# Last Update: January 12, 2025"
+            "#\n"
+            "# Capture the system's preferred color scheme.\n\n"
+            "# Supported exit values are:\n\n"
+            "#   0: Prefer light appearance\n"
+            "#   1: Prefer dark appearance\n\n"
+            "# Unknown values treated as 0 (Prefer light appearance).\n\n"
+            "[ -z $(which defaults) ] && echo \"Warning: defaults not found\" && exit 0 || :\n\n"
+            "export l=log\n\n"
+            "(defaults read -g AppleInterfaceStyle\n"
+            ") >$l.out 2>&1 && scheme=$(cat \"$l.out\" | awk '{print tolower($0)}') && rm $l.out\n\n"
+            "[ -f $l.out ] && cat $l.out && exit 0 || :\n\n"
+            "[ \"$scheme\" = \"dark\" ] && exit 1 || echo $scheme && exit 0\n"
 #elif defined Q_OS_LINUX
-                "# script based on https://unix.stackexchange.com/questions/701432/command-for-detecting-whether-the-system-is-using-a-dark-or-light-desktop-theme\n"
-                "#\n"
-                "# org.freedesktop.appearance color-scheme\n"
-                "#\n"
-                "# Capture the system's preferred color scheme.\n"
-                "# Supported values are:\n"
-                "#\n"
-                "#   0: No preference\n"
-                "#   1: Prefer dark appearance\n"
-                "#   2: Prefer light appearance\n"
-                "#\n"
-                "# Unknown values treated as 0 (no preference).\n\n"
-                "[ -z $(which gdbus) ] && echo \"Warning: gdbus not found\" && exit 0 || :\n\n"
-                "export l=log\n\n"
-                "(gdbus call --session \\\n"
-                "            --timeout=1000 \\\n"
-                "            --dest=org.freedesktop.portal.Desktop \\\n"
-                "            --object-path /org/freedesktop/portal/desktop \\\n"
-                "            --method org.freedesktop.portal.Settings.Read org.freedesktop.appearance color-scheme\n"
-                ") >$l.out 2>&1 && scheme=$(cat $l.out) && rm $l.out\n\n"
-                "[ -f $l.out ] && cat $l.out && exit 0 || :\n\n"
-                "case $scheme in\n"
-                "  ( '(<<uint32 1>>,)' ) exit 1;;\n"
-                "  ( '(<<uint32 2>>,)' ) exit 2;;\n"
-                "  ( *                 ) exit 0;;\n"
-                "esac\n"
+            "# Trevor SANDY"
+            "# Last Update: January 12, 2025"
+            "#\n"
+            "# script based on https://unix.stackexchange.com/questions/701432/command-for-detecting-whether-the-system-is-using-a-dark-or-light-desktop-theme\n\n"
+            "# org.freedesktop.appearance color-scheme\n\n"
+            "# Capture the system's preferred color scheme.\n"
+            "# Supported exit values are:\n\n"
+            "#   0: No preference\n"
+            "#   1: Prefer dark appearance\n"
+            "#   2: Prefer light appearance\n\n"
+            "# Unknown values treated as 0 (no preference).\n\n"
+            "[ -z $(which gdbus) ] && echo \"Warning: gdbus not found\" && exit 0 || :\n\n"
+            "export l=log\n\n"
+            "(gdbus call --session \\\n"
+            "            --timeout=1000 \\\n"
+            "            --dest=org.freedesktop.portal.Desktop \\\n"
+            "            --object-path /org/freedesktop/portal/desktop \\\n"
+            "            --method org.freedesktop.portal.Settings.Read org.freedesktop.appearance color-scheme\n"
+            ") >$l.out 2>&1 && scheme=$(cat $l.out) && rm $l.out\n\n"
+            "[ -f $l.out ] && cat $l.out && exit 0 || :\n\n"
+            "case $scheme in\n"
+            "  ( '(<<uint32 1>>,)' ) exit 1;;\n"
+            "  ( '(<<uint32 2>>,)' ) exit 2;;\n"
+            "  ( *                 ) exit 0;;\n"
+            "esac\n"
 #endif
-                );
-            QFile file(themeCheckScript);
-            if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                QTextStream stream(&file);
-                stream << "#!/bin/bash" << lpub_endl;
-                stream << scriptCommand << lpub_endl;
-                file.close();
-            } else {
-                error = true;
-                logWarning() << qUtf8Printable(QObject::tr("Cannot write theme check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
-            }
-        }
+            );
+      QFile file(themeCheckScript);
+      if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream stream(&file);
+        stream << "#!/bin/bash" << lpub_endl;
+        stream << scriptCommand << lpub_endl;
+        file.close();
+      } else {
+        error = true;
+        logWarning() << qUtf8Printable(QObject::tr("Cannot write theme check script file [%1] %2.").arg(file.fileName()).arg(file.errorString()));
+      }
     }
 
     if (!error) {
