@@ -69,14 +69,14 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
  - Click icon above to download and/or install distribution release.
  - **ARM** builds are available for the following distributions:
 	- [macOS 14 (arm64)](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114-arm64-macos.dmg)
-	- [AlmaLinux 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/AlmaLinux_9/aarch64/lpub3d-2.4.8.3723-2.el9.aarch64.rpm)
-	- [CentOS 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_9_Stream/aarch64/lpub3d-2.4.8.3723-2.el9.aarch64.rpm)
-	- [Debian 12 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/Debian_11/arm64/lpub3d_2.4.8.3723-1_arm64.deb)
-	- [Fedora 39 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/Fedora_39/aarch64/lpub3d-2.4.8.3723-1.fc39.aarch64.rpm)
-	- [Raspbian 12 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/Raspbian_12/arm64/lpub3d_2.4.8.3723-1_arm64.deb)
-	- [openEuler 21.03 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/openEuler_20.03/aarch64/lpub3d-2.4.8.3723-1.aarch64.rpm)
-	- [State of openSUSE Leap 15.2 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/openSUSE_Leap_15.2_ARM/aarch64/lpub3d-2.4.8.3723-1.openSUSELeap15020.aarch64.rpm)
-	- [Ubuntu 24.04 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_24.04/arm64/lpub3d_2.4.8.3723-1_arm64.deb)
+	- [AlmaLinux 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/AlmaLinux_9/aarch64/lpub3d-2.4.9.4066-1.el9.aarch64.rpm)
+	- [CentOS 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_9_Stream/aarch64/lpub3d-2.4.9.4066-1.el9.aarch64.rpm)
+	- [Debian 12 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/Debian_11/arm64/lpub3d_2.4.9.4066-1_arm64.deb)
+	- [Fedora 40 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/Fedora_40/aarch64/lpub3d-2.4.9.4066-1.fc40.aarch64.rpm)
+	- [Raspbian 12 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/Raspbian_12/arm64/lpub3d_2.4.9.4066-1_arm64.deb)
+	- [openEuler 21.03 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/openEuler_20.03/aarch64/lpub3d-2.4.9.4066-1.aarch64.rpm)
+	- [State of openSUSE Leap 15.2 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/openSUSE_Leap_15.2_ARM/aarch64/lpub3d-2.4.9.4066-1.openSUSELeap15020.aarch64.rpm)
+	- [Ubuntu 24.04 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_24.04/arm64/lpub3d_2.4.9.4066-1_arm64.deb)
 	
 ### Verify Windows Distribution Hash using PowerShell
 The following steps are using LPub3D Windows release hosted on [GitHub][github_releases].
@@ -84,7 +84,7 @@ These steps can be applied to any LPub3D release where a GPG signature file is a
 - Get the hash file [LPub3D-2.4.9.18.4065_20250114.exe.sha512](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114.exe.sha512)
 - Open a PowerShell session
 - Add the package download path to `$PkgUrl`{:.posh}
-- Add the hash file sha512 hash to `$PublishedHash`.{:.posh}
+- Add the hash file sha512 hash to `$PublishedHash`{:.posh}
 ```posh
 $WebClient = [System.Net.WebClient]::new()
 $PkgUrl = 'https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.18.4065_20250114.exe'
@@ -92,7 +92,7 @@ $PublishedHash = 'B0E9B05FF631A9D1388022C639E5D1C80B76C368540AE96DB2CD44865B95C5
 $FileHash = Get-FileHash -Algorithm SHA512 -InputStream ($WebClient.OpenRead($PkgUrl))
 $FileHash.Hash -eq $PublishedHash
 ```
-- Cut and paste this code snippet into Powershell, a valid return value is `True`{:.sh}.
+- Cut and paste this code snippet into Powershell, a valid return value is `True`{:.sh}
 
 ### Verify GPG Signature using Bash Unix Shell
 The following steps are using LPub3D AppImage release hosted on [GitHub][github_releases].
@@ -110,7 +110,7 @@ These steps can be applied to any LPub3D release where a GPG signature file is a
  - [Build and package LPub3D from source][build-from-source]
  - [Release notes][docs-lpub3d-release-notes]
  - [Change log (Deprecated - use Release notes)][docs-lpub3d-changelog]
- - [Questions and discussion][sf-gen-discussion]
+ - [Questions and discussion][gh-discussion]
  - [Report an Issue or Request an Enhancement][gh-new-ticket]
  - [Credits][docs-lpub3d-credits]
 
@@ -298,7 +298,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [raspberrypi-logo]:    {{ '/assets/images/raspberrypi_logo.png' | relative_url }}
 [builtwithqt-logo]:    {{ '/assets/images/builtwithqt_logo.png' | relative_url }}
 
-[sf-gen-discussion]:   https://sourceforge.net/p/lpub3d/discussion/general "Ask a question or review past discussions"
+[gh-discussion]:       https://github.com/trevorsandy/lpub3d/discussions "Ask a question or review past discussions"
 [gh-new-ticket]:       https://github.com/trevorsandy/lpub3d/issues/new "Report an LPub3D issue or request an enhancement on GitHub"
 [working-with-lpub3d]: https://sites.google.com/view/workingwithlpub3d/
 [jctchang-lpub3d]:     http://jc-tchang.philohome.com/model/LPub3D.htm
@@ -371,7 +371,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [qt-url]:              https://www.qt.io
 
 [github_releases]:     https://github.com/trevorsandy/lpub3d/releases
-[github_tag_releases]: https://github.com/trevorsandy/lpub3d/releases/tag/v2.4.8
+[github_tag_releases]: https://github.com/trevorsandy/lpub3d/releases/tag/v2.4.9
 [sf_releases]:         https://sourceforge.net/projects/lpub3d/files/Continuous
 [sf_file_releases]:    https://sourceforge.net/projects/lpub3d/files
 [obs_pkg_releases]:    https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d

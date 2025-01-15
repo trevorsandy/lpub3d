@@ -3,42 +3,42 @@
   captions: true
   images:
     - title: Display step page
-      alt: Display step page
+      alt: Page
       src: /assets/images/screenshots/sliders/1.png
       data-src-2x: /assets/images/screenshots/sliders/1@2x.png
       href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/sliders/1.png
     - title: Step page
-      alt: Step page
+      alt: Step
       data-src: /assets/images/screenshots/sliders/2.png
       data-src-2x: /assets/images/screenshots/sliders/2@2x.png
       href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/sliders/2.png
     - title: 3D Viewer select
-      alt: 3D Viewer select
+      alt: 3D Viewer
       data-src: /assets/images/screenshots/sliders/3.png
       data-src-2x: /assets/images/screenshots/sliders/3@2x.png
       href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/sliders/3.png
-    - title: Step page
-      alt: Step page
+    - title: Step timeline properties
+      alt: Properties
       data-src: /assets/images/screenshots/sliders/4.png
       data-src-2x: /assets/images/screenshots/sliders/4@2x.png
       href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/sliders/4.png
     - title: Meta commands
-      alt: Meta commands
+      alt: Commands
       data-src: /assets/images/screenshots/sliders/5.png
       data-src-2x: /assets/images/screenshots/sliders/5@2x.png
       href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/sliders/5.png
     - title: Renderer preferences
-      alt: Renderer preferences
+      alt: Preferences
       data-src: /assets/images/screenshots/sliders/6.png
       data-src-2x: /assets/images/screenshots/sliders/6@2x.png
       href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/sliders/6.png
-    - title: General Preferences
-      alt: General Preferences
+    - title: General preferences
+      alt: Preferences
       data-src: /assets/images/screenshots/sliders/7.png
       data-src-2x: /assets/images/screenshots/sliders/7@2x.png
       href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/sliders/7.png
-    - title: Project Page Settings
-      alt: Project Page Settings
+    - title: Project page settings
+      alt: Settings
       data-src: /assets/images/screenshots/sliders/8.png
       data-src-2x: /assets/images/screenshots/sliders/8@2x.png
       href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/sliders/8.png
