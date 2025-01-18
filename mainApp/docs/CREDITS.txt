@@ -4,7 +4,7 @@ LPub3D - An LDraw Building Instruction Editor
 https://trevorsandy.github.io/lpub3d
 Trevor Sandy <trevor.sandy@gmail.com>
 
-Visual Editor (LeoCAD version 23.03 sha abcef7a specifically adapted for LPub3D)
+Visual Editor (LeoCAD version 23.03 sha f2a2e44 specifically adapted for LPub3D)
 https://github.com/trevorsandy/leocad/
 Trevor Sandy <trevor.sandy@gmail.com>
 
@@ -25,7 +25,7 @@ https://sourceforge.net/projects/lpub4/
 Kevin Clague <kevin.clague@gmail.com>
 Daniele Benedettelli <danielebenedettelli@gmail.com>
 
-LeoCAD 23.03 commit abcef7a
+LeoCAD 23.03 commit f2a2e44
 https://github.com/leozide/leocad
 Leonardo Zide <leozide@gmail.com>
 

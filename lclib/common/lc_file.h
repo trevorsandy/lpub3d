@@ -567,3 +567,4 @@ public:
 protected:
 	QFile mFile;
 };
+
