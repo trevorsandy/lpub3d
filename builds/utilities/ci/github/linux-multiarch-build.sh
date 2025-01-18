@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 30, 2024
+# Last Update January 17, 2025
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -317,9 +317,10 @@ echo ${DOCKER_HUB_TOKEN} | docker login --username ${DOCKER_USERNAME} --password
 if [ "${LP3D_QEMU}" = "true" ]; then
     echo "Enable QEMU multiarch environment..."
     if [ "${CI}" = "true" ]; then
+        echo "Install gcc-${aik_arch}-linux-gnu and zlib1g-dev and export QEMU_LD_PREFIX..."
         sudo apt-get install -y gcc-${aik_arch}-linux-gnu zlib1g-dev
+        export QEMU_LD_PREFIX=/usr/${aik_arch}-linux-gnu
     fi
-    export QEMU_LD_PREFIX=/usr/${aik_arch}-linux-gnu
     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
     if [ "${LP3D_APPIMAGE}" = "true" ]; then
         LP3D_AI_BUILD_TOOLS=1
@@ -334,44 +335,52 @@ if [ "${LP3D_QEMU}" = "true" ]; then
     fi
 fi
 
-# build appimage toolkit
+# download appimagetool and appimage runtime
 if [ -n "${LP3D_AI_BUILD_TOOLS}" ]; then
     p=appimagetool
-    k=AppImageKit
+    k=AppImageToolKit
+    rt=runtime-${aik_arch}
+    ait=${p}-${aik_arch}.AppImage
     tools_path=${base_path}/AppDir/tools
-    ait=${tools_path}/$p
-    if [ ! -f "${ait}" ]; then
-        cd ../ # && [ -d $k ] && rm -rf $k || :
+    sd=${GITHUB_WORKSPACE}/builds/utilities
+    if [ ! -f "${tools_path}/${p}" ]; then
+        cd ../
         mkdir -p ${tools_path}
-        echo && echo Building $k for ${aik_arch} at $PWD...
-        [ ! -d $k ] && \
-        git clone --single-branch --recursive https://github.com/AppImage/AppImageKit $k || :
+        echo && echo Downloading $k for ${aik_arch} at $PWD...
+        [ ! -d $k ] && mkdir -p $k/ || :
         ( cd $k && export ARCH=${aik_arch} && \
-          [ -z "$(ls -A ./out/)" ] && \
-          chmod a+x ci/build.sh && ./ci/build.sh && \
-          [ -n "$(ls -A ./out/)" ] && mv -f ./out/* ${tools_path}/ || \
-          mv -f ./out/* ${tools_path}/ && echo "Skipped $p build" \
+            [ ! -f "${tools_path}/${p}" ] && \
+            wget https://github.com/AppImage/appimagetool/releases/download/continuous/${ait} -P out/ && \
+            if [ -f "out/${ait}" ]; then \
+                mv -f out/${ait} ${tools_path}/${p} && \
+                wget https://github.com/AppImage/type2-runtime/releases/download/continuous/${rt} && \
+                [ -f "${rt}" ] && mv -f ${rt} ${tools_path}/runtime || \
+                (echo "Download ${rt} failed." && exit 1); \
+            else echo "Download ${ait} failed." && exit 1; \
+            fi || echo "Skipped ${p} download" \
         ) >$k.foo 2>&1 && mv $k.foo $k.ok
         if [ -f $k.ok ]; then
-            echo Build $k succeeded
+            mb="41 49 02 00"
+            echo "Download and rename $k succeeded"
+            echo -n "Check runtime magic bytes... " && \
+            hd=$(hexdump -Cv ${tools_path}/runtime | head -n 1 | (grep -oE "41 49 02 00")) && \
+            [ "$mb" = "$hd" ] && echo "$mb Ok" || echo "magic bytes $mb not found"
+            cat <<EOF >${tools_path}/AppRun
+#! /bin/sh
+
+set -e
+
+this_dir="\$(readlink -f "\$(dirname "\$0")")"
+
+# make appimagetool prefer the bundled mksquashfs
+export PATH="\$this_dir"/usr/bin:"\$PATH"
+
+exec "\$this_dir"/usr/bin/appimagetool "\$@"
+EOF
+            rm -rf $k
             mv -f $k.ok ${out_path}
-            ait=$p-${aik_arch}.AppImage
-            ar=AppRun-${aik_arch}
-            rt=runtime-${aik_arch}
-            ( cd ${tools_path} && \
-              [ -f "${ait}" ] && mv -f ${ait} $p && chmod a+x $p && \
-              [ -f "${ar}" ] && mv -f ${ar} AppRun && \
-              [ -f "${rt}" ] && mv -f ${rt} runtime \
-            ) >$k.foo 2>&1 && mv $k.foo $k.ok
-            if [ -f $k.ok ]; then
-                cat $k.ok >> ${out_path}/$k.ok && rm $k.ok
-            else
-                echo  Rename $p FAILED
-                tail -80 $k.foo
-                exit 9
-            fi
         else
-            echo Build $k FAILED
+            echo Download and rename $k FAILED
             tail -80 $k.foo
             exit 9
         fi

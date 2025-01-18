@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 11, 2024
+# Last Update January 17, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -469,12 +469,13 @@ elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}
         echo Format error, command $p ${CommandArg} FAILED
         tail -80 $p.out
         if [ -z "${LP3D_AI_MAGIC_BYTES}" ]; then
-          mb="$(hexdump -Cv bin/$p | head -n 1 | grep '41 49 02 00')"
-          if [ -n "${mb}" ]; then
-            echo "$p magic bytes: ${mb}"
+          mb="41 49 02 00"
+          hd="$(hexdump -Cv bin/$p | head -n 1 | (grep -oE '41 49 02 00'))"
+          if [ "${mb}" = "${hd}" ]; then
+            echo "$p magic bytes: ${hd}"
             echo "Patching out $p magic bytes..."
             dd if=/dev/zero of="bin/$p" bs=1 count=3 seek=8 conv=notrunc
-            if [ -z "$(hexdump -Cv bin/$p | head -n 1 | grep '41 49 02 00')" ]; then
+            if [ -z "$(hexdump -Cv bin/$p | head -n 1 | (grep -oE '41 49 02 00'))" ]; then
               echo "$p magic bytes patched $(hexdump -Cv bin/$p | head -n 1)"
               ( ./bin/$p ${CommandArg} ) >$p.out 2>&1 && mv $p.out $p.ok
               if [ -f $p.ok ]; then
@@ -508,9 +509,11 @@ elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}
       ./$p --appimage-extract ) >$p.out 2>&1 && mv $p.out $p.ok
         if [ -f $p.ok ]; then
            Info Extract $p succeeded
-           k=appimagekit; z=zsyncmake; a=AppRun; r=runtime
-           [[ ! -d bin/$k && -d AitDir/squashfs-root/usr/lib/$k ]] && \
-           cp -a AitDir/squashfs-root/usr/lib/$k bin/ || :
+           t=appimagetool; s=mksquashfs; z=zsyncmake; a=AppRun; r=runtime
+           [[ ! -f bin/$t && -f AitDir/squashfs-root/usr/bin/$t ]] && \
+           cp -f AitDir/squashfs-root/usr/bin/$t bin/ || :
+           [[ ! -f bin/$s && -f AitDir/squashfs-root/usr/bin/$s ]] && \
+           cp -f AitDir/squashfs-root/usr/bin/$s bin/ || :
            [[ ! -f bin/$z && -f AitDir/squashfs-root/usr/bin/$z ]] && \
            cp -f AitDir/squashfs-root/usr/bin/$z bin/ || :
            [[ ! -f bin/$a && -f ${LP3D_DIST_DIR_PATH}/AppDir/tools/$a ]] && \
@@ -633,10 +636,10 @@ elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}
 
   # make AppImage
   AppImage=LPub3D-${LP3D_VERSION}-$(uname -m).AppImage  # name without path
-  if [ -f "bin/appimagekit/mksquashfs" ]; then
+  if [ -f "bin/mksquashfs" ]; then
     p=${AppImage}
-    ( chmod a+x bin/appimagekit/mksquashfs && \
-     ./bin/appimagekit/mksquashfs AppDir squashfs-root -root-owned -noappend \
+    ( chmod a+x bin/mksquashfs && \
+     ./bin/mksquashfs AppDir squashfs-root -root-owned -noappend \
     ) >$p.out 2>&1 && rm -f $p.out
     if [ ! -f $p.out ]; then
       AppImage=${WD}/${AppImage} # name with full path
@@ -648,7 +651,7 @@ elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}
       exit 5
     fi
   else
-    Error "./bin/appimagekit/mksquashfs was not found"
+    Error "./bin/mksquashfs was not found"
     exit 7
   fi
 fi
