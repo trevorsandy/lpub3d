@@ -10,7 +10,7 @@ An LDraw™ editor for LEGO® style digital building instructions.
 
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions developed and maintained by Trevor SANDY. 
 
-![LPub3D_Display_Page](./.github/images/lpub3d_display_page_1609x_849x.png)
+![LPub3D_Display_Page][lpub3d-display]
 
 View the [LPub3D GitHub page][lpub3d-url] for full project details.
 
@@ -24,6 +24,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
 [![Built-With-Qt-Logo][builtwithqt-logo]][qt-url]
 
+[lpub3d-display]:      https://raw.githubusercontent.com/trevorsandy/lpub3d/master/.github/images/lpub3d_display_page_1609x_849x.png
 [lpub3d-logo]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/LPub128.png
 [builtwithqt-logo]:    https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/builtwithqt_logo.png
 [gplv3-logo]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/gplv3-127x51.png
