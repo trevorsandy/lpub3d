@@ -3645,7 +3645,7 @@ int Gui::findPage(
                 ++opts.flags.partsAdded;
                 CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
             } // ! BuildModIgnore, for each
-            break;
+            break; // case '1' to '5'
 
         case '0':
 
@@ -4385,8 +4385,11 @@ int Gui::findPage(
             default:
                 break;
             } // Switch Rc
+            break; // case '0'
+
+          default:
             break;
-        }
+        } // Switch First Character of Line
     } // For Every Line
 
     csiParts.clear();
@@ -5974,10 +5977,10 @@ int Gui::setBuildModForNextStep(
           walk.lineNumber < numLines && !bottomOfStep && !Gui::abortProcess();
           walk.lineNumber++) {
 
-       line = readLine(walk);
+        line = readLine(walk);
 
-       switch (line.toLatin1()[0]) {
-       case '0':
+        switch (line.toLatin1()[0]) {
+        case '0':
 
             rc =  meta.parse(line,walk,false);
 
@@ -6097,6 +6100,9 @@ int Gui::setBuildModForNextStep(
         case '4':
         case '5':
             partsAdded++;
+            break; // case '1' to '5'
+
+        default:
             break;
         } // Process meta-command
     } // For every line

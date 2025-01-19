@@ -2490,8 +2490,8 @@ int CountPageWorker::countPage(
           // if opts.displayModel, we have a custom display
           if (! opts.displayModel && ! buildMod.ignore) {
               ++opts.flags.partsAdded;
-            } // ! BuildModIgnore, for each line
-            break;
+          } // ! BuildModIgnore, for each line
+          break; // case '1' to '5'
 
         case '0':
 
@@ -2945,36 +2945,40 @@ int CountPageWorker::countPage(
             case PageOrientationRc:
               {
                 if (Gui::exporting()) {
-                    opts.flags.pageSizeUpdate      = true;
+                  opts.flags.pageSizeUpdate      = true;
 
-                    if (opts.pageSize.sizeW == 0.0f)
-                      opts.pageSize.sizeW    = Gui::getPageSize(DEF_SIZE).sizeW;
-                    if (opts.pageSize.sizeH == 0.0f)
-                      opts.pageSize.sizeH    = Gui::getPageSize(DEF_SIZE).sizeH;
-                    if (opts.pageSize.sizeID.isEmpty())
-                      opts.pageSize.sizeID   = Gui::getPageSize(DEF_SIZE).sizeID;
-                    opts.pageSize.orientation= meta->LPub.page.orientation.value();
+                  if (opts.pageSize.sizeW == 0.0f)
+                    opts.pageSize.sizeW    = Gui::getPageSize(DEF_SIZE).sizeW;
+                  if (opts.pageSize.sizeH == 0.0f)
+                    opts.pageSize.sizeH    = Gui::getPageSize(DEF_SIZE).sizeH;
+                  if (opts.pageSize.sizeID.isEmpty())
+                    opts.pageSize.sizeID   = Gui::getPageSize(DEF_SIZE).sizeID;
+                  opts.pageSize.orientation= meta->LPub.page.orientation.value();
 
-                    Gui::removePageSize(DEF_SIZE);
-                    Gui::insertPageSize(DEF_SIZE,opts.pageSize);
+                  Gui::removePageSize(DEF_SIZE);
+                  Gui::insertPageSize(DEF_SIZE,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
-                    logTrace() << "1. New Orientation entry for Default at PageNumber:" << opts.pageNum
-                               << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                               << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                               << "ID:" << opts.pageSize.sizeID
-                               << "Model:" << opts.current.modelName;
+                  logTrace() << "1. New Orientation entry for Default at PageNumber:" << opts.pageNum
+                             << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                             << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                             << "ID:" << opts.pageSize.sizeID
+                             << "Model:" << opts.current.modelName;
 #endif
-                  }
+                }
               }
               break;
 
             case NoStepRc:
               opts.flags.noStep = true;
               break;
+
             default:
               break;
-            } // Switch Rc
+          } // Switch Rc
 
+          break; // case '0'
+
+        default:
           break;
         } // Switch First Character of Line
 
