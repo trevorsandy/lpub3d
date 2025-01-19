@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 17, 2025
+# Last Update January 18, 2025
 # Copyright (C) 2018 - 2025 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -77,8 +77,13 @@ else
     LP3D_PLATFORM=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}') #'
 fi
 
-# Flatpak validate and set executable permissions
+unset LP3D_BUNDLED_APP
 if [[ "$LP3D_BUILD_OS" = "flatpak" || "$LP3D_BUILD_OS" = "snap" ]]; then
+    LP3D_BUNDLED_APP=1
+fi
+
+# Flatpak and Snap validate and set executable permissions
+if [ -n "$LP3D_BUNDLED_APP" ]; then
     LPUB3D_EXE=$(find ${LPUB3D_DEST}/bin -name lpub3d* -type f)
     if [[ -f "$LPUB3D_EXE" ]]; then
         if [[ -d "$SOURCE_DIR/builds/check" ]]; then
@@ -282,22 +287,24 @@ for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
             [ -s "${LP3D_CHECK_STDLOG}" ] && \
             echo "- Standard Error Log Trace: ${LP3D_CHECK_STDLOG}" && \
             cat "${LP3D_CHECK_STDLOG}" || true
-            if [ -d "${LP3D_CHECK_PATH}" ]; then
-                cp -f "${LP3D_LOG_FILE}" "${LP3D_CHECK_PATH}"
-                LP3D_CHECK_ASSETS="$(ls -A ${LP3D_CHECK_PATH})"
-                if [ "${LP3D_CHECK_ASSETS}" ]; then
-                    echo "${LP3D_BUILD_CHECK} assets found:" && echo "${LP3D_CHECK_ASSETS}" && \
-                    echo "- Archiving assets to ${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz"
-                    if tar -czvf "${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz" "${LP3D_CHECK_PATH}/"; then
-                        echo "Success"
+            if [ -z "$LP3D_BUNDLED_APP" ]; then
+                if [ -d "${LP3D_CHECK_PATH}" ]; then
+                    cp -f "${LP3D_LOG_FILE}" "${LP3D_CHECK_PATH}"
+                    LP3D_CHECK_ASSETS="$(ls -A ${LP3D_CHECK_PATH})"
+                    if [ "${LP3D_CHECK_ASSETS}" ]; then
+                        echo "${LP3D_BUILD_CHECK} assets found:" && echo "${LP3D_CHECK_ASSETS}" && \
+                        echo "- Archiving assets to ${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz"
+                        if tar -czvf "${LP3D_LOG_PATH}/${LP3D_BUILD_CHECK}_assets.tar.gz" "${LP3D_CHECK_PATH}/"; then
+                            echo "Success"
+                        else
+                            echo "Oops - tar failed!"
+                        fi
                     else
-                        echo "Oops - tar failed!"
+                        echo "Nothing to archive. Directory ${LP3D_CHECK_PATH} is empty."
                     fi
                 else
-                    echo "Nothing to archive. Directory ${LP3D_CHECK_PATH} is empty."
+                    echo "Directory ${LP3D_CHECK_PATH} was not found."
                 fi
-            else
-                echo "Directory ${LP3D_CHECK_PATH} was not found."
             fi
             echo
         fi
@@ -309,7 +316,7 @@ for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
             fi
         fi
         # Remove log file
-        if [[ "$LP3D_BUILD_OS" != "flatpak" && "$LP3D_BUILD_OS" != "snap" ]]; then
+        if [ -z "$LP3D_BUNDLED_APP" ]; then
             rm -rf "${LP3D_LOG_FILE}"
         fi
         # Cleanup check output
@@ -329,17 +336,19 @@ if [ "${LP3D_CHECK_FAIL}" -gt "0" ]; then
 fi
 
 # move the run log to user folder for output capture
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    RUN_LOG=$(find ${HOME}/Library/Application\ Support/LPub3D\ Software -type f -name "*Log.txt")
-else
-    RUN_LOG=$(find ${HOME}/.local/share -type f -name "*Log.txt")
-fi
-if [ -n "${RUN_LOG}" ]; then
-    mv -f "${RUN_LOG}" "${LP3D_LOG_PATH}/LPub3DRun.log" && \
-    echo "Moved ${RUN_LOG} to ${LP3D_LOG_PATH}/LPub3DRun.log" || \
-    echo "WARNING - ${RUN_LOG} was not moved to ${LP3D_LOG_PATH}/LPub3DRun.log"
-else
-    echo "WARNING - RunLog [${RUN_LOG}] was not found"
+if [ -z "$LP3D_BUNDLED_APP" ]; then
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        RUN_LOG=$(find ${HOME}/Library/Application\ Support/LPub3D\ Software -type f -name "*Log.txt")
+    else
+        RUN_LOG=$(find ${HOME}/.local/share -type f -name "*Log.txt")
+    fi
+    if [ -n "${RUN_LOG}" ]; then
+        mv -f "${RUN_LOG}" "${LP3D_LOG_PATH}/LPub3DRun.log" && \
+        echo "Moved ${RUN_LOG} to ${LP3D_LOG_PATH}/LPub3DRun.log" || \
+        echo "WARNING - ${RUN_LOG} was not moved to ${LP3D_LOG_PATH}/LPub3DRun.log"
+    else
+        echo "WARNING - RunLog [${RUN_LOG}] was not found"
+    fi
 fi
 
 SUMMARY_MSG=''
