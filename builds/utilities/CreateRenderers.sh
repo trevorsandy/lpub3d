@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update December 06, 2024
+# Last Update January 18, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -1077,7 +1077,8 @@ for buildDir in ldglite ldview povray; do
 done
 # Package renderers as a deliverable
 if [[ "${canPackageRenderers}" = "true"  ]]; then
-  package_renderers
+  Info "Package renderers for download disabled."
+  #package_renderers
 else
   Info "Cannot package renderers."
 fi

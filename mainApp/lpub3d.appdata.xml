@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.9.4073" date="2025-01-19">
+            <release version="2.4.9.4074" date="2025-01-19">
                 <description>
-                    <p>LPub3D 19.01.2025 v2.4.9 r25 Continuous Build.
+                    <p>LPub3D 19.01.2025 v2.4.9 r26 Continuous Build.
                         - Enhancement - Inconsistency with parts list shape inputs #805
                         - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
                         - Regression - Library Update failed #804
