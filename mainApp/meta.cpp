@@ -4946,7 +4946,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
     for (int i = a; i < b; i++) {
         argv[i].toFloat(&ok[j]);j++; }
     for (int i = 0; i <= j; i++) {
-      if (!ok[i]) ok[0] = false; break; }
+      if (!ok[i]) { ok[0] = false; break; } }
     if (ok[0])
       _value.type = rc = PliBeginSub5Rc;
   } else if (argc == 9) {
@@ -4955,7 +4955,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
     for (int i = a; i < b; i++) {
       argv[i].toFloat(&ok[j]);j++; }
     for (int i = 0; i <= j; i++) {
-      if (!ok[i]) ok[0] = false; break; }
+      if (!ok[i]) { ok[0] = false; break; } }
     if (ok[0])
       _value.type = rc = PliBeginSub6Rc;
   } else if (argc == 10) {
@@ -4964,7 +4964,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
     for (int i = a; i < b; i++) {
       argv[i].toFloat(&ok[j]);j++; }
     for (int i = 0; i <= j; i++) {
-      if (!ok[i]) ok[0] = false; break; }
+      if (!ok[i]) { ok[0] = false; break; } }
     if (ok[0] && argv[b].contains(rx))
       _value.type = rc = PliBeginSub7Rc;
   } else if (argc == 13) {
@@ -4973,7 +4973,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
     for (int i = a; i < b; i++) {
       argv[i].toFloat(&ok[j]);j++; }
     for (int i = 0; i <= j; i++) {
-      if (!ok[i]) ok[0] = false; break; }
+      if (!ok[i]) { ok[0] = false; break; } }
     if (ok[0] && argv[b].contains(rx))
       _value.type = rc = PliBeginSub8Rc;     // target and rotstep
   }
