@@ -354,7 +354,7 @@ InstallDependencies() {
               -e 's/ extra-cmake-modules,//g' \
               -e 's/ libkf5kdelibs4support5-bin,//g' -i $controlFile
         fi
-        if [[ "${DOCKER}" == "true" && "${GITHUB}" == "" ]]; then
+        if [[ ("${DOCKER}" == "true" && "${GITHUB}" == "") || $platform_pretty == Snap* ]]; then
           sed 's/ kdelibs5-dev,//g' -i $controlFile
         fi
         ;;
