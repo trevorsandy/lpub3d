@@ -939,9 +939,9 @@ void Gui::exportAsPdf()
   QString message = tr("instructions to pdf...");
 
   // initialize progress bar dialog
-  gui->m_progressDialog->setWindowTitle("Export pdf");
-  gui->m_progressDialog->setLabelText(tr("Exporting %1").arg(message));
   if (Preferences::modeGUI) {
+      gui->m_progressDialog->setWindowTitle("Export pdf");
+      gui->m_progressDialog->setLabelText(tr("Exporting %1").arg(message));
       gui->m_progressDialog->setBtnToCancel();
       gui->m_progressDialog->show();
       QApplication::setOverrideCursor(Qt::ArrowCursor);
@@ -1616,9 +1616,9 @@ void Gui::exportAs(const QString &_suffix)
   // initialize progress dialogue
   QString message = tr("instructions to %1 to %2...").arg(type).arg(suffix);
 
-  gui->m_progressDialog->setWindowTitle(tr("Export as %1 %2").arg(suffix).arg(type));
-  gui->m_progressDialog->setLabelText(tr("Exporting %1").arg(message));
   if (Preferences::modeGUI) {
+      gui->m_progressDialog->setWindowTitle(tr("Export as %1 %2").arg(suffix).arg(type));
+      gui->m_progressDialog->setLabelText(tr("Exporting %1").arg(message));
       gui->m_progressDialog->setBtnToCancel();
       gui->m_progressDialog->show();
       QApplication::setOverrideCursor(Qt::ArrowCursor);
@@ -2050,9 +2050,9 @@ void Gui::Print(QPrinter* Printer)
   // initialize progress bar dialog
   QString message = preview ? tr("Generating preview %1...").arg(mode) : exportPdf ? tr("Exporting %1...").arg(mode) : tr("Printing %1...").arg(mode);
 
-  gui->m_progressDialog->setWindowTitle(QString("%1 %2").arg(action).arg(mode));
-  gui->m_progressDialog->setLabelText(message);
   if (Preferences::modeGUI) {
+    gui->m_progressDialog->setWindowTitle(QString("%1 %2").arg(action).arg(mode));
+    gui->m_progressDialog->setLabelText(message);
     gui->m_progressDialog->setBtnToCancel();
     gui->m_progressDialog->show();
     QApplication::setOverrideCursor(Qt::ArrowCursor);
@@ -2066,8 +2066,6 @@ void Gui::Print(QPrinter* Printer)
 
     message = tr("%1 page %2 of %3 for document %4...").arg(action).arg(Page).arg(ToPage).arg(DocCopy);
     emit gui->messageSig(LOG_INFO_STATUS,message);
-
-    gui->m_progressDialog->setRange(Page,ToPage);
 
     if (Preferences::modeGUI) {
           gui->m_progressDialog->setLabelText(message);
@@ -2393,7 +2391,7 @@ void Gui::showExportedFile()
   if (exportedFile.isEmpty())
     return;
 
-  bool preview = exportPreview;
+  bool preview = exportPreview, emitCompleted = false;
   QString const mode = exportPdf ? "pdf" : tr("file");
   QString const action = preview ? tr("Preview") : exportPdf ? tr("Export") : tr("Print");
 
@@ -2438,25 +2436,29 @@ void Gui::showExportedFile()
 
     box.setText (title);
     box.setInformativeText (text);
-  }
 
-  if (Preferences::modeGUI && box.exec() == QMessageBox::Yes) {
-    const QString CommandPath = exportedFile;
+    if (box.exec() == QMessageBox::Yes) {
+      const QString CommandPath = exportedFile;
 #ifdef Q_OS_WIN
-    QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #else
-    QProcess *Process = new QProcess(gui);
-    Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
-    QStringList arguments = QStringList() << CommandPath;
-    Process->start(UNIX_SHELL, arguments);
-    Process->waitForFinished();
-    if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
-      QErrorMessage *m = new QErrorMessage(gui);
-      m->showMessage(tr("Failed to launch exported document.\n%1\n%2")
-                         .arg(CommandPath).arg(QString(Process->readAllStandardError())));
-    }
+      QProcess *Process = new QProcess(gui);
+      Process->setWorkingDirectory(QFileInfo(CommandPath).absolutePath() + QDir::separator());
+      QStringList arguments = QStringList() << CommandPath;
+      Process->start(UNIX_SHELL, arguments);
+      Process->waitForFinished();
+      if (Process->exitStatus() != QProcess::NormalExit || Process->exitCode() != 0) {
+        QErrorMessage *m = new QErrorMessage(gui);
+        m->showMessage(tr("Failed to launch exported document.\n%1\n%2")
+                           .arg(CommandPath).arg(QString(Process->readAllStandardError())));
+      }
 #endif
-  } else {
+    } else
+       emitCompleted = true;
+  } else
+    emitCompleted = true;
+
+  if (emitCompleted) {
     LogType logType = Preferences::modeGUI ? LOG_INFO_STATUS : LOG_INFO;
     emit gui->messageSig(logType, tr("%1 %2 completed! %3").arg(action, mode, exportTime));
   }
