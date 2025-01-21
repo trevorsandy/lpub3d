@@ -57,7 +57,7 @@ equals(GIT_DIR, undefined) {
 
     # Check if we do not have a valid version number (i.e. no version tag found)
     isEmpty(GIT_VERSION) {
-        GIT_REVISION = 35
+        GIT_REVISION = 36
         GIT_SHA      = $$system($$GIT_BASE_COMMAND rev-parse --short HEAD 2> $$NULL_DEVICE)
         GIT_COMMIT   = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         GIT_VERSION  = v$${VERSION}-$${GIT_REVISION}-$${GIT_SHA}
@@ -85,7 +85,7 @@ equals(GIT_DIR, undefined) {
         # Get commit count
         GIT_COMMIT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         isEmpty(GIT_COMMIT) {
-            GIT_COMMIT = 4083
+            GIT_COMMIT = 4084
             message("~~~ ERROR LPUB3D! GIT_COMMIT NOT DEFINED, USING $$GIT_COMMIT ~~~")
         }
 
@@ -133,7 +133,7 @@ if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
             GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
         } else {
             message("~~~ ERROR LPUB3D! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-            GIT_VERSION = $${VERSION}.35.4083.0a56a8a50
+            GIT_VERSION = $${VERSION}.36.4084.ed6efd73a
             message("~~~ $${LPUB3D} GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
             GIT_VERSION ~= s/\./" "
         }
