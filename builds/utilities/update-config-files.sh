@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 26, 2024
+# Last Update January 21, 2025
 # Copyright (C) 2016 - 2025 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -28,12 +28,16 @@ LP3D_CALL_DIR=`pwd`
 LP3D_OS=`uname`
 LP3D_GIT_DEPTH=150000
 LP3D_CMD_COUNT=0
+LP3D_APP=${LPUB3D:-lpub3d}
 
-if [ -z "$1" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
+[ "${LP3D_ME}" != "update-config-files.sh" ] && SOURCED="true" || SOURCED="false"
+
+[ -n "$1" ] && LP3D_PWD=$1 || LP3D_PWD=${_PRO_FILE_PWD_}
+
+[[ -n "$7" && "${SOURCED}" == "false" ]] && lp3d_option="arguments" || lp3d_option="queries"
+
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
-
-# Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-[ -z "${LPUB3D}" ] && LPUB3D=$(basename "$(echo "$basedir")") || true
+LP3D_SOURCE_DIR=$(basename "$(echo "$basedir")")
 
 Info () {
     if [ "${SOURCED}" = "true" ]
@@ -91,7 +95,7 @@ then
 fi
 
 #Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7], \$8 [$8]"
-if [ "${SOURCED}" = "true" ]
+if [ "${lp3d_option}" = "queries" ]
 then
     cd "$(realpath $LP3D_PWD/..)"
     if [ "${CI}" = "true" ];
@@ -152,7 +156,7 @@ LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}
 LP3D_APP_VERSION_TAG="v"${LP3D_VERSION}
 
 Info "   LP3D_BUILD_TYPE........${LP3D_BUILD_TYPE}"
-Info "   LPUB3D_DIR.............${LPUB3D}"
+Info "   LPUB3D_DIR.............${LP3D_SOURCE_DIR}"
 if test "${CI}" = "true"; then
 Info "   CI.....................${CI}"
 [ -n "${GITHUB}" ] && Info "   GITHUB.................${GITHUB}" || :
@@ -185,7 +189,7 @@ Info "   LP3D_CHANGE_DATE_LONG..${LP3D_CHANGE_DATE_LONG}"
 Info "   LP3D_VERSION...........${LP3D_VERSION}"
 Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
 
-Info "   LP3D_SOURCE_DIR........${LPUB3D}-${LP3D_APP_VERSION}"
+Info "   LP3D_SOURCE_DIR........${LP3D_SOURCE_DIR}-${LP3D_APP_VERSION}"
 if test -n "${LP3D_AUTHOR_NAME}"; then
 Info "   LP3D_AUTHOR_NAME.......${LP3D_AUTHOR_NAME}"
 fi
@@ -246,7 +250,7 @@ then
     then
         /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${LP3D_INFO_PLIST_FILE}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${LP3D_VERSION}.${LP3D_BUNDLE_VERSION}-${LP3D_VER_SHA_HASH}" "${LP3D_INFO_PLIST_FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${LP3D_INFO_PLIST_FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LP3D_APP}" "${LP3D_INFO_PLIST_FILE}"
         /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${LP3D_VER_SHA_HASH}" "${LP3D_INFO_PLIST_FILE}"
     else
         Info "   Error: update failed, ${LP3D_INFO_PLIST_FILE} not found."
@@ -379,7 +383,7 @@ then
     rm ${FILE}
 fi
 cat <<EOF >${FILE}
-${LPUB3D} (${LP3D_APP_VERSION}) debian; urgency=medium
+${LP3D_APP} (${LP3D_APP_VERSION}) debian; urgency=medium
 
   * LPub3D version ${LP3D_APP_VERSION_LONG} for Linux
 
@@ -403,9 +407,9 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
+FILE="$LP3D_CONFIG_DIR/${LP3D_APP}.spec"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "$((LP3D_CMD_COUNT += 1)).update ${LPUB3D}.spec  - add version and date  [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)).update ${LP3D_APP}.spec  - add version and date  [$FILE]" || :
 if [[ -f "${FILE}" && -r "${FILE}" ]]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -423,9 +427,9 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
+FILE="$LP3D_CONFIG_DIR/debian/${LP3D_APP}.dsc"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "$((LP3D_CMD_COUNT += 1)).update ${LPUB3D}.dsc   - add version           [$FILE]" || :
+Info "$((LP3D_CMD_COUNT += 1)).update ${LP3D_APP}.dsc   - add version           [$FILE]" || :
 if [[ -f "${FILE}" && -r "${FILE}" ]]
 then
     if [ "$LP3D_OS" = Darwin ]
