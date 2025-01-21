@@ -3,6 +3,8 @@
 #include <QObject>
 
 class lcPartSelectionWidget;
+class lcPartSelectionListView;
+class lcTrainTrackInfo;
 
 QString lcFormatValue(float Value, int Precision);
 QString lcFormatValueLocalized(float Value);
@@ -132,7 +134,7 @@ public:
 	}
 
 protected:
-	void paintEvent(QPaintEvent*) override
+	void paintEvent(QPaintEvent*)
 	{
 		QStylePainter Painter(this);
 		QStyleOptionToolButton Option;
@@ -189,6 +191,32 @@ protected:
 	lcPartSelectionWidget* mPartSelectionWidget = nullptr;
 	PieceInfo* mInitialPart = nullptr;
 };
+
+class lcTrainTrackPickerPopup : public QWidget
+{
+	Q_OBJECT
+
+public:
+	lcTrainTrackPickerPopup(QWidget* Parent, const lcTrainTrackInfo* TrainTrackInfo);
+
+	PieceInfo* GetPickedTrainTrack() const
+	{
+		return mPickedTrainTrack;
+	}
+
+protected slots:
+	void Accept();
+	void Reject();
+
+protected:
+	void showEvent(QShowEvent* ShowEvent) override;
+	void Close();
+
+	lcPartSelectionListView* mPartSelectionListView = nullptr;
+	PieceInfo* mPickedTrainTrack = nullptr;
+};
+
+PieceInfo* lcShowTrainTrackPopup(QWidget* Parent, const lcTrainTrackInfo* TrainTrackInfo);
 
 class lcColorDialogPopup : public QWidget
 {
