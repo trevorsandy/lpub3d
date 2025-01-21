@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 26, 2024
+# Last Update January 21, 2025
 # Copyright (C) 2016 - 2025 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -29,7 +29,12 @@ LP3D_OS=`uname`
 LP3D_GIT_DEPTH=150000
 LP3D_CMD_COUNT=0
 
-if [ -z "$1" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
+[ "${LP3D_ME}" != "update-config-files.sh" ] && SOURCED="true" || SOURCED="false"
+
+[ -n "$1" ] && LP3D_PWD=$1 || LP3D_PWD=${_PRO_FILE_PWD_}
+
+[[ -n "$7" && "${SOURCED}" == "false" ]] && lp3d_option="arguments" || lp3d_option="queries"
+
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
@@ -91,7 +96,7 @@ then
 fi
 
 #Info "   DEBUG INPUT ARGS \$0 [$0], \$1 [$1], \$2 [$2], \$3 [$3], \$4 [$4], \$5 [$5], \$6 [$6], \$7 [$7], \$8 [$8]"
-if [ "${SOURCED}" = "true" ]
+if [ "${lp3d_option}" = "queries" ]
 then
     cd "$(realpath $LP3D_PWD/..)"
     if [ "${CI}" = "true" ];
