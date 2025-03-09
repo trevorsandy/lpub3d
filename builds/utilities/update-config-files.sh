@@ -156,7 +156,8 @@ LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}
 LP3D_APP_VERSION_TAG="v"${LP3D_VERSION}
 
 Info "   LP3D_BUILD_TYPE........${LP3D_BUILD_TYPE}"
-Info "   LPUB3D_DIR.............${LP3D_SOURCE_DIR}"
+Info "   LP3D_SOURCE_DIR........${LP3D_SOURCE_DIR}"
+Info "   LP3D_APPLICATION_NAME..${LP3D_APP}"
 if test "${CI}" = "true"; then
 Info "   CI.....................${CI}"
 [ -n "${GITHUB}" ] && Info "   GITHUB.................${GITHUB}" || :
