@@ -4989,7 +4989,6 @@ void lcModel::InsertPieceToolClicked(PieceInfo* Info, const lcMatrix44& WorldMat
 	Piece->UpdatePosition(mCurrentStep);
 	AddPiece(Piece);
 
-
 	gMainWindow->UpdateTimeline(false, false);
 	ClearSelectionAndSetFocus(Piece, LC_PIECE_SECTION_POSITION, false);
 
