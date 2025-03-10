@@ -8056,7 +8056,7 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_LINE_WIDTH_MAX_GRANULARITY
         {
             QObject::tr(
-            "  Set the maximum line width smoothing granularity and range.<br>"
+            "  Set the maximum edge line width smoothing granularity and range.<br>"
             "  The granularity setting is automatically specified by your<br>"
             "  platform's graphics system; however, there are cases where<br>"
             "  the specified value is too granular making it difficult to<br>"
@@ -8067,8 +8067,14 @@ void CommonMenus::setWhatsThis()
             "  granularity that allows you to better set your line width.<br><br>"
             "  The smoothing range calculation will use the maximum granularity<br>"
             "  value measured between this setting and the value specified<br>"
-            "  by your graphics system. So if you wish to use the system<br>"
-            "  specified granularity, simply set this value to 0.0.%1<br>")
+            "  by your graphics system.<br><br>"
+            "  The default smoothing granularity setting value is 1.0000.<br>"
+            "  If the edge line range presented with the default smoothing granularity<br>"
+            "  setting is not enough to allow you to specify your desired line width,<br>"
+            "  a lower setting - e.g. 0.5000 - will yield a smaller granularity and<br>"
+            "  consequently, increase the size of the edge line range.<br>"
+            "  If you wish to use the system specified granularity,<br>"
+            "  simply set this value to 0.0.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_GUI_LINE_WIDTH_MAX_GRANULARITY")
