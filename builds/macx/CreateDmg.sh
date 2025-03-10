@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: November 28, 2024
+# Last Update: March 10, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -312,54 +312,7 @@ fi
 #
 cd builds/macx
 
-echo "- copy ${LPUB3D} bundle components to $(realpath .)..."
-cp -rf ../../mainApp/$release/LPub3D.app .
-
-echo "- bundle LPub3D to add Qt framework..."
-macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
-
-LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
-if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
-  echo "- skipping ${LPUB3D_EXE} build check."
-else
-  echo "- build checks..."
-  # Check if exe exist - here we use the executable name
-  if [ -f "${LPUB3D_EXE}" ]; then
-    echo "- Build package: $PWD/${LPUB3D_EXE}"
-    # Check commands
-    SOURCE_DIR=../..
-    echo "- build check SOURCE_DIR is $(realpath ${SOURCE_DIR})..."
-    source ${SOURCE_DIR}/builds/check/build_checks.sh
-    # Stop here if we are only verifying
-    if [ "$BUILD_OPT" = "verify" ]; then
-      exit 0
-    fi
-  else
-    echo "- ERROR - build-check failed. $(realpath ${LPUB3D_EXE}) not found."
-  fi
-fi
-
-echo "- setup dmg source dir $(realpath DMGSRC/)..."
-if [ -d DMGSRC ]
-then
-  rm -f -R DMGSRC
-fi
-mkdir DMGSRC
-
-echo "- move LPub3D.app to $(realpath DMGSRC/)..."
-mv -f LPub3D.app DMGSRC/LPub3D.app
-
-echo "- setup dmg output directory $(realpath ../../../DMGS/)..."
-DMGDIR=../../../DMGS
-if [ -d ${DMGDIR} ]
-then
-  rm -f -R ${DMGDIR}
-fi
-mkdir -p ${DMGDIR} && \
-echo "- created dmg output directory $(realpath $DMGDIR)"
-
-# pos: builds/macx
-echo "- generate README file and dmg make script..."
+echo "- generate README file..."
 cat <<EOF >README
 Thank you for installing LPub3D v${LP3D_APP_VERSION} for macOS.
 
@@ -473,6 +426,63 @@ The Homebrew plist keys are:
 Cheers,
 EOF
 
+echo "- copy README to LPub3D.app/Contents/Resources/README_macOS.txt..."
+cp -f README ../../mainApp/$release/LPub3D.app/Contents/Resources/README_macOS.txt
+
+echo "- copy ${LPUB3D} bundle components to $(realpath .)..."
+cp -rf ../../mainApp/$release/LPub3D.app .
+
+echo "- bundle LPub3D.app with Qt framework and plugins..."
+macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
+
+echo "- replace LPub3D.app bundle signature..."
+/usr/bin/codesign --force --deep --sign - LPub3D.app
+
+echo "- verify LPub3D.app bundle signature..."
+/usr/bin/codesign --verify --deep --verbose LPub3D.app
+
+# build checks
+LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
+if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
+  echo "- skipping ${LPUB3D_EXE} build check."
+else
+  echo "- build checks..."
+  # Check if exe exist - here we use the executable name
+  if [ -f "${LPUB3D_EXE}" ]; then
+    echo "- Build package: $PWD/${LPUB3D_EXE}"
+    # Check commands
+    SOURCE_DIR=../..
+    echo "- build check SOURCE_DIR is $(realpath ${SOURCE_DIR})..."
+    source ${SOURCE_DIR}/builds/check/build_checks.sh
+    # Stop here if we are only verifying
+    if [ "$BUILD_OPT" = "verify" ]; then
+      exit 0
+    fi
+  else
+    echo "- ERROR - build-check failed. $(realpath ${LPUB3D_EXE}) not found."
+  fi
+fi
+
+echo "- setup dmg source dir $(realpath DMGSRC/)..."
+if [ -d DMGSRC ]
+then
+  rm -f -R DMGSRC
+fi
+mkdir DMGSRC
+
+echo "- move LPub3D.app to $(realpath DMGSRC/)..."
+mv -f LPub3D.app DMGSRC/LPub3D.app
+
+echo "- setup dmg output directory $(realpath ../../../DMGS/)..."
+DMGDIR=../../../DMGS
+if [ -d ${DMGDIR} ]
+then
+  rm -f -R ${DMGDIR}
+fi
+mkdir -p ${DMGDIR} && \
+echo "- created dmg output directory $(realpath $DMGDIR)"
+
+# pos: builds/macx
 echo "- copy ${LPUB3D} package assets to to $(realpath .)..."
 cp -f ../utilities/icons/setup.icns .
 cp -f ../utilities/icons/lpub3dbkg.png .
@@ -481,10 +491,7 @@ cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
 echo "- set create-dmg build scrpt permissions..."
 chmod +x ../utilities/dmg-utils/create-dmg
 
-echo "- copy README to Resources/README_macOS.txt..."
-cp -f README DMGSRC/LPub3D.app/Contents/Resources/README_macOS.txt
-
-echo "- generate makedmg script..."
+echo "- generate make dmg script..."
 LP3D_DMG="LPub3D-${LP3D_APP_VERSION_LONG}-${LP3D_ARCH}-macos.dmg"
 cat <<EOF >makedmg
 #!/bin/bash
