@@ -2496,32 +2496,12 @@ lcMatrix33 lcModel::GetRelativeRotation() const
 	return lcMatrix33Identity();
 }
 
-/*** LPub3D Mod - viewer interface ***/
-bool lcModel::RemoveCameraIndex(size_t CameraIdx)
+lcPiece* lcModel::AddPiece(PieceInfo* Info, quint32 Section)
 {
-	if (mCameras.size() > CameraIdx)
-	{
-		lcCamera* Camera = mCameras[CameraIdx].get();
-		for (std::vector<std::unique_ptr<lcCamera>>::iterator CameraIt = mCameras.begin(); CameraIt != mCameras.end(); CameraIt++)
-		{
-			if (CameraIt->get() == Camera)
-			{
-				mCameras.erase(CameraIt);
-				return true;
-			}
-		}
-	}
-	
-	return false;
-}
-/*** LPub3D Mod end ***/
+	if (!Info)
+		Info = gMainWindow->GetCurrentPieceInfo();
 
-lcPiece* lcModel::AddPiece(PieceInfo* PieceInfo, quint32 Section)
-{
-	if (!PieceInfo)
-		PieceInfo = gMainWindow->GetCurrentPieceInfo();
-
-	if (!PieceInfo)
+	if (!Info)
 		return nullptr;
 
 	lcPiece* Last = mPieces.empty() ? nullptr : mPieces.back().get();
@@ -2535,46 +2515,61 @@ lcPiece* lcModel::AddPiece(PieceInfo* PieceInfo, quint32 Section)
 		}
 	}
 
-	lcMatrix44 WorldMatrix;
-	const lcBoundingBox& PieceInfoBoundingBox = PieceInfo->GetBoundingBox();
+	const lcBoundingBox& PieceInfoBoundingBox = Info->GetBoundingBox();
+	lcPiece* Piece = nullptr;
+
+	auto CreatePiece=[this, &Piece](PieceInfo* Info, const lcMatrix44& WorldMatrix, int ColorIndex)
+	{
+		Piece = new lcPiece(Info);
+		Piece->Initialize(WorldMatrix, mCurrentStep);
+		Piece->SetColorIndex(ColorIndex);
+		AddPiece(Piece);
+	};
 
 	if (Last)
 	{
-		bool TransformValid = false;
+		std::vector<lcTrainTrackInsert> TrainTracks;
 
-		if (PieceInfo->GetTrainTrackInfo() && Last->mPieceInfo->GetTrainTrackInfo())
+		if (Info->GetTrainTrackInfo() && Last->mPieceInfo->GetTrainTrackInfo())
 		{
-			std::optional<lcMatrix44> TrainTrackTransform = lcTrainTrackInfo::GetPieceInsertTransform(Last, PieceInfo, Section);
+			quint32 FocusSection = Last->GetFocusSection();
 
-			if (TrainTrackTransform)
+			if (FocusSection != LC_PIECE_SECTION_INVALID && FocusSection >= LC_PIECE_SECTION_TRAIN_TRACK_CONNECTION_FIRST)
+				Section = FocusSection;
+
+			TrainTracks = lcTrainTrackInfo::GetPieceInsertTransforms(Last, Info, Section);
+
+			for (const lcTrainTrackInsert& TrainTrack : TrainTracks)
 			{
-				TransformValid = true;
-				WorldMatrix = TrainTrackTransform.value();
+				int ColorIndex = TrainTrack.ColorCode == 16 ? gMainWindow->mColorIndex : lcGetColorIndex(TrainTrack.ColorCode);
+
+				CreatePiece(TrainTrack.Info, TrainTrack.Transform, ColorIndex);
 			}
 		}
 
-		if (!TransformValid)
+		if (TrainTracks.empty())
 		{
 			const lcBoundingBox& LastBoundingBox = Last->GetBoundingBox();
 			lcVector3 Dist(0, 0, LastBoundingBox.Max.z - PieceInfoBoundingBox.Min.z);
 			Dist = SnapPosition(Dist);
 
-			WorldMatrix = Last->mModelWorld;
+			lcMatrix44 WorldMatrix = Last->mModelWorld;
 			WorldMatrix.SetTranslation(lcMul31(Dist, Last->mModelWorld));
+
+			CreatePiece(Info, WorldMatrix, gMainWindow->mColorIndex);
 		}
 	}
 	else
 	{
-		WorldMatrix = lcMatrix44Translation(lcVector3(0.0f, 0.0f, -PieceInfoBoundingBox.Min.z));
+		lcMatrix44 WorldMatrix = lcMatrix44Translation(lcVector3(0.0f, 0.0f, -PieceInfoBoundingBox.Min.z));
+
+		CreatePiece(Info, WorldMatrix, gMainWindow->mColorIndex);
 	}
 
-	lcPiece* Piece = new lcPiece(PieceInfo);
-	Piece->Initialize(WorldMatrix, mCurrentStep);
-	Piece->SetColorIndex(gMainWindow->mColorIndex);
-	AddPiece(Piece);
 /*** LPub3D Mod - Build Modification ***/
 	mModAction = true;
 /*** LPub3D Mod end ***/
+
 	gMainWindow->UpdateTimeline(false, false);
 	ClearSelectionAndSetFocus(Piece, LC_PIECE_SECTION_POSITION, false);
 
@@ -2611,6 +2606,26 @@ void lcModel::InsertPiece(lcPiece* Piece, size_t Index)
 
 	mPieces.insert(mPieces.begin() + Index, std::unique_ptr<lcPiece>(Piece));
 }
+
+/*** LPub3D Mod - viewer interface ***/
+bool lcModel::RemoveCameraIndex(size_t CameraIdx)
+{
+	if (mCameras.size() > CameraIdx)
+	{
+		lcCamera* Camera = mCameras[CameraIdx].get();
+		for (std::vector<std::unique_ptr<lcCamera>>::iterator CameraIt = mCameras.begin(); CameraIt != mCameras.end(); CameraIt++)
+		{
+			if (CameraIt->get() == Camera)
+			{
+				mCameras.erase(CameraIt);
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+/*** LPub3D Mod end ***/
 
 void lcModel::FocusNextTrainTrack()
 {
