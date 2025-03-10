@@ -10,6 +10,11 @@ public:
 
 	lcView* GetView() const;
 	void SetView(lcView* View);
+
+	void UpdateMousePosition();
+
+	QSize sizeHint() const override;
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	void SetPreviewPosition(const QRect& ParentRect, const QPoint &ViewPos = QPoint());
 	void SetPreferredSize(const QSize &PreferredSize)
@@ -17,8 +22,6 @@ public:
 		mPreferredSize = PreferredSize;
 	}
 /*** LPub3D Mod end ***/
-
-	QSize sizeHint() const override;
 
 protected:
 	float GetDeviceScale() const

@@ -61,6 +61,15 @@ void lcViewWidget::SetView(lcView* View)
 	mView = std::unique_ptr<lcView>(View);
 }
 
+void lcViewWidget::UpdateMousePosition()
+{
+	QPoint MousePosition = mapFromGlobal( QCursor::pos() );
+	float DeviceScale = GetDeviceScale();
+
+	mView->SetMousePosition(MousePosition.x() * DeviceScale, mView->GetHeight() - MousePosition.y() * DeviceScale - 1);
+	mView->SetMouseModifiers(QApplication::keyboardModifiers());
+}
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 void lcViewWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& ViewPos)
 {
