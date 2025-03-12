@@ -8154,11 +8154,10 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_PART_ANNOTATIONS_TYPE_BOM
         {
             QObject::tr(
-            "  Enable annotation type:<br>"
-            "  Select the bill of materials (BOM) annotations<br>"
+            "  Enable the display of part annotations:<br>"
+            "  Select the Bill Of Materials (BOM) annotation<br>"
             "  types to display in the instruction document.<br><br>"
-            "  Available fixed annotation types for bill of<br>"
-            "  materials (BOM) parts are:<br>"
+            "  Fixed annotation source types for BOM parts are:<br>"
             "  - Axles: annotation on circle background.<br><br>"
             "  - Beams: annotation on square background.<br><br>"
             "  - Cables: annotation on square background.<br><br>"
@@ -8167,10 +8166,11 @@ void CommonMenus::setWhatsThis()
             "  - Panels: annotation on circle background.<br><br>"
             "  - Element: LEGO element identifier on rectangular<br>"
             "    background.<br><br>"
-            "  Available user configurable annotation types for<br>"
-            "  bill of materials (BOM) parts are:<br>"
+            "  User configurable annotation types for BOM parts are:<br>"
             "  - Extended: title and/or free form part annotations<br>"
-            "    on rectangular background.%1<br>")
+            "    on rectangular background.<br>"
+            "    Enable this when fixed annotation is unchecked or<br>"
+            "    a part category is not a fixed type - e.g. Bricks.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_GUI_PART_ANNOTATIONS_TYPE_BOM")
@@ -8182,21 +8182,21 @@ void CommonMenus::setWhatsThis()
         // WT_GUI_PART_ANNOTATIONS_TYPE_PLI
         {
             QObject::tr(
-            "  Enable the display of part annotation:<br>"
-            "  Select the part list instance (PLI) annotation<br>"
+            "  Enable the display of part annotations:<br>"
+            "  Select the Part List Instance (PLI) annotation<br>"
             "  types to display in the instruction document.<br><br>"
-            "  Available fixed annotation types for part list<br>"
-            "  instance (PLI) parts are:<br>"
+            "  Fixed source annotation types for PLI parts are:<br>"
             "  - Axles: annotation on circle background.<br>"
             "  - Beams: annotation on square background.<br>"
             "  - Cables: annotation on square background.<br>"
             "  - Connections: annotation on square background.<br>"
             "  - Hoses: annotation on square background.<br>"
             "  - Panels: annotation on circle background.<br><br>"
-            "  Available user configurable annotation types for<br>"
-            "  part list instance (PLI) parts are:<br>"
+            "  User configurable annotation types for PLI parts are:<br>"
             "  - Extended: title and/or free form part annotations<br>"
-            "    on rectangular background.%1<br>")
+            "    on rectangular background.<br>"
+            "    Enable this when fixed annotation is unchecked or<br>"
+            "    a part category is not a fixed type - e.g. Bricks.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_GUI_PART_ANNOTATIONS_TYPE_PLI")
@@ -8437,17 +8437,18 @@ void CommonMenus::setWhatsThis()
             "  Select the Current Step Instance (CSI)<br>"
             "  annotation types to display in the instruction<br>"
             "  document.<br><br>"
-            "  Available fixed annotation types for CSI parts are:<br>"
+            "  Fixed source annotation types for CSI parts are:<br>"
             "  - Axles: annotation on circle background.<br><br>"
             "  - Beams: annotation on square background.<br><br>"
             "  - Cables: annotation on square background.<br><br>"
             "  - Connections: annotation on square background.<br><br>"
             "  - Hoses: annotation on square background.<br><br>"
             "  - Panels: annotation on circle background.<br><br>"
-            "  Available user configurable annotation types for<br>"
-            "  current step instance (CSI) parts are:<br>"
+            "  User configurable annotation types for CSI parts are:<br>"
             "  - Extended: title and/or free form part annotations<br>"
-            "    on rectangular background.%1<br>")
+            "    on rectangular background.<br>"
+            "    Enable this when fixed annotation is unchecked or<br>"
+            "    a part category is not a fixed type - e.g. Bricks.%1<br>")
             .arg(
 #ifdef QT_DEBUG_MODE
                  QLatin1String("<br><br>  WT_GUI_ASSEM_ANNOTATION_TYPE")

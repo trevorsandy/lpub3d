@@ -1032,7 +1032,7 @@ void Annotations::loadLD2RBColorsXRef(QByteArray& Buffer) {
 # The Regular Expression used to load this file is: ^([^\t]+)\t+\s*([^\t]+).*$
 #
 # 1. LDConfig Color ID: LDraw Color ID             (Required)
-# 2. Color ID:          Rebrickable Color ID        (Required)
+# 2. Color ID:          Rebrickable Color ID       (Required)
 #
 */
     const char LEGOLD2RBColorsXRef[] = {
@@ -1303,7 +1303,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-				if (sLine.contains(rxin)) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "TitleAnnotations RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1357,7 +1357,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-				if (sLine.contains(rxin)) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "FreeFormAnnotations RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1379,7 +1379,7 @@ Annotations::Annotations()
 
     if (annotationStyles.size() == 0) {
         QString const annotationStyleFile = Preferences::annotationStyleFile;
-        QRegExp rx("^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+).*$");
+        QRegExp rx("^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+)?.*$");
         if (QFileInfo::exists(annotationStyleFile)) {
             QFile file(annotationStyleFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1395,7 +1395,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-				if (sLine.contains(rxin)) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "AnnotationStyle RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1457,7 +1457,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-				if (sLine.contains(rxin)) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "Bricklink Colors RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1511,7 +1511,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-				if (sLine.contains(rxin)) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "LD2BL ColorsXRef RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1565,7 +1565,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-				if (sLine.contains(rxin)) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "LD2BL CodesXRef RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1621,7 +1621,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-				if (sLine.contains(rxin)) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "LD2RB ColorsXRef RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1675,7 +1675,7 @@ Annotations::Annotations()
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-				if (sLine.contains(rxin)) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "LD2RB CodesXRef RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -1828,7 +1828,6 @@ bool Annotations::loadBLCodes(QByteArray &Buffer) {
 bool Annotations::loadUserElements(bool useLDrawKey) {
     if (userElements.size() == 0) {
         QString message;
-        bool rxFound = false;
         QString userElementsFile =  Preferences::userElementsFile.isEmpty()
                                   ? QDir::toNativeSeparators(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_USERELEMENTS_FILE))
                                   : Preferences::userElementsFile;
@@ -1852,7 +1851,7 @@ bool Annotations::loadUserElements(bool useLDrawKey) {
             QRegExp rxin("^#[\\w\\s]+\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
+                if (sLine.contains(rxin)) {
                     rx.setPattern(rxin.cap(1));
                     //logDebug() << "User part elements RegExp Pattern: " << rxin.cap(1);
                     break;
@@ -2532,7 +2531,7 @@ bool Annotations::exportAnnotationStyleFile() {
         outstream << "#" << lpub_endl;
         outstream << "# Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# The Regular Expression used to load this file is: ^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+).*$" << lpub_endl;
+        outstream << "# The Regular Expression used to load this file is: ^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+)?.*$" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "# 1. Design ID:           LDraw Part Name                 (Required)" << lpub_endl;

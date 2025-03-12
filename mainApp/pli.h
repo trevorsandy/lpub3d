@@ -279,7 +279,7 @@ class Pli : public Placement {
 
     void placeCols(QList<QString> &);
     bool initAnnotationString();
-    void getAnnotation(QString &, QString &, const QString &description);
+    void getAnnotation(QString &, const int, const QString &, const QString &);
     void partClass(QString &, const QString &description);
     int  createPartImage(QString &, QString &, QString &, QPixmap*,int = 0);
     int  createPartImagesLDViewSCall(QStringList &, bool, int);      //LDView performance improvement

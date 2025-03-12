@@ -741,8 +741,9 @@ bool Pli::initAnnotationString()
 }
 
 void Pli::getAnnotation(
-    QString &type,
     QString &annotateStr,
+    const int style,
+    const QString &type,
     const QString &description)
 {
   annotateStr.clear();
@@ -751,15 +752,21 @@ void Pli::getAnnotation(
   if (! enableAnnotations)
     return;
 
-  bool title = pliMeta.annotation.titleAnnotation.value();
-  bool freeform = pliMeta.annotation.freeformAnnotation.value();
-  bool titleAndFreeform = pliMeta.annotation.titleAndFreeformAnnotation.value();
+  if (style) {
+    annotateStr = Annotations::getStyleAnnotation(type);
+    if (! annotateStr.isEmpty())
+      return;
+  }
 
   // pick up annotations
   annotateStr = description;
 
+  bool title = pliMeta.annotation.titleAnnotation.value();
+  bool freeform = pliMeta.annotation.freeformAnnotation.value();
+  bool titleAndFreeform = pliMeta.annotation.titleAndFreeformAnnotation.value();
+
   if(title || titleAndFreeform) {
-      if (titleAnnotations.size() == 0 && !titleAndFreeform) {
+      if (titleAnnotations.size() == 0 && ! titleAndFreeform) {
           qDebug() << "Annotations enabled but no annotation source found.";
           return;
         }
@@ -781,11 +788,11 @@ void Pli::getAnnotation(
           return;
         }
     } else if (freeform) {
-      annotateStr = Annotations::freeformAnnotation(type.toLower());
-      return;
-    }
-  annotateStr.clear();
-  return;
+        annotateStr = Annotations::freeformAnnotation(type.toLower());
+        return;
+      }
+    annotateStr.clear();
+    return;
 }
 
 QString Pli::orient(QString &color, QString type)
@@ -1360,13 +1367,8 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
             }
 
             /* Add annotation area */
-
-            if (part->styleMeta.style.value() == AnnotationStyle::circle ||
-                part->styleMeta.style.value() == AnnotationStyle::square ||
-                part->styleMeta.style.value() == AnnotationStyle::rectangle)
-                descr = Annotations::getStyleAnnotation(part->type);
-            else
-                getAnnotation(part->type,descr,part->description);
+            const int style = part->styleMeta.style.value();
+            getAnnotation(descr, style, part->type,part->description);
 
             if (descr.size()) {
 
@@ -2300,13 +2302,8 @@ int Pli::partSize()
                 }
 
               /* Add annotation area */
-
-              if (part->styleMeta.style.value() == AnnotationStyle::circle ||
-                  part->styleMeta.style.value() == AnnotationStyle::square ||
-                  part->styleMeta.style.value() == AnnotationStyle::rectangle)
-                  descr = Annotations::getStyleAnnotation(part->type);
-              else
-                  getAnnotation(part->type,descr,part->description);
+              const int style = part->styleMeta.style.value();
+              getAnnotation(descr, style, part->type,part->description);
 
               if (descr.size()) {
 
