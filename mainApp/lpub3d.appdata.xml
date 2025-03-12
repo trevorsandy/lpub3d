@@ -86,12 +86,13 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.9.4098" date="2025-03-12">
+            <release version="2.4.9.4099" date="2025-03-12">
                 <description>
-                    <p>LPub3D 12.03.2025 v2.4.9 r50 Continuous Build.
+                    <p>LPub3D 12.03.2025 v2.4.9 r51 Continuous Build.
                         - Enhancement - Inconsistency with parts list shape inputs #805
                         - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
                         - Regression - Library Update failed #804
+                        - Fix - Cannot edit AnnotationStyle list from menu action #810
                         - Fix - Submodel preview rotation #803
                     </p>
                 </description>

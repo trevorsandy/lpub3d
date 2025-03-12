@@ -1,4 +1,4 @@
-LPub3D 2.4.9.50.4098 (12 03 2025 01:35:09)
+LPub3D 2.4.9.51.4099 (12 03 2025 01:37:34)
 
 Features, enhancements, fixes and changes
 ------------
@@ -16,6 +16,7 @@ Revisions:
 - Enhancement - Inconsistency with parts list shape inputs #805
 - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
 - Regression - Library Update failed #804
+- Fix - Cannot edit AnnotationStyle list from menu action #810
 - Fix - Submodel preview rotation #803
 
 --------------------------------------------------------------------------------------------------

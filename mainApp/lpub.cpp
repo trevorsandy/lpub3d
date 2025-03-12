@@ -2627,7 +2627,7 @@ void Gui::editAnnotationStyle()
     if (Preferences::annotationStyleFile.isEmpty())
         Preferences::annotationStyleFile = QString("%1/extras/%2")
             .arg( Preferences::lpubDataPath, Preferences::validAnnotationStyles);
-    QFileInfo fileInfo(Preferences::stickerPartsFile);
+    QFileInfo fileInfo(Preferences::annotationStyleFile);
     if (!fileInfo.exists()) {
         if (!Annotations::exportAnnotationStyleFile()) {
             emit gui->messageSig(LOG_ERROR, QString("Failed to export %1.").arg(Preferences::annotationStyleFile));
