@@ -6164,6 +6164,10 @@ PliMeta::PliMeta() : BranchMeta()
   circleStyle.color.setValue("#34699d");    // #3a3938
   circleStyle.style.setValue(AnnotationStyle::circle);
 
+  defaultStyle.font.setValuePoints("Arial,24,-1,5,50,0,0,0,0,0");
+  defaultStyle.color.setValue("#3a3938");
+  defaultStyle.margin.setValuesInches(0.0f,0.0f);
+
   margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
   pack.setValue(true);
   sort.setValue(false);
@@ -6233,6 +6237,7 @@ void PliMeta::init(BranchMeta *parent, QString name)
   circleStyle     .init(this,"CIRCLE_STYLE");
   squareStyle     .init(this,"SQUARE_STYLE");
   elementStyle    .init(this,"ELEMENT_STYLE");
+  defaultStyle    .init(this,"DEFAULT_STYLE");
   imageSize       .init(this,"IMAGE_SIZE");
   rotStep         .init(this,"PART_ROTATION");
   cameraFoV       .init(this,"CAMERA_FOV");
@@ -6387,6 +6392,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   rectangleStyle  .init(this,"RECTANGLE_STYLE");
   circleStyle     .init(this,"CIRCLE_STYLE");
   squareStyle     .init(this,"SQUARE_STYLE");
+  defaultStyle    .init(this,"DEFAULT_STYLE");
   imageSize       .init(this,"IMAGE_SIZE");
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraZNear     .init(this,"CAMERA_ZNEAR");

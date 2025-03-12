@@ -3610,6 +3610,7 @@ public:
   AnnotationStyleMeta  rectangleStyle;
   AnnotationStyleMeta  circleStyle;
   AnnotationStyleMeta  squareStyle;
+  AnnotationStyleMeta  defaultStyle;
   StudStyleMeta        studStyle;
   AutoEdgeColorMeta    autoEdgeColor;
   HighContrastColorMeta highContrast;

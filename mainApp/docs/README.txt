@@ -1,4 +1,4 @@
-LPub3D 2.4.9.52.4100 (12 03 2025 01:39:49)
+LPub3D 2.4.9.53.4101 (12 03 2025 01:42:07)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Enhancement - Inconsistency with parts list shape inputs #805
+- Enhancement - Set annotation style attributes from context menu action #812
 - Change - Set annotation style attributes for fixed and extended types #811
 - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
 - Regression - Library Update failed #804

@@ -340,6 +340,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bDASH\\b"),
         QStringLiteral("\\bDASH_DOT\\b"),
         QStringLiteral("\\bDASH_DOT_DOT\\b"),
+        QStringLiteral("\\bDEFAULT_STYLE\\b"),
         QStringLiteral("\\bDISPLAY\\b"),
         QStringLiteral("\\bDISPLAY_MODEL\\b"),
         QStringLiteral("\\bDISPLAY_PAGE_NUMBER\\b"),

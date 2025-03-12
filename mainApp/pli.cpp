@@ -354,7 +354,7 @@ void Pli::setParts(
           partClass(sortCategory,description);  // populate sort category using part class and
 
           // initialize default style settings
-          AnnotationStyleMeta styleMeta;
+          AnnotationStyleMeta styleMeta = pliMeta.defaultStyle;
           styleMeta.margin = pliMeta.annotate.margin;
           styleMeta.font   = pliMeta.annotate.font;
           styleMeta.color  = pliMeta.annotate.color;
@@ -926,7 +926,7 @@ int Pli::createSubModelIcons()
                            .arg(renderer->getRotstepMeta(pliMeta.rotStep,true)));
 
         if ( ! parts.contains(key)) {
-            AnnotationStyleMeta styleMeta;
+            AnnotationStyleMeta styleMeta = pliMeta.defaultStyle;
             styleMeta.margin = pliMeta.annotate.margin;
             styleMeta.font   = pliMeta.annotate.font;
             styleMeta.color  = pliMeta.annotate.color;
@@ -3825,12 +3825,12 @@ void AnnotateTextItem::contextMenuEvent(
                        &background,
                        true,1,true,false);  // no picture
   } else if (selectedAction == borderAction) {
-      bool corners = style.value() == circle;
+      bool corners = style.value() != AnnotationStyle::circle;
       changeBorder(QObject::tr("%1 Border").arg(name),
                    top,
                    bottom,
                    &border,
-                   true,1,true,false,corners);
+                   true/*useTop*/,1/*append*/,true/*local*/,false/*rotateArrow*/,corners);
   }
 //    else if (selectedAction == marginAction) {
 //      changeMargins(QObject::tr("%1 Margins")arg(name),
@@ -4295,11 +4295,10 @@ AnnotateTextItem::AnnotateTextItem(
          style      = _pli->pliMeta.elementStyle.style;
          styleSize  = _pli->pliMeta.elementStyle.size;
       } else {
-         AnnotationStyleMeta elementStyle;     // default style settings
-         border     = elementStyle.border;     // Type::BdrNone, Line::BdrLnNone
-         background = elementStyle.background; // BackgroundData::BgTransparent
-         style      = elementStyle.style;      // AnnotationStyle::none
-         styleSize  = elementStyle.size;       // 0.28f,0.28f (42px @ 150DPI)
+         border     = _pli->pliMeta.defaultStyle.border;     // Type::BdrNone, Line::BdrLnNone
+         background = _pli->pliMeta.defaultStyle.background; // BackgroundData::BgTransparent
+         style      = _pli->pliMeta.defaultStyle.style;      // AnnotationStyle::none
+         styleSize  = _pli->pliMeta.defaultStyle.size;       // 0.28f,0.28f (42px @ 150DPI)
       }
       font       = _pli->pliMeta.elementStyle.font;
       color      = _pli->pliMeta.elementStyle.color;
@@ -4325,6 +4324,10 @@ AnnotateTextItem::AnnotateTextItem(
                       .arg(_part->color)
                       .arg(_part->description);
   }
+
+  canSetAnnotationStyle.setValue(background.value().type != BackgroundData::BgTransparent ||
+                                 (border.valuePixels().type != BorderData::BdrNone &&
+                                  border.valuePixels().line != BorderData::BdrLnNone));
 
   setText(_pli,_part,_text,fontString,toolTip);
 
@@ -4530,7 +4533,7 @@ void AnnotateTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    if (style.value() != AnnotationStyle::none) {
+    if (canSetAnnotationStyle.value()) {
         setAnnotationStyle(painter);
         QRectF textBounds = boundingRect();
         textBounds.translate(textOffset);

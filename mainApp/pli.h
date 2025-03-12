@@ -491,6 +491,7 @@ public:
   MarginsMeta    margin;
   QRectF         textRect;
   QRectF         styleRect;
+  BoolMeta       canSetAnnotationStyle;
 
   AnnotateTextItem(
     Pli           *_pli,
