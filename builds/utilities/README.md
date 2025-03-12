@@ -22,8 +22,8 @@ The LPub3D build process automatically resolves required build dependencies acro
 **Platform-specific Dependencies:**
 *  [Qt][qtwebsite]: [CreateDmg.sh][createdmg] assumes Qt 5.15.2 or greater (not Qt6) installed at ~/Qt/IDE/5.15.2/clang_64
 *  [Xcode][xcode]:
-*  [Homebrew][homebrew]: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`{:.sh}
-*  [XQuartz (X11)][x11]: `brew cask list && brew cask install xquartz`{:.sh}
+*  [Homebrew][homebrew]: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+*  [XQuartz (X11)][x11]: `brew cask list && brew cask install xquartz`
 
 **Steps:**
 
@@ -153,7 +153,7 @@ XCOPY /Q /S /I /E /V /Y builds\windows\release\LPub3D-Any-2.4.8.0.3723_20241019\
 ```
 - [ ] 5. have a :beer:
 
-**Simulating LPub3D - GitHub Build locally:** If you wish to replicate the GitHub actions build process locally (On Windows), you can do so with these steps - assuming you have configured the above sependencies and executed through step 2 above.
+**Simulating LPub3D - GitHub Build locally:** If you wish to replicate the GitHub actions build process locally (On Windows), you can do so with these steps - assuming you have configured the above dependencies and executed through step 2 above.
 - [ ] 1. set your desired build path  
 ```batch
 SET %APP_INSTANCE_PATH%=%USERPROFILE%\Projects

@@ -1037,7 +1037,7 @@ for buildDir in ldglite ldview povray; do
     fi
     # Install build dependencies - even if binary exists...
     if [ "${LP3D_QEMU}" = "true" ]; then
-      echo "Building in QEMU, skipping InstallDependencies."
+      Info "Building in QEMU, skipping InstallDependencies."
     elif [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" && ! "$LP3D_NO_DEPS" = "true" ]]; then
       Info && Info "Install ${!artefactVer} build dependencies..."
       Info "----------------------------------------------------"
