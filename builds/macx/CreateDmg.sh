@@ -188,15 +188,19 @@ echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
 
 cd ${LPUB3D}
 
-cat <<EOF >rendererVars.sh
-export WD=${WD}
-export OBS=false
-export LPUB3D=${LPUB3D}
-export LDRAWDIR=${LDRAWDIR}
-export LP3D_LOG_PATH=${LP3D_LOG_PATH}
-export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR}
-EOF
+# Build LPub3D renderers - LDGLite, LDView, POV-Ray
 chmod +x builds/utilities/CreateRenderers.sh && \
+env \
+WD=${WD} \
+OBS=${OBS:-false} \
+LPUB3D=${LPUB3D} \
+GITHUB=${GITHUB} \
+DOCKER=${DOCKER} \
+LDRAWDIR=${LDRAWDIR} \
+LP3D_LOG_PATH=${LP3D_LOG_PATH} \
+LP3D_CPU_CORES=${LP3D_CPU_CORES} \
+LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-true} \
+LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
 ./builds/utilities/CreateRenderers.sh
 
 DIST_DIR="$(cd ../ && echo "$PWD/lpub3d_macos_3rdparty")"

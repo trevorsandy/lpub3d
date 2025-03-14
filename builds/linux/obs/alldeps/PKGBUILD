@@ -1,8 +1,8 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: September 16, 2024
+#  Last Update: March 13, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.4.9.4109
+pkgver=2.4.9.4110
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -20,13 +20,26 @@ md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
 prepare() {
 	# location is ../src
 	echo "  -> Current working directory: $PWD"
-	export WD=$PWD; export LDRAWDIR=${HOME}/ldraw;
+	export WD="$PWD"
+	export LDRAWDIR="${HOME}/ldraw"
 	export PLATFORM_PRETTY="Arch Linux Extra"
 	export PLATFORM_CODE="arex"
-	export PLATFORM_VER="2024"
+	export PLATFORM_VER="2025"
+	export LPUB3D="${pkgname}"
 	export TARGET_CPU="$(uname -m)"
+	export LP3D_LOG_PATH=
+	export LP3D_CPU_CORES=
+	export LP3D_3RD_DIST_DIR=
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
+	env \
+	WD=${WD} \
+	LPUB3D=${pkgname} \
+	LDRAWDIR=${LDRAWDIR} \
+	TARGET_CPU=${TARGET_CPU} \
+	LP3D_LOG_PATH=${LP3D_LOG_PATH} \
+	LP3D_CPU_CORES=${LP3D_CPU_CORES} \
+	LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
 	./builds/utilities/CreateRenderers.sh
 	# location is ../src/${pkgname}-git
 	echo "  -> Current working directory: $PWD"
@@ -56,7 +69,6 @@ prepare() {
 	fi
 	export QT_SELECT=qt5
 	export LP3D_BUILD_PKG=yes
-	export LDRAWDIR=${HOME}/ldraw
 	if [ -x /usr/bin/qmake ] ; then
 		QMAKE_EXEC=qmake
 	elif [ -x /usr/bin/qmake-qt5 ] ; then

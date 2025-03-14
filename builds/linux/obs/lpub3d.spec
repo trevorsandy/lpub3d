@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update September 19, 2024
+# Last Update March 14, 2025
 # Copyright © 2018 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -82,7 +82,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.9.4109
+Version: 2.4.9.4110
 Release: 1%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -239,6 +239,7 @@ export TARGET_CPU=%{_target_cpu}
 export PLATFORM_VER=%{fedora}
 export LPUB3D=%{name}
 export RPM_BUILD=true
+export LDRAWDIR=${HOME}/ldraw
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes
 # set Qt5
@@ -249,9 +250,20 @@ echo "Build OSMesa from source.......yes"
 export build_osmesa="%{build_osmesa}"
 %endif
 # build 3rd-party renderers
-export LP3D_LOG_PATH="%{_lp3d_log_path}" ; \
+export LP3D_LOG_PATH="%{_lp3d_log_path}"; \
+export LP3D_CPU_CORES="%{_lp3d_cpu_cores}"; \
+export LP3D_3RD_DIST_DIR="%{_lp3d_3rd_dist_dir}"; \
 export WD=$(readlink -e ../); \
-chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+chmod a+x builds/utilities/CreateRenderers.sh && \
+env \
+WD=${WD} \
+OBS=${OBS} \
+LPUB3D=${LPUB3D} \
+LDRAWDIR=${LDRAWDIR} \
+LP3D_LOG_PATH=${LP3D_LOG_PATH} \
+LP3D_CPU_CORES=${LP3D_CPU_CORES} \
+LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
+./builds/utilities/CreateRenderers.sh
 # Qt setup
 if which qmake-qt5 >/dev/null 2>/dev/null ; then
   QMAKE_EXEC=qmake-qt5
@@ -259,8 +271,6 @@ else
   QMAKE_EXEC=qmake
 fi
 echo && ${QMAKE_EXEC} -v && echo
-# LDraw directory - build check
-export LDRAWDIR=${HOME}/ldraw
 # configure and build LPub3d
 ${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 make clean
@@ -314,10 +324,10 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Fri Mar 14 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4109
+* Fri Mar 14 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4110
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 
-* Fri Mar 14 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4109
+* Fri Mar 14 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4110
 - LPub3D 2.4.4 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue May 31 2022 - trevor dot sandy at gmail dot com 2.4.4.2670

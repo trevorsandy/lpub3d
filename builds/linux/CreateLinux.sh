@@ -300,7 +300,20 @@ Info && Info "LP3D* environment variables:" && compgen -v | grep LP3D_ | while r
 set -x
 
 # Build LPub3D renderers - LDGLite, LDView, POV-Ray
-chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+chmod a+x builds/utilities/CreateRenderers.sh && \
+env \
+WD=${WD} \
+OBS=${OBS} \
+LPUB3D=${LPUB3D} \
+GITHUB=${GITHUB} \
+DOCKER=${DOCKER} \
+LDRAWDIR=${LDRAWDIR} \
+LP3D_NO_DEPS=${LP3D_NO_DEPS} \
+LP3D_LOG_PATH=${LP3D_LOG_PATH} \
+LP3D_CPU_CORES=${LP3D_CPU_CORES} \
+LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP} \
+LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
+./builds/utilities/CreateRenderers.sh
 
 # Set application build path
 [ ! -d AppDir ] && mkdir -p AppDir || :

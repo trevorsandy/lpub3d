@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Last Update December 06, 2024
+# Last Update March 13, 2025
 # Copyright 2017 - 2025 Trevor SANDY
 
 # output every command that modifies files on the build system.
@@ -94,10 +94,23 @@ configure-stamp:
 	# build 3rd-party renderers
 	export LPUB3D=lpub3d; \
 	export WD=$$(readlink -e ../); \
+	export LDRAWDIR=${HOME}/ldraw; \
 	export LP3D_LOG_PATH=${LP3D_LOG_PATH}; \
+	export LP3D_CPU_CORES=${LP3D_CPU_CORES}; \
+	export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR}; \
 	export LP3D_UCS_VER=${LP3D_UCS_5}; \
 	export build_osmesa=$$($$([ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_10}" ]) && echo 1 || :); \
-	chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+	chmod +x builds/utilities/CreateRenderers.sh && \
+	env \
+	WD=${WD} \
+	LPUB3D=${LPUB3D} \
+	LDRAWDIR=${LDRAWDIR} \
+	LP3D_UCS_VER=${LP3D_UCS_VER} \
+	LP3D_LOG_PATH=${LP3D_LOG_PATH} \
+	LP3D_CPU_CORES=${LP3D_CPU_CORES} \
+	LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
+	build_osmesa=${build_osmesa} \
+	./builds/utilities/CreateRenderers.sh
 
 override_dh_auto_configure:
 	# LDraw directory - for build check

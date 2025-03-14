@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 11, 2024
+# Last Update March 14, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -249,7 +249,10 @@ cd ${BUILD_DIR}
 
 echo "5a. add LP3D_LOG_PATH to PKGBUILD"
 [ -f "PKGBUILD" ] && \
-sed -i "s;^ export LP3D_LOG_PATH=;  export LP3D_LOG_PATH=\"${LP3D_LOG_PATH}\";" "PKGBUILD" || :
+sed -i -e "s;^	export LP3D_LOG_PATH=;	export LP3D_LOG_PATH=\"${LP3D_LOG_PATH}\";" \
+       -e "s;^	export LP3D_CPU_CORES=;	export LP3D_CPU_CORES=\"${LP3D_CPU_CORES}\";" \
+       -e "s;^	export LP3D_3RD_DIST_DIR=;	export LP3D_3RD_DIST_DIR=\"${LP3D_3RD_DIST_DIR}\";" \
+       "PKGBUILD" || :
 
 if [ "$LOCAL" = "true" ]; then
     echo "6. copy LOCAL LDraw archive libraries to pkgbuild/..."

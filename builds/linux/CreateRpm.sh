@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update December 06, 2024
+# Last Update March 13, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -336,7 +336,12 @@ else
 fi
 
 echo "14-1. build the RPM package..."
-rpmbuild --define "_topdir ${BUILD_DIR}" --define "_lp3d_log_path ${LP3D_LOG_PATH}" -vv -bb ${LPUB3D}.spec || exit 1
+rpmbuild \
+--define "_topdir ${BUILD_DIR}" \
+--define "_lp3d_log_path ${LP3D_LOG_PATH}" \
+--define "_lp3d_cpu_cores ${LP3D_CPU_CORES}" \
+--define "_lp3d_3rd_dist_dir ${LP3D_3RD_DIST_DIR}" \
+-vv -bb ${LPUB3D}.spec || exit 1
 
 cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
