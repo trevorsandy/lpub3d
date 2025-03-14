@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 25, 2024
+rem  Last Update: March 13, 2025
 rem  Copyright (c) 2019 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -343,25 +343,6 @@ rem If we get here display invalid command message.
 GOTO :COMMAND_ERROR
 
 :BUILD
-IF NOT EXIST "%LP3D_WIN_GIT%" (
-  SET LP3D_WIN_GIT=
-  SET LP3D_WIN_GIT_MSG=Not Found
-)
-
-IF /I "%RENDERERS_ONLY%"=="1" (
-  ECHO.
-  ECHO -Build 3rdparty renderers only - %PACKAGE% not built
-  ECHO.
-)
-
-rem set application version variables
-SET UPDATE_CONFIG_ARGS=%ABS_WD%\mainApp
-IF "%LP3D_CONDA_BUILD%" EQU "True" (
-  SET UPDATE_CONFIG_ARGS=%UPDATE_CONFIG_ARGS% ParseVersionInfoFile
-)
-CALL builds\utilities\update-config-files.bat %UPDATE_CONFIG_ARGS%
-IF ERRORLEVEL 1 (GOTO :ERROR_END)
-
 rem Display build settings
 ECHO.
 IF "%BUILD_WORKER%" EQU "True" (
@@ -392,7 +373,25 @@ ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
 ECHO   LDRAW_INSTALL_ROOT.............[%LDRAW_INSTALL_ROOT%]
 ECHO   LDRAW_LIBS_ROOT................[%LDRAW_LIBS%]
 ECHO   BUILD_OPT......................[%BUILD_OPT%]
-ECHO.
+
+IF NOT EXIST "%LP3D_WIN_GIT%" (
+  SET LP3D_WIN_GIT=
+  SET LP3D_WIN_GIT_MSG=Not Found
+)
+
+IF /I "%RENDERERS_ONLY%"=="1" (
+  ECHO.
+  ECHO -Build 3rdparty renderers only - %PACKAGE% not built
+  ECHO.
+)
+
+rem set application version variables
+SET UPDATE_CONFIG_ARGS=%ABS_WD%\mainApp
+IF "%LP3D_CONDA_BUILD%" EQU "True" (
+  SET UPDATE_CONFIG_ARGS=%UPDATE_CONFIG_ARGS% ParseVersionInfoFile
+)
+CALL builds\utilities\update-config-files.bat %UPDATE_CONFIG_ARGS%
+IF ERRORLEVEL 1 (GOTO :ERROR_END)
 
 rem Perform 3rd party package content install
 IF /I "%3"=="-ins" (
