@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update January 18, 2025
+# Last Update March 13, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -533,6 +533,42 @@ BuildPOVRay() {
   fi
 }
 
+# Package the renderers
+canPackageRenderers="true"
+function package_renderers()
+{
+    if [[ "${OBS}" = "true" || "${SNAP}" = "true" ]]; then
+        Info "Cannot create renderer package under OBS or SNAP builds"
+        return
+    fi
+    if [ -d "/out" ]; then 
+        LP3D_OUT_PATH=/out
+    elif [ -d "/buildpkg" ]; then 
+        LP3D_OUT_PATH=/buildpkg
+    else
+        LP3D_OUT_PATH=${LP3D_LOG_PATH}
+    fi
+	declare -r p=Package
+    LP3D_ARCH=${TARGET_CPU}
+    LP3D_BASE=${platform_id}-${platform_ver}
+    LP3D_RNDR_VERSION=${LP3D_VERSION}.${LP3D_VER_REVISION}.${LP3D_VER_BUILD}
+    LP3D_RENDERERS=LPub3D-${LP3D_RNDR_VERSION}-renderers-${LP3D_BASE}-${LP3D_ARCH}.tar.gz
+    echo -n "-Create renderer package ${LP3D_OUT_PATH}/${LP3D_RENDERERS}..."
+    ( cd "${DIST_PKG_DIR}/" || return && \
+    tar -czf "${LP3D_RENDERERS}"  \
+    "--exclude=${VER_LDVIEW}/lib" \
+    "--exclude=${VER_LDVIEW}/include" \
+    "--exclude=${VER_LDVIEW}/bin/*.exp" \
+    "--exclude=${VER_LDVIEW}/bin/*.lib" \
+    "--exclude=${VER_LDVIEW}/resources/*Messages.ini" \
+    "${VER_LDGLITE}/" "${VER_LDVIEW}/" "${VER_POVRAY}/" && \
+    sha512sum "${LP3D_RENDERERS}" > "${LP3D_RENDERERS}.sha512" && \
+    mv -f "${LP3D_RENDERERS}" "${LP3D_RENDERERS}.sha512" \
+    "${LP3D_OUT_PATH}/" ) >$p.out 2>&1 && rm $p.out
+    [ -f $p.out ] && echo "ERROR" && tail -80 $p.out || echo "Ok"
+    Info
+}
+
 # **************** Begin Main Script *****************************
 
 # Grab the script name
@@ -550,19 +586,6 @@ if [[ "${SOURCED}" = "false" && -f "rendererVars.sh" ]]; then
   # Info && cat rendererVars.sh
   source rendererVars.sh && importedRendererVars=1
 fi
-
-# Grab the calling dir
-CallDir=$PWD
-
-# tell curl to be silent, continue downloads and follow redirects
-curlopts="-sL -C -"
-
-Info && Info "Building.................[LPub3D 3rd Party Renderers]"
-[ -n "$LPUB3D" ] && Info "LPub3D Build Folder......[$LPUB3D]" || :
-[ -n "$importedRendererVars" ] && Info "Renderer Build Variables.[rendererVars.sh]" || :
-
-# populate the OS Name
-OS_NAME=$(uname)
 
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
@@ -587,10 +610,39 @@ if [ "${WD}" = "" ]; then
   Info "WARNING - 'WD' environment varialbe not specified. Using $WD"
 fi
 
-# Initialize OBS if not in command line input
+# Grab the calling dir
+CallDir=$PWD
+
+# Tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
+
+# Populate the OS Name
+OS_NAME=$(uname)
+
+# Get CPU arch - 'uname -m' returns x86_64, armv7l or aarch64
+TARGET_CPU=$(uname -m)
+
+# Define build architecture and cached renderer paths
+if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
+  buildArch="64bit_release"
+else
+  buildArch="32bit_release"
+fi
+
+# QMake CPU value for ARM 64bit is arm64
+TARGET_CPU_QMAKE=${TARGET_CPU}
+if [ "${TARGET_CPU}" = "aarch64" ]; then
+  TARGET_CPU_QMAKE="arm64"
+fi
+
+# Initialize OBS if not in command line input - FlatPak does not call this script
 if [[ "${OBS}" = "" && "${DOCKER}" = "" && "${CI}" = "" && "${SNAP}" = "" ]]; then
   OBS=true
 fi
+
+Info && Info "Building.................[LPub3D 3rd Party Renderers]"
+[ -n "$LPUB3D" ] && Info "LPub3D Build Folder......[$LPUB3D]" || :
+[ -n "$importedRendererVars" ] && Info "Renderer Build Variables.[rendererVars.sh]" || :
 
 # Get pretty platform name, short platform name and platform version
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -635,14 +687,6 @@ else
   fi
 fi
 [ -n "$platform_id" ] && host=$platform_id || host=undefined
-
-# get CPU arch - 'uname -m' returns x86_64, armv7l or aarch64
-TARGET_CPU=$(uname -m)
-# qmake CPU value for ARM 64bit is arm64
-TARGET_CPU_QMAKE=${TARGET_CPU}
-if [ "${TARGET_CPU}" = "aarch64" ]; then
-  TARGET_CPU_QMAKE="arm64"
-fi
 
 # Display platform settings
 Info "Build Working Directory..[${CallDir}]"
@@ -830,12 +874,6 @@ if [ "$get_local_libs" = 1 ]; then
   export Q_LDFLAGS="$LP3D_LDFLAGS"
 fi
 
-# define build architecture and cached renderer paths
-if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
-  buildArch="64bit_release"
-else
-  buildArch="32bit_release"
-fi
 # renderer versions
 VER_LDGLITE=ldglite-1.3
 VER_LDVIEW=ldview-4.5
@@ -911,42 +949,6 @@ fi
 # List 'LP3D_*' environment variables
 Info && Info "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line}; done
 Info
-
-# Package the renderers
-canPackageRenderers="true"
-declare -r p=Package
-function package_renderers()
-{
-    if [[ "${OBS}" = "true" || "${SNAP}" = "true" ]]; then
-        Info "Cannot create renderer package under OBS or SNAP builds"
-        return
-    fi
-    if [ -d "/out" ]; then 
-        LP3D_OUT_PATH=/out
-    elif [ -d "/buildpkg" ]; then 
-        LP3D_OUT_PATH=/buildpkg
-    else
-        LP3D_OUT_PATH=${LP3D_LOG_PATH}
-    fi
-    LP3D_ARCH=${TARGET_CPU}
-    LP3D_BASE=${platform_id}-${platform_ver}
-    LP3D_RNDR_VERSION=${LP3D_VERSION}.${LP3D_VER_REVISION}.${LP3D_VER_BUILD}
-    LP3D_RENDERERS=LPub3D-${LP3D_RNDR_VERSION}-renderers-${LP3D_BASE}-${LP3D_ARCH}.tar.gz
-    echo -n "-Create renderer package ${LP3D_OUT_PATH}/${LP3D_RENDERERS}..."
-    ( cd "${DIST_PKG_DIR}/" || return && \
-    tar -czf "${LP3D_RENDERERS}"  \
-    "--exclude=${VER_LDVIEW}/lib" \
-    "--exclude=${VER_LDVIEW}/include" \
-    "--exclude=${VER_LDVIEW}/bin/*.exp" \
-    "--exclude=${VER_LDVIEW}/bin/*.lib" \
-    "--exclude=${VER_LDVIEW}/resources/*Messages.ini" \
-    "${VER_LDGLITE}/" "${VER_LDVIEW}/" "${VER_POVRAY}/" && \
-    sha512sum "${LP3D_RENDERERS}" > "${LP3D_RENDERERS}.sha512" && \
-    mv -f "${LP3D_RENDERERS}" "${LP3D_RENDERERS}.sha512" \
-    "${LP3D_OUT_PATH}/" ) >$p.out 2>&1 && rm $p.out
-    [ -f $p.out ] && echo "ERROR" && tail -80 $p.out || echo "Ok"
-    Info
-}
 
 # =======================================
 # Main loop
