@@ -86,6 +86,7 @@ export LP3D_APPIMAGE=${LP3D_APPIMAGE:-false}
 export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_PATH:-${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH}}
 export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}
 export LP3D_LOG_PATH=${LP3D_LOG_PATH:-${LP3D_OUT_PATH}}
+export LP3D_CPU_CORES=${LP3D_CPU_CORES:-1}
 export LP3D_TD=${WD}/${LP3D_3RD_DIST_DIR}
 
 export LP3D_LDRAW_DIR=${LP3D_LDRAW_DIR:-${LP3D_3RD_PARTY_PATH}/ldraw}
@@ -257,8 +258,21 @@ if [[ -z "${LP3D_ANALYZE}" || (-n "${LP3D_ANALYZE}" && "${LP3D_ANALYZE}" -gt "1"
   echo "'Build POV-Ray' detected." && [ -d "${povray_path}" ] && \
   rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 
-  # Build renderers LDGLite, LDView, and POV-Ray
-  chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+  # Build LPub3D renderers - LDGLite, LDView, POV-Ray
+  chmod a+x builds/utilities/CreateRenderers.sh && \
+  env \
+  WD=${WD} \
+  OBS=${OBS} \
+  LPUB3D=${LPUB3D} \
+  GITHUB=${GITHUB} \
+  DOCKER=${DOCKER} \
+  LDRAWDIR=${LDRAWDIR} \
+  LP3D_NO_DEPS=${LP3D_NO_DEPS} \
+  LP3D_LOG_PATH=${LP3D_LOG_PATH} \
+  LP3D_CPU_CORES=${LP3D_CPU_CORES} \
+  LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP} \
+  LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
+  ./builds/utilities/CreateRenderers.sh
   if [ $? != 0 ]; then
     echo "ERROR - Create renderers failed with return code $?."
     exit 5

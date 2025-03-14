@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: March 10, 2025
+# Last Update: March 13, 2025
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -76,6 +76,8 @@ echo "Start $ME execution at $CWD..."
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d}"
 LP3D_ARCH="${LP3D_ARCH:-$(uname -m)}"
+LP3D_CPU_CORES="${LP3D_CPU_CORES:-$(nproc)}"
+
 echo && echo "   LPUB3D BUILD ARCH......[${LP3D_ARCH}]"
 echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
 
@@ -88,9 +90,7 @@ elif [ "$BUILD_OPT" = "renderers" ]; then
 else
   echo "   BUILD OPTION...........[build package]"
 fi
-if [ "$GITHUB" = "true" ]; then
-  echo "   CPU CORES..............[$(echo $([ -n "${LP3D_CPU_CORES}" ] && echo ${LP3D_CPU_CORES} || echo $(nproc)))]"
-fi
+echo "   CPU CORES..............[${LP3D_CPU_CORES}]"
 
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
@@ -100,8 +100,8 @@ echo "   LOG FILE...............[$([ -n "${LOG}" ] && echo ${LOG} || echo "not w
 # when running with Installer Qt, use this block...
 if [ "${CI}" != "true"  ]; then
   # use this instance of Qt if exist - this entry is my dev machine, change for your environment accordingly
-  if [ -d ~/Qt/IDE/5.15.0/clang_64 ]; then
-    export PATH=~/Qt/IDE/5.15.0/clang_64:~/Qt/IDE/5.15.0/clang_64/bin:$PATH
+  if [ -d ~/Qt/IDE/5.15.16/clang_64 ]; then
+    export PATH=~/Qt/IDE/5.15.16/clang_64:~/Qt/IDE/5.15.16/clang_64/bin:$PATH
   else
     echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.15.0/clang_64"
     exit 1
@@ -287,11 +287,7 @@ echo && echo "-  configure and build source from $(realpath .)..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
 echo && qmake -v && echo
 qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=sdk_no_version_check CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=dmg
-if [ -n "${LP3D_CPU_CORES}" ]; then
-  /usr/bin/make -j${LP3D_CPU_CORES} || exit 1
-else
-  /usr/bin/make -j$(nproc) || exit 1
-fi
+/usr/bin/make -j${LP3D_CPU_CORES} || exit 1
 
 # Check if build is OK or stop and return error.
 if [ ! -f "mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D" ]; then

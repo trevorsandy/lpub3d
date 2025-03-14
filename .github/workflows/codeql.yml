@@ -40,6 +40,9 @@ jobs:
         run: |
           echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
       - name: Cache
         id: cache-third-party-quality
         uses: actions/cache@v4
@@ -52,6 +55,7 @@ jobs:
           test -d ${{ env.LP3D_3RD_PARTY_PATH }} && ls -aldFR ${{ env.LP3D_3RD_PARTY_PATH }} || true
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LP3D_CPU_CORES: ${{ steps.cpu-cores.outputs.count }}
           LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
       - name: Initialize
         uses: github/codeql-action/init@v3
@@ -62,6 +66,7 @@ jobs:
         run: bash -ex builds/utilities/ci/github/linux-compile.sh
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          LP3D_CPU_CORES: ${{ steps.cpu-cores.outputs.count }}
           LP3D_ANALYZE: 1
       - name: Diagnostics
         if: failure()

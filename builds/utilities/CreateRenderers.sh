@@ -412,10 +412,10 @@ BuildLDGLite() {
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make -j${BUILD_CPUs}
+    make -j${CPU_CORES}
     make install
   else
-    make -j${BUILD_CPUs} > $2 2>&1
+    make -j${CPU_CORES} > $2 2>&1
     make install >> $2 2>&1
   fi
 }
@@ -517,7 +517,7 @@ BuildPOVRay() {
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG
   #Info "DEBUG_DEBUG CONFIG.LOG: " && cat config.log
   if [ "${OBS}" = "true" ]; then
-    make -j${BUILD_CPUs}
+    make -j${CPU_CORES}
     make install
     make check
     if [ ! -f "unix/lpub3d_trace_cui" ]; then
@@ -526,7 +526,7 @@ BuildPOVRay() {
       cat config.log
     fi
   else
-    make -j${BUILD_CPUs} > $2 2>&1 &
+    make -j${CPU_CORES} > $2 2>&1 &
     TreatLongProcess "$!" "60" "POV-Ray make"
     make check >> $2 2>&1
     make install >> $2 2>&1
@@ -843,12 +843,12 @@ else
   # set dependency profiler and nubmer of CPUs
   LDD_EXEC=ldd
   if [[ "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
-    BUILD_CPUs=1
+    CPU_CORES=1
   else
     if [ -n "${LP3D_CPU_CORES}" ]; then
-      BUILD_CPUs=${LP3D_CPU_CORES}
+      CPU_CORES=${LP3D_CPU_CORES}
     else
-      BUILD_CPUs=$(nproc)
+      CPU_CORES=$(nproc)
     fi
   fi
 fi
@@ -943,7 +943,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
   [ "$(echo $platform_ver | cut -d. -f2)" = 13 ] && MACOS_POVRAY_NO_OPTIMIZ="true" || true
   # set dependency profiler and nubmer of CPUs
   LDD_EXEC="otool -L"
-  BUILD_CPUs=$(sysctl -n hw.ncpu)
+  CPU_CORES=$(sysctl -n hw.ncpu)
 fi
 
 # List 'LP3D_*' environment variables
