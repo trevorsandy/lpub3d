@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 13, 2025
+# Last Update March 14, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -352,24 +352,20 @@ then
     if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
         echo "9. Skipping ${DISTRO_FILE} build check."
     else
-        if [ "${LP3D_QEMU}" = "true" ]; then
-            if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
-                echo "15-1. Pre-package build check LPub3D..."
-                export LP3D_BUILD_OS=
-                export SOURCE_DIR=$(readlink -f ../../SOURCES/${WORK_DIR})
-                export LP3D_CHECK_LDD="1"
-                export LP3D_CHECK_STATUS="--version --app-paths"
-                case ${LP3D_ARCH} in
-                    "aarch64"|"arm64")
-                        LP3D_BUILD_ARCH="64bit_release" ;;
-                    *)
-                        LP3D_BUILD_ARCH="32bit_release" ;;
-                esac
-                export LPUB3D_EXE="${BUILD_DIR}/BUILD/${WORK_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
-                (cd ${SOURCE_DIR} && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh)
-            else
-                echo "15-1. Building in QEMU, skipping build check."
-            fi
+		if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
+			echo "15-1. Pre-package build check LPub3D..."
+			export LP3D_BUILD_OS=
+			export SOURCE_DIR=$(readlink -f ../../SOURCES/${WORK_DIR})
+			export LP3D_CHECK_LDD="1"
+			export LP3D_CHECK_STATUS="--version --app-paths"
+			case ${LP3D_ARCH} in
+				"amd64"|"arm64"|"x86_64"|"aarch64")
+					LP3D_BUILD_ARCH="64bit_release" ;;
+				*)
+					LP3D_BUILD_ARCH="32bit_release" ;;
+			esac
+			export LPUB3D_EXE="${BUILD_DIR}/BUILD/${WORK_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+			cd ${SOURCE_DIR} && source builds/check/build_checks.sh
         else
             echo "15-1. Build check ${DISTRO_FILE}"
             if [ ! -f "/usr/bin/update-desktop-database" ]; then
@@ -403,15 +399,13 @@ then
     if [ "$BUILD_OPT" = "verify" ]; then
         echo "15-3. Cleanup build assets..."
         rm -f ./*.rpm* 2>/dev/null || :
-        if [ "${LP3D_QEMU}" = "true" ]; then
-            echo "15-4. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
-            mv -f ${BUILD_DIR}/BUILD/*.log 2>/dev/null || :
-            mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-            mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-            mv -f ./*.log /out/ 2>/dev/null || :
-            mv -f ~/*.log /out/ 2>/dev/null || :
-            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
-        fi
+        echo "15-4. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
+        mv -f ${BUILD_DIR}/BUILD/*.log 2>/dev/null || :
+        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+        mv -f ./*.log /out/ 2>/dev/null || :
+        mv -f ~/*.log /out/ 2>/dev/null || :
+        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         if [ "${GITHUB}" != "true" ]; then
             echo "16. cleanup cloned ${LPUB3D} repository from rpmbuild/SOURCES/ and rpmbuild/BUILD/..."
             rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
@@ -429,16 +423,14 @@ then
             sha512sum "${LP3D_RPM_FILE}" > "${LP3D_RPM_FILE}.sha512" || \
             echo "15-4. ERROR - Failed to create hash file ${LP3D_RPM_FILE}.sha512"
         fi
-        if [ "${LP3D_QEMU}" = "true" ]; then
-            echo "15-5. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
-            mv -f ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}/*.rpm* /out/ 2>/dev/null || :
-            mv -f ${BUILD_DIR}/BUILD/*.log 2>/dev/null || :
-            mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-            mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-            mv -f ./*.log /out/ 2>/dev/null || :
-            mv -f ~/*.log /out/ 2>/dev/null || :
-            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
-        fi
+        echo "15-5. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
+        mv -f ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}/*.rpm* /out/ 2>/dev/null || :
+        mv -f ${BUILD_DIR}/BUILD/*.log 2>/dev/null || :
+        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+        mv -f ./*.log /out/ 2>/dev/null || :
+        mv -f ~/*.log /out/ 2>/dev/null || :
+        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         echo
         echo "    Distribution package.: ${LP3D_RPM_FILE}"
         echo "    Package path.........: $PWD/${LP3D_RPM_FILE}"

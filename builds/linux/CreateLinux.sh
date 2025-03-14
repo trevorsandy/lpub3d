@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 13, 2025
+# Last Update March 14, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -131,7 +131,6 @@ export CI=${CI:-true}
 export OBS=${OBS:-false}
 export GITHUB=${GITHUB:-true}
 export DOCKER=${DOCKER:-true}
-export LP3D_QEMU=${LP3D_QEMU:-false}
 export LP3D_NO_DEPS=${LP3D_NO_DEPS:-true}
 export LP3D_LOG_PATH=${LP3D_LOG_PATH:-/out}
 export LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-true}
@@ -141,17 +140,15 @@ export LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-true}
 [ -n "${BUILD_DIR}" ] && Info "BUILD DIR..........${BUILD_DIR}" || :
 [ -n "${LP3D_BASE}" ] && Info "BUILD BASE.........${LP3D_BASE}" || :
 [ -n "${LP3D_ARCH}" ] && Info "BUILD ARCH.........${LP3D_ARCH}" || :
-[ -n "${LP3D_QEMU}" ] && Info "QEMU...............${LP3D_QEMU}" || :
 [ -n "${CI}" ] && Info "CI.................${CI}" || :
 [ -n "${GITHUB}" ] && Info "GITHUB.............${GITHUB}" || :
 [ -n "${LP3D_APPIMAGE}" ] && Info "APPIMAGE...........${LP3D_APPIMAGE}" || :
-if [ "${LP3D_QEMU}" = "true" ]; then
-Info "PRE-PACKAGE CHECK..$([ -n "${LP3D_PRE_PACKAGE_CHECK}" ] && echo "true" || echo "false")"
-fi
 if [ "${LP3D_APPIMAGE}" = "true" ]; then
-Info "BUILD AI TOOLS.....$([ -n "${LP3D_AI_BUILD_TOOLS}" ] && echo "true" || echo "false")"
-Info "PATCH MAGIC_BYTES..$([ -n "${LP3D_AI_MAGIC_BYTES}" ] && echo "true" || echo "false")"
-Info "EXTRACT AI PAYLOAD.$([ -n "${LP3D_AI_EXTRACT_PAYLOAD}" ] && echo "true" || echo "false")"
+  Info "BUILD AI TOOLS.....$([ -n "${LP3D_AI_BUILD_TOOLS}" ] && echo "true" || echo "false")"
+  Info "PATCH MAGIC_BYTES..$([ -n "${LP3D_AI_MAGIC_BYTES}" ] && echo "true" || echo "false")"
+  Info "EXTRACT AI PAYLOAD.$([ -n "${LP3D_AI_EXTRACT_PAYLOAD}" ] && echo "true" || echo "false")"
+else
+  Info "PRE-PACKAGE CHECK..$([ -n "${LP3D_PRE_PACKAGE_CHECK}" ] && echo "true" || echo "false")"
 fi
 
 # Download LDraw library archive files if not available
@@ -166,8 +163,8 @@ wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tentepa
 [ ! -f "/dist/vexiqparts.zip" ] && \
 wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O /dist/vexiqparts.zip || :
 
-# If LP3D_QEMU and not AppImage, source package build script
-if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
+# If not AppImage build, source package build script and exit
+if [[ "${LP3D_APPIMAGE}" != "true" ]]; then
   # copy files from user directory to build directory
   rsync -avr --exclude='ldraw' --exclude='.config' ~/ .
   # set paths and package script
@@ -227,7 +224,7 @@ if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
   exit 0
 fi
 
-# ............Local Build Calls...................#
+# ............Compile for AppImage Build...................#
 
 # Copy or download source
 if [ "${TRAVIS}" != "true" ]; then
@@ -380,9 +377,8 @@ else
   fi
 fi
 
-# Build check
-# If QEMU, BUILD_OPT will not be 'verify', and if AMD AppImage, check will run from the AppImage distro
-if [[ ( ! "${LP3D_APPIMAGE}" == "true" && "${BUILD_OPT}" == "verify" ) || -n "${LP3D_PRE_PACKAGE_CHECK}" ]]; then
+# AppImage pre-package build check
+if [[ -n "${LP3D_PRE_PACKAGE_CHECK}" ]]; then
   Info "Build check LPub3D bundle..."
   export LP3D_BUILD_OS=
   export SOURCE_DIR=${WD}
@@ -392,16 +388,11 @@ if [[ ( ! "${LP3D_APPIMAGE}" == "true" && "${BUILD_OPT}" == "verify" ) || -n "${
   chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh
 fi
 
-# Stop here if not building an AppImage
-if [ ! "${LP3D_APPIMAGE}" == "true" ]; then
-  exit 0
-fi
-
-# ..........AppImage Build Calls..................#
+# ..........AppImage Build..................#
 
 # Setup AppImage tools - linuxdeployqt, lconvert
 Info && Info "Installing AppImage tools..."
-if [[ -z "${LP3D_AI_BUILD_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}" = "x86_64") ]]; then
+if [[ -z "${LP3D_AI_BUILD_TOOLS}" ]]; then
   cd "${AppDirBuildPath}" || exit 1
   CommandArg=-version
   if [ ! -e linuxdeployqt ]; then
@@ -417,7 +408,7 @@ if [[ -z "${LP3D_AI_BUILD_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}"
     exit 5
   fi
   SaveAppImageSetupProgress
-elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}" = "aarch64" || "${LP3D_QEMU}" = "true" ]]; then
+else
   cd "${WD}/" || exit 1
   [ ! -d bin ] && mkdir bin || :
   export PATH="${WD}/bin":"${PATH}"
@@ -481,7 +472,7 @@ elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}
       if [ "$(grep -F "${formaterror}" $p.out 2>/dev/null)" ]; then
         echo Format error, command $p ${CommandArg} FAILED
         tail -80 $p.out
-        if [ -z "${LP3D_AI_MAGIC_BYTES}" ]; then
+        if [[ -n "${LP3D_AI_MAGIC_BYTES}" ]]; then
           mb="41 49 02 00"
           hd="$(hexdump -Cv bin/$p | head -n 1 | (grep -oE '41 49 02 00'))"
           if [ "${mb}" = "${hd}" ]; then
@@ -582,10 +573,10 @@ for r in $renderers; do executables="$executables -executable=$r" && Info "Set e
 unset QTDIR; unset QT_PLUGIN_PATH # no longer needed, superceded by AppRun
 export VERSION="$LP3D_VERSION"    # used to construct the file name
 ./linuxdeployqt ./usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
-if [[ -z "${LP3D_AI_BUILD_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}" = "x86_64") ]]; then
+if [[ -z "${LP3D_AI_BUILD_TOOLS}" ]]; then
   ./linuxdeployqt ./usr/share/applications/*.desktop -appimage -verbose=2
   AppImage=$(ls LPub3D*.AppImage)  # name with full path
-elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}" = "aarch64" || "${LP3D_QEMU}" = "true" ]]; then
+else
   # lpub3d.desktop
   [ -f "./usr/share/applications/lpub3d.desktop" ] && \
   cp -f ./usr/share/applications/lpub3d.desktop . || \
@@ -676,7 +667,7 @@ Info && Info "Confirm AppImage..."
 if [ -f "${AppImage}" ]; then
   CommandArg=--appimage-version
   chmod a+x ${AppImage}
-  if [[ ("${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}" = "aarch64") && -z "${LP3D_AI_MAGIC_BYTES}" ]]; then
+  if [[ -n "${LP3D_AI_MAGIC_BYTES}" ]]; then
     Info "Patch out AppImage magic bytes"
     p=AppImagePatch
     AppImageMagicBytes="$(hexdump -Cv ${AppImage} | head -n 1 | grep '41 49 02 00')"
@@ -774,7 +765,7 @@ if [ -f "${AppImageCheck}" ]; then
   export LP3D_CHECK_STATUS="--version --app-paths"
   mkdir -p appImage_Check && cp -f ${AppImageCheck} appImage_Check/${AppImageName} && \
   Info "$(ls ./appImage_Check/*.AppImage) copied to check folder."
-  if [[ -z "$(which fusermount)" || -n "${LP3D_AI_EXTRACT_PAYLOAD}" || "${LP3D_QEMU}" = "true" ]]; then
+  if [[ -z "$(which fusermount)" || -n "${LP3D_AI_EXTRACT_PAYLOAD}" ]]; then
     ( cd appImage_Check && ./${AppImageName} --appimage-extract \
     ) >$p.out 2>&1 && rm -f $p.out
     if [ ! -f $p.out ]; then

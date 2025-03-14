@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 30, 2024
+# Last Update March 14, 2025
 #
 # This script is called from .github/workflows/codeql.yml
 #
@@ -80,7 +80,6 @@ oldIFS=$IFS; IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; IFS=$oldIFS
 export LPUB3D=${LPUB3D:-${LP3D_SLUGS[1]}}
 export LP3D_ARCH=${LP3D_ARCH:-amd64}
 export LP3D_BASE=${LP3D_BASE:-ubuntu}
-export LP3D_QEMU=${LP3D_QEMU:-false}
 export LP3D_APPIMAGE=${LP3D_APPIMAGE:-false}
 
 export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_PATH:-${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH}}
@@ -109,7 +108,6 @@ set +x && echo
 echo "SOURCE DIR.........${LPUB3D}"
 echo "BUILD BASE.........${LP3D_BASE}"
 echo "BUILD ARCH.........${LP3D_ARCH}"
-echo "QEMU...............${LP3D_QEMU}"
 echo "DOCKER.............${DOCKER}"
 echo "APPIMAGE...........${LP3D_APPIMAGE}"
 echo "WORKING DIRECTORY..${WD}"

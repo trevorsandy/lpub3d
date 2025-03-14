@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update November 11, 2024
+# Last Update March 14, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux deb distribution
 # To run:
@@ -341,24 +341,20 @@ then
     if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
         echo "11-2. Skipping ${DISTRO_FILE} build check."
     else
-        if [ "${LP3D_QEMU}" = "true" ]; then
-            if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
-                echo "11-2. Pre-package build check LPub3D..."
-                export LP3D_BUILD_OS=
-                export SOURCE_DIR=${BUILD_DIR}/${WORK_DIR}
-                export LP3D_CHECK_LDD="1"
-                export LP3D_CHECK_STATUS="--version --app-paths"
-                case ${LP3D_ARCH} in
-                    "aarch64"|"arm64")
-                        LP3D_BUILD_ARCH="64bit_release" ;;
-                    *)
-                        LP3D_BUILD_ARCH="32bit_release" ;;
-                esac
-                export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
-                (cd ${SOURCE_DIR} && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh)
-            else
-                echo "11-2. Building in QEMU, skipping build check."
-            fi
+		if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
+			echo "11-2. Pre-package build check LPub3D..."
+			export LP3D_BUILD_OS=
+			export SOURCE_DIR=${BUILD_DIR}/${WORK_DIR}
+			export LP3D_CHECK_LDD="1"
+			export LP3D_CHECK_STATUS="--version --app-paths"
+			case ${LP3D_ARCH} in
+				"amd64"|"arm64"|"x86_64"|"aarch64")
+					LP3D_BUILD_ARCH="64bit_release" ;;
+				*)
+					LP3D_BUILD_ARCH="32bit_release" ;;
+			esac
+			export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+			cd ${SOURCE_DIR} && source builds/check/build_checks.sh
         else
             echo "11-2. Build check ${DISTRO_FILE}"
             if [ ! -f "/usr/bin/update-desktop-database" ]; then
@@ -389,14 +385,12 @@ then
         echo "11-3. Cleanup build assets..."
         rm -f ./*.deb* 2>/dev/null || :
         rm -f ./*.xz 2>/dev/null || :
-        if [ "${LP3D_QEMU}" = "true" ]; then
-            echo "11-4. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
-            mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-            mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-            mv -f ./*.log /out/ 2>/dev/null || :
-            mv -f ~/*.log /out/ 2>/dev/null || :
-            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
-        fi
+        echo "11-4. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
+        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+        mv -f ./*.log /out/ 2>/dev/null || :
+        mv -f ~/*.log /out/ 2>/dev/null || :
+        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         exit 0
     fi
 
@@ -477,20 +471,17 @@ then
             sha512sum "${LP3D_DEB_FILE}" > "${LP3D_DEB_FILE}.sha512" || \
             echo "11-4. ERROR - Failed to create hash file ${LP3D_DEB_FILE}.sha512"
         fi
-        if [ "${LP3D_QEMU}" = "true" ]; then
-            echo "11-5. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
-            mv -f ${BUILD_DIR}/*.deb* /out/ 2>/dev/null || :
-            mv -f ${BUILD_DIR}/*.xz /out/ 2>/dev/null || :
-            mv -f ${BUILD_DIR}/*.dsc /out/ 2>/dev/null || :
-            mv -f ${BUILD_DIR}/*.changes /out/ 2>/dev/null || :
-            mv -f ${BUILD_DIR}/*.buildinfo /out/ 2>/dev/null || :
-            mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-            mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-            mv -f ./*.log /out/ 2>/dev/null || :
-            mv -f ~/*.log /out/ 2>/dev/null || :
-            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
-
-        fi
+        echo "11-5. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
+        mv -f ${BUILD_DIR}/*.deb* /out/ 2>/dev/null || :
+        mv -f ${BUILD_DIR}/*.xz /out/ 2>/dev/null || :
+        mv -f ${BUILD_DIR}/*.dsc /out/ 2>/dev/null || :
+        mv -f ${BUILD_DIR}/*.changes /out/ 2>/dev/null || :
+        mv -f ${BUILD_DIR}/*.buildinfo /out/ 2>/dev/null || :
+        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+        mv -f ./*.log /out/ 2>/dev/null || :
+        mv -f ~/*.log /out/ 2>/dev/null || :
+        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         echo
         echo "    Distribution package.: ${LP3D_DEB_FILE}"
         echo "    Package path.........: $PWD/${LP3D_DEB_FILE}"

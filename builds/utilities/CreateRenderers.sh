@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update March 13, 2025
+# Last Update March 14, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -759,7 +759,6 @@ if [[ -n "$CD" || -n "${GITHUB}" ]]; then
     Info
     [ -n "$CI" ] && Info "CI.......................${CI}" || :
     [ -n "$OBS" ] && Info "OBS......................${OBS}" || :
-    [ -n "$LP3D_QEMU" ] && Info "QEMU.....................${LP3D_QEMU}" || :
     [ -n "$DOCKER" ] && Info "DOCKER...................${DOCKER}" || :
     [ -n "$GITHUB" ] && Info "GITHUB...................${GITHUB}" || :
     [ -n "$LP3D_CPU_CORES" ] && Info "CPU CORES................${LP3D_CPU_CORES}" || :
@@ -1038,9 +1037,7 @@ for buildDir in ldglite ldview povray; do
       cd ${buildDir}
     fi
     # Install build dependencies - even if binary exists...
-    if [ "${LP3D_QEMU}" = "true" ]; then
-      Info "Building in QEMU, skipping InstallDependencies."
-    elif [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" && ! "$LP3D_NO_DEPS" = "true" ]]; then
+    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" && ! "$LP3D_NO_DEPS" = "true" ]]; then
       Info && Info "Install ${!artefactVer} build dependencies..."
       Info "----------------------------------------------------"
       InstallDependencies ${buildDir}

@@ -310,11 +310,7 @@ for buildDir in ldglite ldview povray; do
 done
 
 echo "8-1. build application package"
-if [ "${LP3D_QEMU}" != "true" ]; then
-    makepkg --syncdeps --noconfirm --needed || exit 1
-else
-    makepkg --noconfirm || exit 1
-fi
+makepkg --syncdeps --noconfirm --needed || exit 1
 
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.zst`
 if [ -f "${DISTRO_FILE}" ]
@@ -323,25 +319,20 @@ then
     if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
         echo "9. Skipping ${DISTRO_FILE} build check."
     else
-        if [ "${LP3D_QEMU}" = "true" ]; then
-            if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
-                echo "9-1. Pre-package build check LPub3D..."
-                export LP3D_BUILD_OS=
-                export SOURCE_DIR=${BUILD_DIR}/src/${WORK_DIR}
-                export LP3D_CHECK_LDD="1"
-                export LP3D_CHECK_STATUS="--version --app-paths"
-                case ${LP3D_ARCH} in
-                    "aarch64"|"arm64")
-                        LP3D_BUILD_ARCH="64bit_release" ;;
-                    *)
-                        LP3D_BUILD_ARCH="32bit_release" ;;
-                esac
-                export LPUB3D_EXE="${BUILD_DIR}/src/${WORK_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
-                (cd ${SOURCE_DIR} && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh)
-            else
-                echo "9-1. Building in QEMU, skipping build check."
-            fi
-	    
+		if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
+			echo "9-1. Pre-package build check LPub3D..."
+			export LP3D_BUILD_OS=
+			export SOURCE_DIR=${BUILD_DIR}/src/${WORK_DIR}
+			export LP3D_CHECK_LDD="1"
+			export LP3D_CHECK_STATUS="--version --app-paths"
+			case ${LP3D_ARCH} in
+				"amd64"|"arm64"|"x86_64"|"aarch64")
+					LP3D_BUILD_ARCH="64bit_release" ;;
+				*)
+					LP3D_BUILD_ARCH="32bit_release" ;;
+			esac
+			export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+			cd ${SOURCE_DIR} && source builds/check/build_checks.sh
         else
             echo "9-1. Build check ${DISTRO_FILE}"
             if [ ! -f "/usr/bin/update-desktop-database" ]; then
@@ -371,15 +362,13 @@ then
     if [ "$BUILD_OPT" = "verify" ]; then
         echo "9-2. Cleanup build assets..."
         rm -f ./*.pkg.tar.zst 2>/dev/null || :
-        if [ "${LP3D_QEMU}" = "true" ]; then
-            echo "9-3. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
-            mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
-            mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
-            mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-            mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-            mv -f ~/*.log /out/ 2>/dev/null || :
-            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
-        fi
+        echo "9-3. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
+        mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
+        mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
+        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+        mv -f ~/*.log /out/ 2>/dev/null || :
+        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         exit 0
     fi
 
@@ -393,16 +382,14 @@ then
             sha512sum "${LP3D_PKG_FILE}" > "${LP3D_PKG_FILE}.sha512" || \
             echo "9-3. ERROR - Failed to create hash file ${LP3D_PKG_FILE}.sha512"
         fi
-        if [ "${LP3D_QEMU}" = "true" ]; then
-            echo "9-4. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
-            mv -f ${BUILD_DIR}/*.zst* /out/ 2>/dev/null || :
-            mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
-            mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
-            mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-            mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-            mv -f ~/*.log /out/ 2>/dev/null || :
-            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
-        fi
+        echo "9-4. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
+        mv -f ${BUILD_DIR}/*.zst* /out/ 2>/dev/null || :
+        mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
+        mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
+        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+        mv -f ~/*.log /out/ 2>/dev/null || :
+        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         echo "    Distribution package.: ${LP3D_PKG_FILE}"
         echo "    Package path.........: $PWD/${LP3D_PKG_FILE}"
     else

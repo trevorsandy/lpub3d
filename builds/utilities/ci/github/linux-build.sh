@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 13, 2025
+# Last Update March 14, 2025
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -71,13 +71,6 @@ oldIFS=$IFS && IFS=- read LP3D_BASE LP3D_ARCH LP3D_APPIMAGE <<< $BUILD && IFS=$o
 [ -z "${LP3D_BASE}" ] && export LP3D_BASE=${build_base} || export LP3D_BASE
 [ -z "${LP3D_ARCH}" ] && export LP3D_ARCH=${build_arch} || export LP3D_ARCH
 [ -z "${LP3D_APPIMAGE}" ] && LP3D_APPIMAGE=${build_appimage} || :
-
-case "${LP3D_ARCH}" in
-    amd64|x86_64)
-        export LP3D_QEMU="false" ;;
-    *)
-        export LP3D_QEMU="true" ;;
-esac
 
 case "${LP3D_APPIMAGE}" in
     true|false)
@@ -164,10 +157,6 @@ case "${LP3D_BASE}" in
         fi
         if [[ ! "${LP3D_COMMIT_MSG}" == *"BUILD_ALL"* ]]; then
             export BUILD_OPT="verify"
-        fi
-        if [[ "${LP3D_QEMU}" == "true" && (! "${LP3D_COMMIT_MSG}" =~ (BUILD_ALL) || "${LP3D_COMMIT_MSG}" =~ (SKIP_QEMU)) ]]; then
-            echo "Skipping QEMU ${LP3D_ARCH} build."
-            exit 0;
         fi
         export LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG}"
         ;;
@@ -380,7 +369,6 @@ ADD CreatePkg.sh /${name}
 pbEOF
             ;;
     esac
-    LP3D_PRE_PACKAGE_CHECK=1
 fi
 
 cp -f builds/linux/CreateLinux.sh .
@@ -413,21 +401,6 @@ cp -f ${out_path}/Dockerfile .
 
 # add run CMD script to context and set executable
 cp -f ${out_path}/docker-run-CMD.sh . && chmod a+x docker-run-CMD.sh
-
-# Docker Hub login
-echo "Login to Docker Hub..."
-echo ${DOCKER_HUB_TOKEN} | docker login --username ${DOCKER_USERNAME} --password-stdin
-
-# enable QEMU
-if [ "${LP3D_QEMU}" = "true" ]; then
-    echo "Enable QEMU multiarch environment..."
-    if [ "${CI}" = "true" ]; then
-        echo "Install gcc-${aik_arch}-linux-gnu and zlib1g-dev and export QEMU_LD_PREFIX..."
-        sudo apt-get install -y gcc-${aik_arch}-linux-gnu zlib1g-dev
-        export QEMU_LD_PREFIX=/usr/${aik_arch}-linux-gnu
-    fi
-    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-fi
 
 # set AppImage options
 if [ "${LP3D_APPIMAGE}" = "true" ]; then
@@ -513,6 +486,10 @@ fi
 IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
 LPUB3D=${LP3D_SLUGS[1]}
 
+# Docker Hub login
+echo "Login to Docker Hub..."
+echo ${DOCKER_HUB_TOKEN} | docker login --username ${DOCKER_USERNAME} --password-stdin
+
 # build docker image
 docker_build_opts=(${docker_platform})
 if [ "${DOCKER_CACHE}" = "false" ]; then
@@ -536,7 +513,6 @@ common_docker_opts=(
     -e GITHUB_SHA="${GITHUB_SHA}"
     -e WRITE_LOG="${WRITE_LOG}"
     -e BUILD_OPT="${BUILD_OPT}"
-    -e LP3D_QEMU="${LP3D_QEMU}"
     -e LP3D_BASE="${LP3D_BASE}"
     -e LP3D_ARCH="${LP3D_ARCH}"
     -e LP3D_DIST="${LP3D_DIST}"

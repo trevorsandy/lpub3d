@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 20, 2025
+# Last Update March 14, 2025
 # Copyright (C) 2018 - 2025 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -184,11 +184,7 @@ if [[ -n "${LP3D_CHECK_LDD}" && ${VALID_APPIMAGE} -eq 0 ]]; then
     find ${LPUB3D_LDD_EXE} -executable -type f -exec ldd {} \;
 fi
 
-LP3D_BUILD_CHECK_LIST=( CHECK_01 CHECK_02 CHECK_03 CHECK_04 CHECK_05 )
-# Skip long running checks when running in QEMU
-if [ "${LP3D_QEMU}" != "true" ]; then
-    LP3D_BUILD_CHECK_LIST+=( CHECK_06 CHECK_07 )
-fi
+LP3D_BUILD_CHECK_LIST=( CHECK_01 CHECK_02 CHECK_03 CHECK_04 CHECK_05 CHECK_06 CHECK_07 )
 NUM_CHECKS=${#LP3D_BUILD_CHECK_LIST[@]}
 
 # disable automatic restart on abnormal end
