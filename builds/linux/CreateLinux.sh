@@ -1,10 +1,10 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 17, 2025
+# Last Update March 13, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
-# See builds/utilities/ci/github/linux-multiarch-build.sh
+# See builds/utilities/ci/github/linux-build.sh
 #
 # Note the container must mount the following volumes
 #   -v <3rd-party apps path>:/out
@@ -12,7 +12,7 @@
 #   -v <        output path>:/ldraw
 #
 # To Run:
-# /bin/bash -xc "chmod a+x builds/linux/CreateAppImage.sh && builds/linux/CreateLinuxMulitArch.sh"
+# /bin/bash -xc "chmod a+x builds/linux/CreateLinux.sh && builds/linux/CreateLinux.sh"
 
 set -o functrace
 
