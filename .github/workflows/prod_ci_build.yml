@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: January 12, 2025
+# Last Update: March 14, 2025
 # Copyright (C) 2021 - 2025 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -20,12 +20,24 @@ on:
 jobs:
   build-linux:
     # if: ${{ false }} # uncomment to disable
-    name: Build ${{ matrix.BUILD }}
-    runs-on: ubuntu-latest
+    name: build ${{ matrix.BUILD }}
+    runs-on: ${{ matrix.OS }}
     strategy:
       fail-fast: false
-      matrix: # ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64
-        BUILD: [ ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64 ]
+      matrix:
+        include:
+          - BUILD: ubuntu-amd64
+            OS: ubuntu-latest
+          - BUILD: fedora-amd64
+            OS: ubuntu-latest
+          - BUILD: archlinux-amd64
+            OS: ubuntu-latest
+          - BUILD: ubuntu-amd64-appimage
+            OS: ubuntu-latest
+          - BUILD: ubuntu-arm64
+            OS: ubuntu-24.04-arm
+          - BUILD: ubuntu-arm64-appimage
+            OS: ubuntu-24.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v4
