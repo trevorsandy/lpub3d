@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: March 14, 2025
+# Last Update: March 15, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -120,7 +120,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.9.4114
+Version: 2.4.9.4115
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -503,7 +503,7 @@ BuildRequires: pkgconfig(xxf86vm)
  LeoCAD© 2022 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- © 2015-2022 Trevor SANDY
+ Copyright © 2015 - 2022 Trevor SANDY
 
 # workaround from fc27 onwards build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-git/debugsourcefiles.list
 %if 0%{?fedora_version}>=27
@@ -827,7 +827,7 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Fri Mar 14 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4114
+* Sat Mar 15 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4115
 - LPub3D 2.4.9 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue Jan 07 2025 - trevor dot sandy at gmail dot com 2.4.9.4047
