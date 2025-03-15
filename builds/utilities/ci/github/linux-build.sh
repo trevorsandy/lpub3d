@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 14, 2025
+# Last Update March 15, 2025
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -48,9 +48,11 @@ FinishElapsedTime() {
     set +x
     ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
     echo "----------------------------------------------------"
-    ME="${ME} for (${LP3D_BASE}-${LP3D_DIST}-${LP3D_ARCH})"
-    [ "${LP3D_APPIMAGE}" = "true" ] && \
-    ME="${ME} for (${LP3D_BASE}-${LP3D_DIST}-${LP3D_ARCH}-appimage)" || :
+    if [ "${LP3D_APPIMAGE}" = "true" ]; then
+        ME="${ME} for (${LP3D_BASE}-${LP3D_DIST}-${LP3D_ARCH}-appimage)"
+    else
+        ME="${ME} for (${LP3D_BASE}-${LP3D_DIST}-${LP3D_ARCH})"
+    fi
     if [ "$BUILD_OPT" = "verify" ]; then
         echo "$ME Verification Finished!"
     else

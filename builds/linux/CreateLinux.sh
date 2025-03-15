@@ -23,7 +23,7 @@ FinishElapsedTime() {
   set +x
   ELAPSED="Elapsed build time: (($SECONDS / 3600))hrs ((($SECONDS / 60) % 60))min (($SECONDS % 60))sec"
   echo "----------------------------------------------------"
-  if [ "${LP3D_APPIMAGE}" = "true" ]; then 
+  if [ "${LP3D_APPIMAGE}" = "true" ]; then
     ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH}-appimage)"
   else
     ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH})"
