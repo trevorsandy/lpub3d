@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 14, 2025
+# Last Update March 15, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -23,8 +23,11 @@ FinishElapsedTime() {
   set +x
   ELAPSED="Elapsed build time: (($SECONDS / 3600))hrs ((($SECONDS / 60) % 60))min (($SECONDS % 60))sec"
   echo "----------------------------------------------------"
-  ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH})"
-  [ "${LP3D_APPIMAGE}" = "true" ] && ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH}-appimage)" || :
+  if [ "${LP3D_APPIMAGE}" = "true" ]; then 
+    ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH}-appimage)"
+  else
+    ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH})"
+  fi
   if [ "$BUILD_OPT" = "verify" ]; then
     echo "${ME} Verification Finished!"
   else
@@ -59,7 +62,7 @@ Error () {
 }
 
 # Format name and set WRITE_LOG - SOURCED if $1 is empty
-ME="CreateLinuxMulitArch"
+ME="CreateLinux"
 [ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
 

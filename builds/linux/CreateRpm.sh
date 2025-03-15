@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 14, 2025
+# Last Update March 15, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -12,6 +12,7 @@
 #  - LPUB3D=lpub3d - repository name
 #  - OBS=false - building locally
 #  - LP3D_ARCH=amd64 - set build architecture
+#  - LP3D_BASE=fedora - set build base OS
 #  - PRESERVE=false - clone remote repository
 #  - UPDATE_SH=false - update overwrite this script when building in local Docker
 #  - LOCAL_RESOURCE_PATH= - path (or Docker volume mount) where lpub3d and renderer sources and library archives are located
@@ -30,6 +31,7 @@ cp -rf /user/resources/builds/linux/CreateRpm.sh . \
 && export LPUB3D=lpub3d \
 && export PRESERVE=true \
 && export LP3D_ARCH=amd64 \
+&& export LP3D_BASE=fedora \
 && export LOCAL_RESOURCE_PATH=/user/resources \
 && export XSERVER=false \
 && chmod a+x CreateRpm.sh \
@@ -48,7 +50,7 @@ FinishElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
-  [ -n "${LP3D_ARCH}" ] && ME="${ME} for (${LP3D_ARCH})" || ME="${ME} for (amd64)"
+  ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH})"
   if [ "$BUILD_OPT" = "verify" ]; then
     echo "$ME Verification Finished!"
   else
@@ -70,6 +72,7 @@ DOCKER=${DOCKER:-}
 XSERVER=${XSERVER:-}
 PRESERVE=${PRESERVE:-} # preserve cloned repository
 LP3D_ARCH=${LP3D_ARCH:-amd64}
+LP3D_BASE=${LP3D_BASE:-fedora}
 LOCAL_RESOURCE_PATH=${LOCAL_RESOURCE_PATH:-}
 LP3D_TARGET_ARCH=`uname -m`
 
