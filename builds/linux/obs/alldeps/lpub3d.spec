@@ -120,7 +120,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.9.4121
+Version: 2.4.9.4122
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -557,49 +557,51 @@ set -x
 %setup -q -n %{name}-git
 
 %build
+set +x
 echo "Current working directory: $PWD"
+[ -f "../../SOURCES/complete.zip" ] && SrcPath=../../SOURCES || SrcPath=../../../SOURCES
+# list downloaded files
+echo "Downloaded files in $(readlink -e ${SrcPath}):"
+for file in $(cd ${SrcPath} && find . -type f -name "*.zip" -o -name "*.gz" -o -name "*.bz2"); do echo "- $file"; done
 # copy ldraw archive libraries
-LDrawLibOffical=../../SOURCES/complete.zip
-LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
-LDrawLibTENTE=../../SOURCES/tenteparts.zip
-LDrawLibVEXIQ=../../SOURCES/vexiqparts.zip
-if [ -f ${LDrawLibOffical} ] ; then
-  cp ${LDrawLibOffical} mainApp/extras && echo "LDraw archive library complete.zip copied to $(readlink -e mainApp/extras)"
-  cp ${LDrawLibOffical} ../ && echo "LDraw archive library complete.zip copied to $(readlink -e ../)"
-else
-  echo "LDraw archive library complete.zip not found at $(readlink -e ../SOURCES)!"
-fi
-if [ -f ${LDrawLibUnofficial} ] ; then
-  cp ${LDrawLibUnofficial} mainApp/extras && echo "LDraw archive library complete.zip copied to $(readlink -e mainApp/extras)"
-else
-  echo "LDraw archive library lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
-fi
-if [ -f ${LDrawLibTENTE} ] ; then
-  cp ${LDrawLibTENTE} mainApp/extras && echo "LDraw archive library tenteparts.zip copied to $(readlink -e mainApp/extras)"
-else
-  echo "LDraw archive library tenteparts.zip not found at $(readlink -e ../SOURCES)!"
-fi
-if [ -f ${LDrawLibVEXIQ} ] ; then
-  cp ${LDrawLibVEXIQ} mainApp/extras && echo "LDraw archive library vexiqparts.zip copied to $(readlink -e mainApp/extras)"
-else
-  echo "LDraw archive library vexiqparts.zip not found at $(readlink -e ../SOURCES)!"
-fi
-# Copy 3rd party renderer source archives and Qt5 libraries
-for TarballFile in \
-  ../../SOURCES/ldglite.tar.gz \
-  ../../SOURCES/ldview.tar.gz \
-  ../../SOURCES/povray.tar.gz \
-  ../../SOURCES/mesa-17.2.6.tar.gz \
-  ../../SOURCES/mesa-18.3.5.tar.gz \
-  ../../SOURCES/glu-9.0.0.tar.bz2 \
-  ../../SOURCES/qt5-5.9.3-gcc_64-el.tar.gz \
-  ../../SOURCES/locallibs.el.x86_64.tar.gz; do
-  if [ -f "${TarballFile}" ]; then
-    mv -f ${TarballFile} ../ && echo "$(basename ${TarballFile}) moved to $(readlink -e ../)"
+for LDrawLibFile in \
+  ${SrcPath}/complete.zip \
+  ${SrcPath}/lpub3dldrawunf.zip \
+  ${SrcPath}/tenteparts.zip \
+  ${SrcPath}/vexiqparts.zip; do
+  LibFile="$(basename ${LDrawLibFile})"
+  if [ -f "${LDrawLibFile}" ]; then
+    if [ "${LibFile}" = "complete.zip" ]]; then
+      cp -f ${LDrawLibFile} ../ || \
+      echo "Error: ${LibFile} copy to $(readlink -e ../) failed."
+    fi
+    mv -f ${LDrawLibFile} mainApp/extras/ || \
+	echo "Error: ${LibFile} move to $(readlink -e mainApp/extras) failed."
+  else
+    echo "Error: ${LDrawLibFile} not found."
   fi
 done
-# OBS Platform id and version
+# Copy 3rd party renderer source archives and Qt5 libraries
+for TarballFile in \
+  ${SrcPath}/ldglite.tar.gz \
+  ${SrcPath}/ldview.tar.gz \
+  ${SrcPath}/povray.tar.gz \
+  ${SrcPath}/mesa-17.2.6.tar.gz \
+  ${SrcPath}/mesa-18.3.5.tar.gz \
+  ${SrcPath}/glu-9.0.0.tar.bz2 \
+  ${SrcPath}/qt5-5.9.3-gcc_64-el.tar.gz \
+  ${SrcPath}/locallibs.el.x86_64.tar.gz; do
+  LibFile="$(basename ${TarballFile})"
+  if [ -f "${TarballFile}" ]; then
+    mv -f ${TarballFile} ../ || \
+    echo "Error: ${LibFile} move to $(readlink -e ../) failed."
+  else
+    echo "Error: ${TarballFile} not found."
+  fi
+done
+set -x
 %if 0%{?buildservice}
+# OBS Platform id and version
 %if 0%{?suse_version} || 0%{?sle_version}
 export PLATFORM_PRETTY_OBS="%{suse_dist_pretty_name}"
 export PLATFORM_VER_OBS=%{suse_dist_version}
@@ -823,7 +825,7 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Sat Mar 15 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4121
+* Sat Mar 15 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4122
 - LPub3D 2.4.9 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue Jan 07 2025 - trevor dot sandy at gmail dot com 2.4.9.4047

@@ -82,7 +82,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.9.4121
+Version: 2.4.9.4122
 Release: 1%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -194,42 +194,41 @@ set -x
 %setup -q -n %{name}-git
 
 %build
+set +x
 echo "Current working directory: $PWD"
-# download ldraw archive libraries
-LDrawLibOffical=../../SOURCES/complete.zip
-LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
-LDrawLibTENTE=../../SOURCES/tenteparts.zip
-LDrawLibVEXIQ=../../SOURCES/vexiqparts.zip
-if [ -f ${LDrawLibOffical} ] ; then
-  cp ${LDrawLibOffical} mainApp/extras && echo "LDraw archive library complete.zip copied to $(readlink -e mainApp/extras)"
-  cp ${LDrawLibOffical} ../ && echo "LDraw archive library complete.zip copied to $(readlink -e ../)"
-else
-  echo "LDraw archive library complete.zip not found at $(readlink -e ../SOURCES)!"
-fi
-if [ -f ${LDrawLibUnofficial} ] ; then
-  cp ${LDrawLibUnofficial} mainApp/extras && echo "LDraw archive library lpub3dldrawunf.zip copied to $(readlink -e mainApp/extras)"
-else
-  echo "LDraw archive library lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
-fi
-if [ -f ${LDrawLibTENTE} ] ; then
-  cp ${LDrawLibTENTE} mainApp/extras && echo "LDraw archive library tenteparts.zip copied to $(readlink -e mainApp/extras)"
-else
-  echo "LDraw archive library tenteparts.zip not found at $(readlink -e ../SOURCES)!"
-fi
-if [ -f ${LDrawLibVEXIQ} ] ; then
-  cp ${LDrawLibVEXIQ} mainApp/extras && echo "LDraw archive library vexiqparts.zip copied to $(readlink -e mainApp/extras)"
-else
-  echo "LDraw archive library vexiqparts.zip not found at $(readlink -e ../SOURCES)!"
-fi
-# Copy 3rd party renderer source archives and build renderers
-for TarballFile in \
-  ../../SOURCES/ldglite.tar.gz \
-  ../../SOURCES/ldview.tar.gz \
-  ../../SOURCES/povray.tar.gz; do
-  if [ -f "${TarballFile}" ]; then
-    mv -f ${TarballFile} ../ && echo "$(basename ${TarballFile}) moved to $(readlink -e ../)"
+[ -f "../../SOURCES/complete.zip" ] && SrcPath=../../SOURCES || SrcPath=../../../SOURCES
+# copy ldraw archive libraries
+for LDrawLibFile in \
+  ${SrcPath}/complete.zip \
+  ${SrcPath}/lpub3dldrawunf.zip \
+  ${SrcPath}/tenteparts.zip \
+  ${SrcPath}/vexiqparts.zip; do
+  LibFile="$(basename ${LDrawLibFile})"
+  if [ -f "${LDrawLibFile}" ]; then
+    if [ "${LibFile}" = "complete.zip" ]]; then
+      cp -f ${LDrawLibFile} ../ || \
+      echo "Error: ${LibFile} copy to $(readlink -e ../) failed."
+    fi
+    mv -f ${LDrawLibFile} mainApp/extras/ || \
+	echo "Error: ${LibFile} move to $(readlink -e mainApp/extras) failed."
+  else
+    echo "Error: ${LDrawLibFile} not found."
   fi
 done
+# Copy 3rd party renderer source archives and build renderers
+for TarballFile in \
+  ${SrcPath}/ldglite.tar.gz \
+  ${SrcPath}/ldview.tar.gz \
+  ${SrcPath}/povray.tar.gz; do
+  LibFile="$(basename ${TarballFile})"
+  if [ -f "${TarballFile}" ]; then
+    mv -f ${TarballFile} ../ || \
+    echo "Error: ${LibFile} move to $(readlink -e ../) failed."
+  else
+    echo "Error: ${TarballFile} not found."
+  fi
+done
+set -x
 # Indicate OBS status (should always be No for this spec file)
 export OBS=%{usingbuildservice}
 # RPM exported variables
@@ -320,7 +319,7 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Sat Mar 15 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4121
+* Sat Mar 15 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4122
 - LPub3D 2.4.9 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue Jan 07 2025 - trevor dot sandy at gmail dot com 2.4.9.4047
