@@ -2,7 +2,7 @@
 #  Last Update: March 15, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.4.9.4119
+pkgver=2.4.9.4120
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -31,16 +31,7 @@ prepare() {
 	export LP3D_CPU_CORES="$(nproc)"
 	export LP3D_3RD_DIST_DIR="lpub3d_linux_3rdparty"
 	cd ${pkgname}-git
-	chmod +x builds/utilities/CreateRenderers.sh && \
-	env \
-	WD=${WD} \
-	LPUB3D=${LPUB3D} \
-	LDRAWDIR=${LDRAWDIR} \
-	TARGET_CPU=${TARGET_CPU} \
-	LP3D_LOG_PATH=${LP3D_LOG_PATH} \
-	LP3D_CPU_CORES=${LP3D_CPU_CORES} \
-	LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
-	./builds/utilities/CreateRenderers.sh
+	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	# location is ../src/${pkgname}-git
 	echo "  -> Current working directory: $PWD"
 	if [ -f ../complete.zip ] ; then
