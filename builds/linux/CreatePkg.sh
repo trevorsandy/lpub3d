@@ -312,94 +312,94 @@ for buildDir in ldglite ldview povray; do
   fi
 done
 
-echo "8-1. build application package"
+echo "8-1. build LPub3D PKG application package..."
 makepkg --syncdeps --noconfirm --needed || exit 1
 
-DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.zst`
-if [ -f "${DISTRO_FILE}" ]
+DISTRO_FILE=$(ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.zst)
+if [[ -f "${DISTRO_FILE}" ]]
 then
-    echo "8-2. Build package: $PWD/${DISTRO_FILE}"
-    if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
+    echo "8-2. build package: $PWD/${DISTRO_FILE}"
+    if [[ -n "$LP3D_SKIP_BUILD_CHECK" ]]; then
         echo "9. Skipping ${DISTRO_FILE} build check."
     else
-		if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
-			echo "9-1. Pre-package build check LPub3D..."
-			export LP3D_BUILD_OS=
-			export SOURCE_DIR=${BUILD_DIR}/src/${WORK_DIR}
-			export LP3D_CHECK_LDD="1"
-			export LP3D_CHECK_STATUS="--version --app-paths"
-			case ${LP3D_ARCH} in
-				"amd64"|"arm64"|"x86_64"|"aarch64")
-					LP3D_BUILD_ARCH="64bit_release" ;;
-				*)
-					LP3D_BUILD_ARCH="32bit_release" ;;
-			esac
-			export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
-			cd ${SOURCE_DIR} && source builds/check/build_checks.sh
+        if [[ -n "$LP3D_PRE_PACKAGE_CHECK" ]]; then
+            echo "9-1. pre-package build check LPub3D..."
+            export LP3D_BUILD_OS=
+            export SOURCE_DIR=${BUILD_DIR}/src/${WORK_DIR}
+            export LP3D_CHECK_LDD="1"
+            export LP3D_CHECK_STATUS="--version --app-paths"
+            case ${LP3D_ARCH} in
+                "amd64"|"arm64"|"x86_64"|"aarch64")
+                    LP3D_BUILD_ARCH="64bit_release" ;;
+                *)
+                    LP3D_BUILD_ARCH="32bit_release" ;;
+            esac
+            export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+            cd ${SOURCE_DIR} && source builds/check/build_checks.sh
         else
-            echo "9-1. Build check ${DISTRO_FILE}"
-            if [ ! -f "/usr/bin/update-desktop-database" ]; then
+            echo "9-1. build check ${DISTRO_FILE}"
+            if [[ ! -f "/usr/bin/update-desktop-database" ]]; then
                 echo "      Program update-desktop-database not found. Installing..."
                 sudo pacman -S --noconfirm --needed desktop-file-utils
             fi
             # Install package - here we use the distro file name e.g. LPub3D-2.3.8.1566-1-x86_64.pkg.tar.zst
-            echo "      9-1. Build check install ${LPUB3D}..."
+            echo "      Build check install ${LPUB3D}..."
             sudo pacman -U --noconfirm ${DISTRO_FILE}
             # Check if exe exist - here we use the executable name e.g. lpub3d22
             LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
             SOURCE_DIR=src/${WORK_DIR}
-            if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
+            if [[ -f "/usr/bin/${LPUB3D_EXE}" ]]; then
                 # Check commands
                 LP3D_CHECK_LDD="1"
                 source ${SOURCE_DIR}/builds/check/build_checks.sh
-                echo "      9-1. Build check uninstall ${LPUB3D}..."
+                echo "      Build check uninstall ${LPUB3D}..."
                 # Cleanup - here we use the package name e.g. lpub3d
                 sudo pacman -Rs --noconfirm ${LPUB3D}
             else
-                echo "9-1. Build check failed - /usr/bin/${LPUB3D_EXE} not found."
+                echo "9-2. WARNING - build check failed - /usr/bin/${LPUB3D_EXE} not found."
             fi
         fi
-	fi
+    fi
+
+    echo "10-1. moving ${LP3D_BASE} ${LP3D_ARCH} assets to output folder..."
+    mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
+    mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
+    mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+    mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+    mv -f ~/*.log /out/ 2>/dev/null || :
+    mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
 
     # Stop here if build option is verification only
-    if [ "$BUILD_OPT" = "verify" ]; then
-        echo "9-2. Cleanup build assets..."
+    if [[ "$BUILD_OPT" = "verify" ]]; then
+        echo "10-2. cleanup build assets..."
         rm -f ./*.pkg.tar.zst 2>/dev/null || :
-        echo "9-3. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
-        mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
-        mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
-        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-        mv -f ~/*.log /out/ 2>/dev/null || :
-        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         exit 0
     fi
 
     IFS=- read PKG_NAME PKG_VERSION BUILD PKG_EXTENSION <<< ${DISTRO_FILE}
-    echo "9-2. create LPub3D ${PKG_EXTENSION} distribution packages"
     LP3D_PKG_FILE="LPub3D-${LP3D_APP_VERSION_LONG}-${PKG_EXTENSION}"
-    mv -f ${DISTRO_FILE} "${LP3D_PKG_FILE}"
-    if [ -f "${LP3D_PKG_FILE}" ]; then
-        if [ "${TRAVIS}" != "true" ]; then
-            echo "9-3. Creating ${LP3D_PKG_FILE}.sha512 hash file..."
-            sha512sum "${LP3D_PKG_FILE}" > "${LP3D_PKG_FILE}.sha512" || \
-            echo "9-3. ERROR - Failed to create hash file ${LP3D_PKG_FILE}.sha512"
-        fi
-        echo "9-4. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
-        mv -f ${BUILD_DIR}/*.zst* /out/ 2>/dev/null || :
-        mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
-        mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
-        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-        mv -f ~/*.log /out/ 2>/dev/null || :
-        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
+
+    echo "10-2. create package ${LP3D_PKG_FILE}..."
+    mv -f "${DISTRO_FILE}" "${LP3D_PKG_FILE}"
+    if [[ -f "${LP3D_PKG_FILE}" ]]; then
+        declare -r t=Trace
+        echo -n "10-3. creating ${LP3D_PKG_FILE}.sha512 hash file..."
+        ( sha512sum "${LP3D_PKG_FILE}" > "${LP3D_PKG_FILE}.sha512" ) >$t.out 2>&1 && rm $t.out
+        [[ -f "$t.out" ]] && \
+        echo && echo "10-3a. ERROR - failed to create sha512 file." && tail -20 $t.out || echo "Ok."
+        echo -n "10-4. moving ${LP3D_BASE} ${LP3D_ARCH} zst build package to output folder..."
+        ( for file in *.zst*; do mv -f "${file}" /out/; done ) >$t.out 2>&1 && rm $t.out
+        [[ -f "$t.out" ]] && \
+        echo && echo "10-4a. ERROR - move zst build package to output failed." && \
+        tail -80 $t.out || echo "Ok."
+        echo
         echo "    Distribution package.: ${LP3D_PKG_FILE}"
         echo "    Package path.........: $PWD/${LP3D_PKG_FILE}"
     else
-        echo "9-2. ERROR - file not copied: ${LP3D_PKG_FILE}"
+        echo "10-3. ERROR - file not copied: ${LP3D_PKG_FILE}"
     fi
 else
-    echo "8-2. package ${DISTRO_FILE} not found."
+    echo "8-2. ERROR - package ${DISTRO_FILE} not found."
 fi
 
 exit 0

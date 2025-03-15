@@ -313,7 +313,7 @@ cp -rf ${WORK_DIR}/builds/linux/obs/debian ${WORK_DIR}
 cd "${BUILD_DIR}/${WORK_DIR}/"
 
 if [ "${CI}" = "true" ]; then
-    echo "9. Skipping install ${LPUB3D} build dependencies."
+    echo "9. skipping install ${LPUB3D} build dependencies."
 else
     echo "9. install ${LPUB3D} build dependencies [requires elevated access - sudo]..."
     controlDeps=`grep Build-Depends debian/control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,`
@@ -324,7 +324,7 @@ fi
 if [ "$GITHUB" = "true" ]; then
     export DEBUILD_PRESERVE_ENVVARS="CI,OBS,GITHUB,DOCKER,LP3D_*"
 fi
-echo "10-1. build application package from ${BUILD_DIR}/${WORK_DIR}/..."
+echo "10-1. build  LPub3D DEB application package..."
 chmod 755 debian/rules
 /usr/bin/dpkg-buildpackage -us -uc || exit 1
 
@@ -334,162 +334,138 @@ else
     cd ${BUILD_DIR}/
 fi
 
-DISTRO_FILE=`ls ${LPUB3D}_${LP3D_APP_VERSION}*.deb`
-
-echo "10-2. Build package: $PWD/${DISTRO_FILE}"
-if [ -f ${DISTRO_FILE} ]
+DISTRO_FILE=$(ls ${LPUB3D}_${LP3D_APP_VERSION}*.deb)
+if [[ -f ${DISTRO_FILE} ]]
 then
-    echo "11-1. Check (lintian) deb package..."
-    lintian ${DISTRO_FILE} ${WORK_DIR}/${LPUB3D}.dsc
-    if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
-        echo "11-2. Skipping ${DISTRO_FILE} build check."
+    echo "10-2. build package: $PWD/${DISTRO_FILE}"
+    if [[ -n "$LP3D_SKIP_BUILD_CHECK" ]]; then
+        echo "11. skipping ${DISTRO_FILE} build check."
     else
-		if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
-			echo "11-2. Pre-package build check LPub3D..."
-			export LP3D_BUILD_OS=
-			export SOURCE_DIR=${BUILD_DIR}/${WORK_DIR}
-			export LP3D_CHECK_LDD="1"
-			export LP3D_CHECK_STATUS="--version --app-paths"
-			case ${LP3D_ARCH} in
-				"amd64"|"arm64"|"x86_64"|"aarch64")
-					LP3D_BUILD_ARCH="64bit_release" ;;
-				*)
-					LP3D_BUILD_ARCH="32bit_release" ;;
-			esac
-			export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
-			cd ${SOURCE_DIR} && source builds/check/build_checks.sh
+        if [[ -n "$LP3D_PRE_PACKAGE_CHECK" ]]; then
+            echo "11-1. pre-package build check LPub3D..."
+            export LP3D_BUILD_OS=
+            export SOURCE_DIR=${BUILD_DIR}/${WORK_DIR}
+            export LP3D_CHECK_LDD="1"
+            export LP3D_CHECK_STATUS="--version --app-paths"
+            case ${LP3D_ARCH} in
+                "amd64"|"arm64"|"x86_64"|"aarch64")
+                    LP3D_BUILD_ARCH="64bit_release" ;;
+                *)
+                    LP3D_BUILD_ARCH="32bit_release" ;;
+            esac
+            export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+            cd ${SOURCE_DIR} && source builds/check/build_checks.sh
         else
-            echo "11-2. Build check ${DISTRO_FILE}"
-            if [ ! -f "/usr/bin/update-desktop-database" ]; then
+            echo "11-1. build check ${DISTRO_FILE}"
+            if [[ ! -f "/usr/bin/update-desktop-database" ]]; then
                 echo "      Program update-desktop-database not found. Installing..."
                 sudo apt-get install -y desktop-file-utils
             fi
             # Install package - here we use the distro file name
-            echo "      11-2. Build check install ${LPUB3D}..."
+            echo "      Build check install ${LPUB3D}..."
             sudo dpkg -i ${DISTRO_FILE}
             # Check if exe exist - here we use the executable name
             LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
             SOURCE_DIR=${WORK_DIR}
-            if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
+            if [[ -f "/usr/bin/${LPUB3D_EXE}" ]]; then
                 # Check commands
                 LP3D_CHECK_LDD="1"
                 source ${WORK_DIR}/builds/check/build_checks.sh
                 # Cleanup - here we use the package name
-                echo "      11-2. Build check uninstall ${LPUB3D}..."
+                echo "      Build check uninstall ${LPUB3D}..."
                 sudo dpkg -r ${LPUB3D}
             else
-                echo "11-2. Build check failed - /usr/bin/${LPUB3D_EXE} not found."
+                echo "11-2. WARNING - build check failed - /usr/bin/${LPUB3D_EXE} not found."
             fi
         fi
     fi
 
+    echo "12. lintian check ${DISTRO_FILE}..."
+    lintian ${DISTRO_FILE} ${WORK_DIR}/${LPUB3D}.dsc
+
+    echo "13-1. moving ${LP3D_BASE} ${LP3D_ARCH} assets to output folder..."
+    mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+    mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+    mv -f ./*.log /out/ 2>/dev/null || :
+    mv -f ~/*.log /out/ 2>/dev/null || :
+    mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
+
     # Stop here if build option is verification only
-    if [ "$BUILD_OPT" = "verify" ]; then
-        echo "11-3. Cleanup build assets..."
+    if [[ "$BUILD_OPT" = "verify" ]]; then
+        echo "13-2. cleanup build assets..."
         rm -f ./*.deb* 2>/dev/null || :
         rm -f ./*.xz 2>/dev/null || :
-        echo "11-4. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
-        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-        mv -f ./*.log /out/ 2>/dev/null || :
-        mv -f ~/*.log /out/ 2>/dev/null || :
-        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         exit 0
     fi
 
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
-    echo "11-3. Create LPub3D ${DEB_EXTENSION} distribution packages..."
     LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
     LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
     case ${LP3D_PLATFORM_ID} in
     ubuntu)
         case ${LP3D_PLATFORM_VER} in
-        14.04)
-            LP3D_PLATFORM_NAME="trusty" ;;
-        16.04)
-            LP3D_PLATFORM_NAME="xenial" ;;
-        16.10)
-            LP3D_PLATFORM_NAME="yakkety" ;;
-        17.04)
-            LP3D_PLATFORM_NAME="zesty" ;;
-        17.10)
-            LP3D_PLATFORM_NAME="artful" ;;
-        18.04)
-            LP3D_PLATFORM_NAME="bionic" ;;
-        18.10)
-            LP3D_PLATFORM_NAME="cosmic" ;;
-        19.04)
-            LP3D_PLATFORM_NAME="disco" ;;
-        19.10)
-            LP3D_PLATFORM_NAME="eoan" ;;
-        20.04)
-            LP3D_PLATFORM_NAME="focal" ;;
-        20.10)
-            LP3D_PLATFORM_NAME="groovy" ;;
-        21.04)
-            LP3D_PLATFORM_NAME="hirsute" ;;
-        21.10)
-            LP3D_PLATFORM_NAME="impish" ;;
-        22.04)
-            LP3D_PLATFORM_NAME="jammy" ;;
-        22.10)
-            LP3D_PLATFORM_NAME="kinetic" ;;
-        23.04)
-            LP3D_PLATFORM_NAME="lunar" ;;
-        23.10)
-            LP3D_PLATFORM_NAME="mantic" ;;
-        24.04)
-            LP3D_PLATFORM_NAME="noble" ;;
-        24.10)
-            LP3D_PLATFORM_NAME="oracular" ;;
-        *)
-            LP3D_PLATFORM_NAME="ubuntu" ;;
+        14.04) LP3D_PLATFORM_NAME="trusty" ;;
+        16.04) LP3D_PLATFORM_NAME="xenial" ;;
+        16.10) LP3D_PLATFORM_NAME="yakkety" ;;
+        17.04) LP3D_PLATFORM_NAME="zesty" ;;
+        17.10) LP3D_PLATFORM_NAME="artful" ;;
+        18.04) LP3D_PLATFORM_NAME="bionic" ;;
+        18.10) LP3D_PLATFORM_NAME="cosmic" ;;
+        19.04) LP3D_PLATFORM_NAME="disco" ;;
+        19.10) LP3D_PLATFORM_NAME="eoan" ;;
+        20.04) LP3D_PLATFORM_NAME="focal" ;;
+        20.10) LP3D_PLATFORM_NAME="groovy" ;;
+        21.04) LP3D_PLATFORM_NAME="hirsute" ;;
+        21.10) LP3D_PLATFORM_NAME="impish" ;;
+        22.04) LP3D_PLATFORM_NAME="jammy" ;;
+        22.10) LP3D_PLATFORM_NAME="kinetic" ;;
+        23.04) LP3D_PLATFORM_NAME="lunar" ;;
+        23.10) LP3D_PLATFORM_NAME="mantic" ;;
+        24.04) LP3D_PLATFORM_NAME="noble" ;;
+        24.10) LP3D_PLATFORM_NAME="oracular" ;;
+        *) LP3D_PLATFORM_NAME="ubuntu" ;;
         esac
         ;;
     debian)
         case ${LP3D_PLATFORM_VER} in
-        8)
-            LP3D_PLATFORM_NAME="jessie" ;;
-        9)
-            LP3D_PLATFORM_NAME="stretch" ;;
-        10)
-            LP3D_PLATFORM_NAME="buster" ;;
-        11)
-            LP3D_PLATFORM_NAME="bullseye" ;;
-        12)
-            LP3D_PLATFORM_NAME="bookworm" ;;
-        *)
-            LP3D_PLATFORM_NAME="debian" ;;
+        8) LP3D_PLATFORM_NAME="jessie" ;;
+        9) LP3D_PLATFORM_NAME="stretch" ;;
+        10) LP3D_PLATFORM_NAME="buster" ;;
+        11) LP3D_PLATFORM_NAME="bullseye" ;;
+        12) LP3D_PLATFORM_NAME="bookworm" ;;
+        *) LP3D_PLATFORM_NAME="debian" ;;
         esac
         ;;
     esac;
-    [ -n "$LP3D_PLATFORM_NAME" ] && \
+    [[ -n "$LP3D_PLATFORM_NAME" ]] && \
     LP3D_DEB_APP_VERSION_LONG="${LP3D_APP_VERSION_LONG}-${LP3D_PLATFORM_NAME}" || \
     LP3D_DEB_APP_VERSION_LONG="${LP3D_APP_VERSION_LONG}-ubuntu"
     LP3D_DEB_FILE="LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
-    mv -f ${DISTRO_FILE} "${LP3D_DEB_FILE}"
-    if [ -f "${LP3D_DEB_FILE}" ]; then
-        if [ "${TRAVIS}" != "true" ]; then
-            echo "11-4. Creating ${LP3D_DEB_FILE}.sha512 hash file..."
-            sha512sum "${LP3D_DEB_FILE}" > "${LP3D_DEB_FILE}.sha512" || \
-            echo "11-4. ERROR - Failed to create hash file ${LP3D_DEB_FILE}.sha512"
+
+    echo "13-2. create package ${LP3D_DEB_FILE}..."
+    mv -f "${DISTRO_FILE}" "${LP3D_DEB_FILE}"
+    if [[ -f "${LP3D_DEB_FILE}" ]]; then
+        declare -r t=Trace
+        echo -n "13-3. creating ${LP3D_DEB_FILE}.sha512 hash file..."
+        ( sha512sum "${LP3D_DEB_FILE}" > "${LP3D_DEB_FILE}.sha512" ) >$t.out 2>&1 && rm $t.out
+        [[ -f "$t.out" ]] && \
+        echo && echo "13-3a. ERROR - Failed to create sha512 file." && tail -20 $t.out || echo "Ok."
+        echo -n "13-4. moving ${LP3D_BASE} ${LP3D_ARCH} deb build package to output folder..."
+        ( for file in *.deb*; do mv -f "${file}" /out/; done ) >$t.out 2>&1 && rm $t.out
+        if [[ -f "$t.out" ]]; then
+            echo && echo "13-4a. ERROR - move deb build package to output failed." && \
+            tail -80 $t.out || echo "Ok."
+        else
+            mv -f ${BUILD_DIR}/*.xz /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/*.dsc /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/*.changes /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/*.buildinfo /out/ 2>/dev/null || :
         fi
-        echo "11-5. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
-        mv -f ${BUILD_DIR}/*.deb* /out/ 2>/dev/null || :
-        mv -f ${BUILD_DIR}/*.xz /out/ 2>/dev/null || :
-        mv -f ${BUILD_DIR}/*.dsc /out/ 2>/dev/null || :
-        mv -f ${BUILD_DIR}/*.changes /out/ 2>/dev/null || :
-        mv -f ${BUILD_DIR}/*.buildinfo /out/ 2>/dev/null || :
-        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-        mv -f ./*.log /out/ 2>/dev/null || :
-        mv -f ~/*.log /out/ 2>/dev/null || :
-        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         echo
         echo "    Distribution package.: ${LP3D_DEB_FILE}"
         echo "    Package path.........: $PWD/${LP3D_DEB_FILE}"
     else
-        echo "11-3. ERROR - file  ${LP3D_DEB_FILE} not found"
+        echo "13-3. ERROR - file ${LP3D_DEB_FILE} not found"
     fi
 else
     echo "10-2. ERROR - package ${DISTRO_FILE} not found"

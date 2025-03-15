@@ -338,7 +338,7 @@ else
     echo "did not find it in the usual paths"
 fi
 
-echo "14-1. build the RPM package..."
+echo "14-1. build LPub3D RPM application package..."
 rpmbuild \
 --define "_topdir ${BUILD_DIR}" \
 --define "_lp3d_log_path ${LP3D_LOG_PATH}" \
@@ -347,106 +347,101 @@ rpmbuild \
 -vv -bb ${LPUB3D}.spec || exit 1
 
 cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
-DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
-if [ -f ${DISTRO_FILE} ]
+
+DISTRO_FILE=$(ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm)
+if [[ -f ${DISTRO_FILE} ]]
 then
     RPM_EXTENSION="${DISTRO_FILE##*-}"
-    echo "15-1. Build package: $PWD/${DISTRO_FILE}"
-    if [ -n "$LP3D_SKIP_BUILD_CHECK" ]; then
-        echo "9. Skipping ${DISTRO_FILE} build check."
+    echo "14-2. build package: $PWD/${DISTRO_FILE}"
+    if [[ -n "$LP3D_SKIP_BUILD_CHECK" ]]; then
+        echo "15. skipping ${DISTRO_FILE} build check."
     else
-		if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
-			echo "15-1. Pre-package build check LPub3D..."
-			export LP3D_BUILD_OS=
-			export SOURCE_DIR=$(readlink -f ../../SOURCES/${WORK_DIR})
-			export LP3D_CHECK_LDD="1"
-			export LP3D_CHECK_STATUS="--version --app-paths"
-			case ${LP3D_ARCH} in
-				"amd64"|"arm64"|"x86_64"|"aarch64")
-					LP3D_BUILD_ARCH="64bit_release" ;;
-				*)
-					LP3D_BUILD_ARCH="32bit_release" ;;
-			esac
-			export LPUB3D_EXE="${BUILD_DIR}/BUILD/${WORK_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
-			cd ${SOURCE_DIR} && source builds/check/build_checks.sh
+        if [[ -n "$LP3D_PRE_PACKAGE_CHECK" ]]; then
+            echo "15-1. pre-package build check LPub3D..."
+            export LP3D_BUILD_OS=
+            export SOURCE_DIR=$(readlink -f ../../SOURCES/${WORK_DIR})
+            export LP3D_CHECK_LDD="1"
+            export LP3D_CHECK_STATUS="--version --app-paths"
+            case ${LP3D_ARCH} in
+                "amd64"|"arm64"|"x86_64"|"aarch64")
+                    LP3D_BUILD_ARCH="64bit_release" ;;
+                *)
+                    LP3D_BUILD_ARCH="32bit_release" ;;
+            esac
+            export LPUB3D_EXE="${BUILD_DIR}/BUILD/${WORK_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+            cd ${SOURCE_DIR} && source builds/check/build_checks.sh
         else
             echo "15-1. Build check ${DISTRO_FILE}"
-            if [ ! -f "/usr/bin/update-desktop-database" ]; then
+            if [[ ! -f "/usr/bin/update-desktop-database" ]]; then
                 echo "      Program update-desktop-database not found. Installing..."
                 sudo dnf install -y desktop-file-utils
             fi
 
             # Install package - here we use the distro file name e.g. LPub3D-2.3.8.1566-1.fc36.x86_64.rpm
-            echo "      15-1. Build check install ${LPUB3D}..."
+            echo "      Build check install ${LPUB3D}..."
             yes | sudo rpm -Uvh ${DISTRO_FILE}
             # Check if exe exist - here we use the executable name e.g. lpub3d23
             LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
             SOURCE_DIR=../../SOURCES/${WORK_DIR}
-            if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
+            if [[ -f "/usr/bin/${LPUB3D_EXE}" ]]; then
                 # Check commands
                 LP3D_CHECK_LDD="1"
                 source ${SOURCE_DIR}/builds/check/build_checks.sh
-                echo "      15-1. Build check uninstall ${LPUB3D}..."
+                echo "      Build check uninstall ${LPUB3D}..."
                 # Cleanup - here we use the package name e.g. lpub3d
                 yes | sudo rpm -ev ${LPUB3D}
             else
-                echo "15-1. Build check failed - /usr/bin/${LPUB3D_EXE} not found."
+                echo "15-2. WARNING - build check failed - /usr/bin/${LPUB3D_EXE} not found."
             fi
         fi
     fi
 
-    echo "15-2. check ${RPM_EXTENSION} packages..."
+    echo "16. rpmlint check ${DISTRO_FILE}..."
     rpmlint ${DISTRO_FILE} ${LPUB3D}-${LP3D_APP_VERSION}*.rpm
 
+    echo "17-1. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
+    mv -f ${BUILD_DIR}/BUILD/*.log 2>/dev/null || :
+    mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+    mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+    mv -f ./*.log /out/ 2>/dev/null || :
+    mv -f ~/*.log /out/ 2>/dev/null || :
+    mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
+
     # Stop here if build option is verification only
-    if [ "$BUILD_OPT" = "verify" ]; then
-        echo "15-3. Cleanup build assets..."
+    if [[ "$BUILD_OPT" = "verify" ]]; then
+        echo "17-2. cleanup build assets..."
         rm -f ./*.rpm* 2>/dev/null || :
-        echo "15-4. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
-        mv -f ${BUILD_DIR}/BUILD/*.log 2>/dev/null || :
-        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-        mv -f ./*.log /out/ 2>/dev/null || :
-        mv -f ~/*.log /out/ 2>/dev/null || :
-        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
-        if [ "${GITHUB}" != "true" ]; then
-            echo "16. cleanup cloned ${LPUB3D} repository from rpmbuild/SOURCES/ and rpmbuild/BUILD/..."
+        if [[ "${GITHUB}" != "true" ]]; then
+            echo "17-3. cleanup cloned ${LPUB3D} repository from rpmbuild/SOURCES/ and rpmbuild/BUILD/..."
             rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
         fi
         exit 0
     fi
 
-    echo "15-3. create LPub3D ${RPM_EXTENSION} distribution packages..."
     RPM_EXTENSION="${DISTRO_FILE##*-}"
     LP3D_RPM_FILE="LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
-    mv -f ${DISTRO_FILE} "${LP3D_RPM_FILE}"
-    if [ -f "${LP3D_RPM_FILE}" ]; then
-        if [ "${TRAVIS}" != "true" ]; then
-            echo "15-4. Creating ${LP3D_DEB_FILE}.sha512 hash file..."
-            sha512sum "${LP3D_RPM_FILE}" > "${LP3D_RPM_FILE}.sha512" || \
-            echo "15-4. ERROR - Failed to create hash file ${LP3D_RPM_FILE}.sha512"
-        fi
-        echo "15-5. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
-        mv -f ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}/*.rpm* /out/ 2>/dev/null || :
-        mv -f ${BUILD_DIR}/BUILD/*.log 2>/dev/null || :
-        mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
-        mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-        mv -f ./*.log /out/ 2>/dev/null || :
-        mv -f ~/*.log /out/ 2>/dev/null || :
-        mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
+
+    echo "17-2. create package LPub3D ${LP3D_RPM_FILE}..."
+    mv -f "${DISTRO_FILE}" "${LP3D_RPM_FILE}"
+    if [[ -f "${LP3D_RPM_FILE}" ]]; then
+        declare -r t=Trace
+        echo -n "17-3. creating ${LP3D_RPM_FILE}.sha512 hash file..."
+        ( sha512sum "${LP3D_RPM_FILE}" > "${LP3D_RPM_FILE}.sha512" ) >$t.out 2>&1 && rm $t.out
+        [[ -f "$t.out" ]] && \
+        echo && echo "15-3a. ERROR - Failed to create sha512 file." && tail -20 $t.out || echo "Ok."
+        echo -n "17-4. moving ${LP3D_BASE} ${LP3D_ARCH} rpm build package to output folder..."
+        ( for file in *.rpm*; do mv -f "${file}" /out/; done ) >$t.out 2>&1 && rm $t.out
+        [[ -f "$t.out" ]] && \
+        echo && echo "17-4a. ERROR - move rpm build package to output failed." && \
+        tail -80 $t.out || echo "Ok."
         echo
         echo "    Distribution package.: ${LP3D_RPM_FILE}"
         echo "    Package path.........: $PWD/${LP3D_RPM_FILE}"
     else
-        echo "15-3. ERROR - file ${LP3D_RPM_FILE} not found: "
+        echo "17-3. ERROR - file ${LP3D_RPM_FILE} not found: "
     fi
 else
     echo "14-2. ERROR - package ${DISTRO_FILE} not found."
-fi
-
-if [ "${GITHUB}" != "true" ]; then
-    echo "16. cleanup cloned ${LPUB3D} repository from rpmbuild/SOURCES/ and rpmbuild/BUILD/..."
-    rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
 fi
 
 exit 0
