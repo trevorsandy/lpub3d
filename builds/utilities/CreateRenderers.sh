@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update March 14, 2025
+# Last Update March 15, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -945,8 +945,13 @@ if [ "$OS_NAME" = "Darwin" ]; then
   CPU_CORES=$(sysctl -n hw.ncpu)
 fi
 
-# List 'LP3D_*' environment variables
-Info && Info "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line}; done
+# List 'PLATFORM_*', 'build_*' and 'LP3D_*' environment variables
+Info
+if [ "$OBS" = "true" ]; then
+Info "PLATFORM* environment variables:" && compgen -v | grep PLATFORM_ | while read line; do echo $line=${!line}; done
+Info "build* environment variables:" && compgen -v | grep build_ | while read line; do echo $line=${!line}; done
+fi
+Info "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line}; done
 Info
 
 # =======================================
