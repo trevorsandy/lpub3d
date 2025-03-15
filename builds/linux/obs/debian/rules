@@ -95,23 +95,20 @@ configure-stamp:
 	export LPUB3D=lpub3d; \
 	export WD=$$(readlink -e ../); \
 	export LDRAWDIR=${HOME}/ldraw; \
-	export LP3D_LOG_PATH=${LP3D_LOG_PATH}; \
-	export LP3D_CPU_CORES=${LP3D_CPU_CORES}; \
-	export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR}; \
-	export LP3D_UCS_VER=${LP3D_UCS_5}; \
+	export LP3D_LOG_PATH=${LP3D_LOG_PATH:-$${WD}}; \
+	export LP3D_CPU_CORES=${LP3D_CPU_CORES:-$$(nproc)}; \
+	export LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}; \
 	export build_osmesa=$$($$([ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_10}" ]) && echo 1 || :); \
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	env \
-	WD=${WD} \
-	LPUB3D=${LPUB3D} \
-	LDRAWDIR=${LDRAWDIR} \
-	LP3D_UCS_VER=${LP3D_UCS_VER} \
-	LP3D_LOG_PATH=${LP3D_LOG_PATH} \
-	LP3D_CPU_CORES=${LP3D_CPU_CORES} \
-	LP3D_3RD_DIST_DIR=${LP3D_3RD_DIST_DIR} \
-	build_osmesa=${build_osmesa} \
+	WD=$${WD} \
+	LPUB3D=$${LPUB3D} \
+	LDRAWDIR=$${LDRAWDIR} \
+	LP3D_UCS_VER=$${LP3D_UCS_VER} \
+	LP3D_LOG_PATH=$${LP3D_LOG_PATH} \
+	LP3D_CPU_CORES=$${LP3D_CPU_CORES} \
+	LP3D_3RD_DIST_DIR=$${LP3D_3RD_DIST_DIR} \
 	./builds/utilities/CreateRenderers.sh
-
 override_dh_auto_configure:
 	# LDraw directory - for build check
 	export LDRAWDIR=${HOME}/ldraw; \

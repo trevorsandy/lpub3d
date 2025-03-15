@@ -1,8 +1,8 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: March 13, 2025
+#  Last Update: March 15, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.4.9.4118
+pkgver=2.4.9.4119
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -27,14 +27,14 @@ prepare() {
 	export PLATFORM_VER="2025"
 	export LPUB3D="${pkgname}"
 	export TARGET_CPU="$(uname -m)"
-	export LP3D_LOG_PATH=
-	export LP3D_CPU_CORES=
-	export LP3D_3RD_DIST_DIR=
+	export LP3D_LOG_PATH="${WD}"
+	export LP3D_CPU_CORES="$(nproc)"
+	export LP3D_3RD_DIST_DIR="lpub3d_linux_3rdparty"
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	env \
 	WD=${WD} \
-	LPUB3D=${pkgname} \
+	LPUB3D=${LPUB3D} \
 	LDRAWDIR=${LDRAWDIR} \
 	TARGET_CPU=${TARGET_CPU} \
 	LP3D_LOG_PATH=${LP3D_LOG_PATH} \

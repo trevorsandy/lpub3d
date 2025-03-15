@@ -252,9 +252,9 @@ cd ${BUILD_DIR}
 
 echo "5a. add LP3D_LOG_PATH to PKGBUILD"
 [ -f "PKGBUILD" ] && \
-sed -i -e "s;^	export LP3D_LOG_PATH=;	export LP3D_LOG_PATH=\"${LP3D_LOG_PATH}\";" \
-       -e "s;^	export LP3D_CPU_CORES=;	export LP3D_CPU_CORES=\"${LP3D_CPU_CORES}\";" \
-       -e "s;^	export LP3D_3RD_DIST_DIR=;	export LP3D_3RD_DIST_DIR=\"${LP3D_3RD_DIST_DIR}\";" \
+sed -i -e "s;^	export LP3D_LOG_PATH=.*;	export LP3D_LOG_PATH=\"${LP3D_LOG_PATH}\";" \
+       -e "s;^	export LP3D_CPU_CORES=.*;	export LP3D_CPU_CORES=\"${LP3D_CPU_CORES}\";" \
+       -e "s;^	export LP3D_3RD_DIST_DIR=.*;	export LP3D_3RD_DIST_DIR=\"${LP3D_3RD_DIST_DIR}\";" \
        "PKGBUILD" || :
 
 if [ "$LOCAL" = "true" ]; then
