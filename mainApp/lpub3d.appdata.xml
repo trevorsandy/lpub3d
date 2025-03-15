@@ -86,9 +86,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.9.4122" date="2025-03-15">
+            <release version="2.4.9.4123" date="2025-03-15">
                 <description>
-                    <p>LPub3D 15.03.2025 v2.4.9 r74 Continuous Build.
+                    <p>LPub3D 15.03.2025 v2.4.9 r75 Continuous Build.
                         - Enhancement - Inconsistency with parts list shape inputs #805
                         - Enhancement - Set annotation style attributes from context menu action #812
                         - Change - Set annotation style attributes for fixed and extended types #811
