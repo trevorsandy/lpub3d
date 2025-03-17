@@ -1524,28 +1524,31 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
       }
     }
     bool haveId = false;
+    bool haveHideTip = false;
     int tip_idIndex = -1, idIndex = -1;
     if (argv.size() > sizeIndex+1) {
       rx.setPattern("^(HIDE_TIP|ID)$");
       bool tip_idKey = argv[sizeIndex+1].contains(rx);
       tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;
-      rx.setPattern("^(TRUE|FALSE)$");
-      if (!argv[tip_idIndex].contains(rx))   // if line (show/hide tip or id), else if border or tip (id)
-          id = argv[tip_idIndex].toInt(&ok); // hide tip/id integer
-      else
-          ok = true;
-      if (argv[sizeIndex+1] == "ID") {
-        idIndex = tip_idIndex;
-        haveId = true;
+      if (tip_idKey) {                       // if line (hide tip or id), else if border or tip (id)
+        if (argv[sizeIndex+1] == "ID") {     // check if id
+          id = argv[tip_idIndex].toInt(&ok); // id integer
+          haveId = ok;
+          if (haveId)
+            idIndex = tip_idIndex;
+        } else {                             // set ok, hide tip captured in parseAttributes()
+          rx.setPattern("^(TRUE|FALSE)$");
+          ok = haveHideTip = argv[tip_idIndex].contains(rx);
+        }
       }
       rc = ok ? OkRc : FailureRc;
     }
     if ((line || tip) && !haveId && !scoped && tip_idIndex > -1 && argv.size() > tip_idIndex+1) {
       bool idKey = argv[tip_idIndex+1] == "ID";
       idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;
-      id = argv[idIndex].toInt(&ok);        // if line id
+      id = argv[idIndex].toInt(&ok);  // if line id
+      haveId = ok;
       rc = ok ? OkRc : FailureRc;
-      haveId = true;
     }
     bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
     if (rc == OkRc) {
@@ -1572,7 +1575,7 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
             _result.lineData.line         = lineType;
             _result.lineData.color        = argv[colorIndex];
             _result.lineData.thickness    = lineThickness;
-            if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
+            if (haveHideTip)
               _result.lineData.hideTip  = argv[tip_idIndex] == "TRUE";
             else
               _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // used to show/hide arrow tip
@@ -1658,6 +1661,7 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
   bool border = argv[index] == "BORDER";
   bool noParent = argv[index-2] == "CALLOUT" || argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE";
   int widthIndex = -1, heightIndex = -1, sizeIndex = -1, colorIndex = -1;
+  bool ok = false;
 
   _result = _value[pushed];
 
@@ -1673,7 +1677,6 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
     if (_result.lineData.map.contains(argv[index+1])) { // line type word
       lineType = BorderData::Line(_result.lineData.map[argv[index+1]]);
     } else {
-      bool ok = false;
       int value = argv[index+1].toInt(&ok);                  // line type integer
       if (ok) {
         lineType = BorderData::Line(value);
@@ -1687,23 +1690,35 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
     sizeIndex  = widthIndex;
   }
 
+  int id = 0;
   bool haveId = false;
+  bool haveHideTip = false;
   int tip_idIndex = -1, idIndex = -1;
   if (argv.size() > sizeIndex+1) {
     rx.setPattern("^(HIDE_TIP|ID)$");
     bool tip_idKey = argv[sizeIndex+1].contains(rx);
-    tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;       // if line (show/hide tip or id), else if border or tip (id)
-    if (argv[sizeIndex+1] == "ID") {
-      idIndex = tip_idIndex;
-      haveId = true;
+    tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;
+    if (tip_idKey) {                       // if line (hide tip or id), else if border or tip (id)
+      if (argv[sizeIndex+1] == "ID") {     // check if id
+        id = argv[tip_idIndex].toInt(&ok); // id integer
+        haveId = ok;
+        if (haveId)
+          idIndex = tip_idIndex;
+      } else {                             // hide tip
+        rx.setPattern("^(TRUE|FALSE)$");
+        haveHideTip = argv[tip_idIndex].contains(rx);
+      }
     }
   }
 
   if ((line || tip) && !haveId && tip_idIndex > -1 && argv.size() >= tip_idIndex+1) {
     bool idKey = argv[tip_idIndex+1] == "ID";
     idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;           // if line id
-    haveId = true;
+    id = argv[idIndex].toInt(&ok);
+    haveId = ok;
   }
+
+  Q_UNUSED(id)
 
   bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
 
@@ -1728,10 +1743,10 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
       _result.lineData.line      = lineType;
       _result.lineData.color     = argv[colorIndex];
       _result.lineData.thickness = lineThickness;
-      if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
+      if (haveHideTip)
         _result.lineData.hideTip = argv[tip_idIndex] == "TRUE";
       else
-        _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // used to hide tip
+        _result.lineData.hideTip    = argv[tip_idIndex].toInt(); // used to hide tip
       _result.lineHere.modelName    = here.modelName;
       _result.lineHere.lineNumber   = here.lineNumber;
       _result.lineData.useDefault   = false;
