@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 15, 2025
+# Last Update March 17, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -665,27 +665,27 @@ fi
 
 #Info && Info "AppImage Dynamic Library Dependencies:" && \
 #find ./ -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && Info
-
+declare -r t=Trace
 Info && Info "Confirm AppImage..."
-if [ -f "${AppImage}" ]; then
+if [[ -f "${AppImage}" ]]; then
   CommandArg=--appimage-version
   chmod a+x ${AppImage}
   if [[ -n "${LP3D_AI_MAGIC_BYTES}" ]]; then
     Info "Patch out AppImage magic bytes"
     p=AppImagePatch
     AppImageMagicBytes="$(hexdump -Cv ${AppImage} | head -n 1 | grep '41 49 02 00')"
-    if [ -n "${AppImageMagicBytes}" ]; then
+    if [[ -n "${AppImageMagicBytes}" ]]; then
       formaterror="Exec format error"
       ( ${AppImage} ${CommandArg} ) >$p.out 2>&1 && mv $p.out $p.ok
-      if [ "$(grep -F "${formaterror}" $p.out 2>/dev/null)" ]; then
+      if [[ "$(grep -F "${formaterror}" $p.out 2>/dev/null)" ]]; then
         Info "AppImage magic bytes: ${AppImageMagicBytes}"
         Info "Patching out AppImage magic bytes..."
         cp -f ${AppImage} ${AppImage}.release
         dd if=/dev/zero of="${AppImage}" bs=1 count=3 seek=8 conv=notrunc
-        if [ -z "$(hexdump -Cv ${AppImage} | head -n 1 | grep '41 49 02 00')" ]; then
+        if [[ -z "$(hexdump -Cv ${AppImage} | head -n 1 | grep '41 49 02 00')" ]]; then
           Info "Magic bytes patched: $(hexdump -Cv ${AppImage} | head -n 1)"
           ( ${AppImage} ${CommandArg} ) >$p.out 2>&1 && mv $p.out $p.ok
-          if [ -f $p.ok ]; then
+          if [[ -f $p.ok ]]; then
             cat $p.ok && rm $p.ok
             AppImagePatched=LPub3D-${LP3D_VERSION}-$(uname -m).AppImage.patched
             mv -f ${AppImage} ${AppImagePatched}
@@ -700,7 +700,7 @@ if [ -f "${AppImage}" ]; then
           hexdump -Cv ${AppImage} | head -n 3
           exit 7
         fi
-      elif [ -f $p.ok ]; then
+      elif [[ -f $p.ok ]]; then
         cat $p.ok && rm $p.ok
         Info "${AppImage} is runnable"
       fi
@@ -708,7 +708,7 @@ if [ -f "${AppImage}" ]; then
       Info "Magic bytes 'AI' not found in AppImage"
       hexdump -Cv ${AppImage} | head -n 3
       ( ${AppImage} ${CommandArg} ) >$p.out 2>&1 && mv $p.out $p.ok
-      if [ -f $p.ok ]; then
+      if [[ -f $p.ok ]]; then
         cat $p.ok && rm $p.ok
         Info "${AppImage} is runnable"
       else
@@ -717,10 +717,10 @@ if [ -f "${AppImage}" ]; then
         exit 7
       fi
     fi
-  elif [ -n "${LP3D_AI_BUILD_TOOLS}" ]; then
+  elif [[ -n "${LP3D_AI_BUILD_TOOLS}" ]]; then
     #CommandArg=--appimage-version
     ( ${AppImage} ${CommandArg} ) >$p.out 2>&1 && mv $p.out $p.ok
-    if [ -f $p.ok ]; then
+    if [[ -f $p.ok ]]; then
       cat $p.ok && rm $p.ok
       Info "${AppImage} is runnable"
     else
@@ -733,18 +733,19 @@ if [ -f "${AppImage}" ]; then
   # Rename AppImage and move to $PWD
   AppImageExtension=${AppImage##*-}
   AppImageName=LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}
-  [ -f ${AppImage}.release ] && \
+  [[ -f ${AppImage}.release ]] && \
   mv -f ${AppImage}.release ${AppImageName} || \
   mv -f ${AppImage} ${AppImageName}
 
   # Crete AppImage sha512 file
   AppImage=${AppImageName}
-  Info "Creating hash file for ${AppImage}..."
-  sha512sum "${AppImage}" > "${AppImage}.sha512" || \
-  Error "Failed to create hash file ${AppImage}.sha512"
+  echo -n " CreateLinux: Creating hash file for ${AppImage}..."
+  ( sha512sum "${AppImage}" > "${AppImage}.sha512" ) >$t.out 2>&1 && rm $t.out
+  [[ -f $t.out ]] && \
+  echo && Error "Failed to create sha512 file." && tail -20 $t.out || echo "Ok."
   Info "Application package....: ${AppImage}"
   Info "Package path...........: ${PWD}/${AppImage}"
-  if [ -f "${AppImage}.sha512" ]; then
+  if [[ -f "${AppImage}.sha512" ]]; then
     Info "AppImage build completed successfully."
   else
     Error "AppImage build completed but the .sha512 file was not found."
@@ -754,15 +755,13 @@ else
   exit 8
 fi
 
-cd "$WD" || exit 1
-
-AppImage=$(find ./ -name ${AppImageName} -type f)
+cd "${WD}" || exit 1
 
 # Check AppImage build
-[ -f "${AppImagePatched}" ] && \
+[[ -f "${AppImagePatched}" ]] && \
 AppImageCheck=$(find ./ -name ${AppImagePatched} -type f) || \
-AppImageCheck=${AppImage}
-if [ -f "${AppImageCheck}" ]; then
+AppImageCheck=$(find ./ -name ${AppImageName} -type f)
+if [[ -f "${AppImageCheck}" ]]; then
   export SOURCE_DIR=${WD}
   export LP3D_BUILD_OS="appimage"
   export LP3D_CHECK_STATUS="--version --app-paths"
@@ -771,7 +770,7 @@ if [ -f "${AppImageCheck}" ]; then
   if [[ -z "$(which fusermount)" || -n "${LP3D_AI_EXTRACT_PAYLOAD}" ]]; then
     ( cd appImage_Check && ./${AppImageName} --appimage-extract \
     ) >$p.out 2>&1 && rm -f $p.out
-    if [ ! -f $p.out ]; then
+    if [[ ! -f $p.out ]]; then
       Info "Build check extracted AppImage payload..."
       LPUB3D_EXE="appImage_Check/squashfs-root/usr/bin/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
     else
@@ -782,7 +781,7 @@ if [ -f "${AppImageCheck}" ]; then
     Info "Build check AppImage..."
     LPUB3D_EXE="appImage_Check/${AppImageName}"
   fi
-  if [ -n "${LPUB3D_EXE}" ]; then
+  if [[ -n "${LPUB3D_EXE}" ]]; then
     export LPUB3D_EXE
     set +x && source ${SOURCE_DIR}/builds/check/build_checks.sh && set -x
   fi
@@ -795,12 +794,20 @@ else
 fi
 
 # Move AppImage build content to output
-Info "Moving AppImage build assets and logs to output folder..."
-[ ! "${BUILD_OPT}" = "verify" ] && \
-mv -f ${AppImage}* /out/ 2>/dev/null || :
+Info "Move AppImage assets to output folder..."
 mv -f ${AppDirBuildPath}/*.log /out/ 2>/dev/null || :
 mv -f ./*.log /out/ 2>/dev/null || :
 mv -f ~/*.log /out/ 2>/dev/null || :
 mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
+
+if [[ ! "${BUILD_OPT}" = "verify" ]]; then
+  echo -n " CreateLinux: Move AppImage build to output folder..."
+  ( [[ -z "${LP3D_AI_BUILD_TOOLS}" ]] && cd ./AppDir || : && \
+    for file in *.AppImage*; do mv -f "${file}" /out/; done \
+  ) >$t.out 2>&1 && rm $t.out
+  [[ -f $t.out ]] && \
+  echo && Error "Move build package to output failed." && \
+  tail -80 $t.out || echo "Ok." 
+fi
 
 exit 0
