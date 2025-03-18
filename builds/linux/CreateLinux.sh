@@ -610,7 +610,8 @@ else
     fi
   fi
 
-  cd "$WD" || exit 1
+  # set path to working directory
+  cd "${WD}" || exit 1
 
   # AppRun
   a=AppRun
@@ -640,25 +641,30 @@ else
   else
    Error "File ./bin/$a was not found"
   fi
+  
+  # set path to AppDir
+  cd ${AppDirBuildPath} || exit 1
 
   # make AppImage
-  AppImage=LPub3D-${LP3D_VERSION}-$(uname -m).AppImage  # name without path
-  if [ -f "bin/mksquashfs" ]; then
-    p=${AppImage}
-    ( chmod a+x bin/mksquashfs && \
-     ./bin/mksquashfs AppDir squashfs-root -root-owned -noappend \
+  AppImage=LPub3D-${LP3D_VERSION}-$(uname -m).AppImage
+  if [ -f "${WD}/bin/mksquashfs" ]; then
+    p=LPub3D.AppImage
+    ( chmod a+x ${WD}/bin/mksquashfs && \
+     ${WD}/bin/mksquashfs ${WD}/AppDir squashfs-root -root-owned -noappend \
     ) >$p.out 2>&1 && rm -f $p.out
     if [ ! -f $p.out ]; then
-      AppImage=${WD}/${AppImage} # name with full path
-      cat bin/runtime >> $p
-      cat squashfs-root >> $p
+      AppImage=${PWD}/${AppImage}
+      ( cat ${WD}/bin/runtime >> ${AppImage} ) >$p.out 2>&1 && rm -f $p.out
+      [ -f $p.out ] && Error cat runtime FAILED && tail -80 $p.out && exit 5 || :
+      ( cat squashfs-root >> ${AppImage} ) >$p.out 2>&1 && rm -f $p.out
+      [ -f $p.out ] && Error cat squashfs-root FAILED && tail -80 $p.out && exit 5 || :
     else
-      Error Run Squashfs for $p FAILED
+      Error Run mksquashfs to make $p FAILED
       tail -80 $p.out
       exit 5
     fi
   else
-    Error "./bin/mksquashfs was not found"
+    Error "${WD}/bin/mksquashfs was not found"
     exit 7
   fi
 fi
@@ -802,7 +808,7 @@ mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
 
 if [[ ! "${BUILD_OPT}" = "verify" ]]; then
   echo -n " CreateLinux: Move AppImage build to output folder..."
-  ( [[ -z "${LP3D_AI_BUILD_TOOLS}" ]] && cd ./AppDir || : && \
+  ( cd ${WD}/AppDir && \
     for file in *.AppImage*; do mv -f "${file}" /out/; done \
   ) >$t.out 2>&1 && rm $t.out
   [[ -f $t.out ]] && \
