@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: December 13, 2024
-# Copyright (C) 2019 - 2025 by Trevor SANDY
+# Last Update: March 18, 2025
+# Copyright (C) 2024 by Trevor SANDY
 
 function ShowHelp() {
     echo
@@ -141,8 +141,8 @@ NEXT_VER_TAG=${NEXT_VER_TAG:-}
 
 COMMAND_COUNT=0
 
-# Set increment revision except for final release commit
-[ -n "$RELEASE_COMMIT" ] && INC_REVISION=no || :
+# Set increment revision and commit count except for final release commit
+[ -n "$RELEASE_COMMIT" ] && INC_REVISION=no && INC_COUNT=no || :
 
 # Set LOCAL_TAG if not set from command
 [ -z "$LOCAL_TAG" ] && LOCAL_TAG="$(cd $HOME_DIR/$FROM_REPO_NAME ; git describe --abbrev=0)"
@@ -623,8 +623,8 @@ else
         git_tag="$(git tag -l -n $LOCAL_TAG)" && \
         [ -n "$git_tag" ] && echo "  -git tag $git_tag created."
         # Update config files with version from new tag
-        ./builds/utilities/hooks/pre-commit -ro && \
-        ./builds/utilities/hooks/pre-commit -rf && \
+        ./builds/utilities/hooks/pre-commit -cro && \
+        ./builds/utilities/hooks/pre-commit -crf &>> $LOG && \
         rm -f *.log
         # Git append to amend the last commit to update config files with new version
         git add . &>> $LOG

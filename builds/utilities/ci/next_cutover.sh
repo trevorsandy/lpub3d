@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: October 19, 2024
-# Copyright (C) 2019 - 2025 by Trevor SANDY
+# Last Update: March 18, 2025
+# Copyright (C) 2024 by Trevor SANDY
 
 set +x
 
@@ -335,28 +335,43 @@ do
             VER_TAG=$HOLD_VER_TAG
             CREATE_LOCAL_TAG=1
         fi
-        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL"
+        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$MIN_RN_LINE_DEL MAX_RN_LINE_DEL=$MAX_RN_LINE_DEL"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$RN_MIN_LINE_DEL MAX_RN_LINE_DEL=$RN_MAX_LINE_DEL ./ci_cutover.sh >/dev/null 2>&1
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" NEW_TAG=$HOLD_VER_TAG TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD MIN_RN_LINE_DEL=$MIN_RN_LINE_DEL MAX_RN_LINE_DEL=$MAX_RN_LINE_DEL ./ci_cutover.sh >/dev/null 2>&1
             if [ -n "${CREATE_LOCAL_TAG}" ]
             then
                 echo && echo "   -Release commit, create local tag in $FROM_REPO_NAME repository"
                 cd $HOME_DIR/$FROM_REPO_NAME
                 rm -f *.log
+                # Checkout master
                 if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then git checkout master &>> $LOG; fi
+                # Create version tag
                 if GIT_DIR=./.git git rev-parse $VER_TAG >/dev/null 2>&1; then git tag --delete $VER_TAG &>> $LOG; fi
                 git tag -a $VER_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
                 GIT_TAG="$(git tag -l -n $VER_TAG)" && \
                 [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
-                # Update config files with version from new tag
-                ./builds/utilities/hooks/pre-commit -ro && \
-                ./builds/utilities/hooks/pre-commit -rf && \
+                # Update config files with version from new tag - do not increment revision or commit count
+                ./builds/utilities/hooks/pre-commit -cro && \
+                ./builds/utilities/hooks/pre-commit -crf &>> $LOG && \
                 rm -f *.log
                 # Git append to amend the last commit to update config files with new version
                 git add . &>> $LOG
                 git commit --amend --no-edit &>> $LOG
-                git log --stat &>> $LOG
+                # Delete and recreate tag to secure new version
+                if GIT_DIR=./.git git rev-parse $VER_TAG >/dev/null 2>&1; then git tag --delete $VER_TAG &>> $LOG; fi
+                git tag -a $VER_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
+                GIT_TAG="$(git tag -l -n $VER_TAG)" && \
+                [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
+                # Reset start branch to latest commit
+                END_COMMIT="$(git rev-parse HEAD)"
+                # start branch not checked out so do so
+                if [ "$(git rev-parse --abbrev-ref HEAD)" != "$START_BRANCH" ]; then
+                    git checkout $END_COMMIT &>> $LOG
+                fi
+                git reset --hard $END_COMMIT &>> $LOG
+                # Checkout master to finish
+                if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then git checkout master &>> $LOG; fi
             fi
         fi
         if [[ $STOP_AT_COMMIT_COUNT > 0 ]]
