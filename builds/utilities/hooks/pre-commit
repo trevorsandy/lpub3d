@@ -4,7 +4,7 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: November 23, 2022
+#  Last Update: March 18, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 #  Automatically generate git revision info
@@ -92,7 +92,7 @@ increment_revision=${inc_rev:-yes}
 increment_commitcount=${inc_cnt:-yes}
 
 #check for optional config flags
-while getopts ":rcof" opt; do
+while getopts ":rcaof" opt; do
   case $opt in
   r)
     increment_revision=no
@@ -100,11 +100,11 @@ while getopts ":rcof" opt; do
   c)
     increment_commitcount=no
   ;;
-  o)
-    update_alldeps_files=no
-  ;;
   a)
     update_all_files=yes
+  ;;
+  o)
+    update_alldeps_files=no
   ;;
   f)
     update_alldeps_files=yes
