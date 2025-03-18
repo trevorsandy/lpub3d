@@ -86,9 +86,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.9.4126" date="2025-03-17">
+            <release version="2.4.9.4125" date="2025-03-18">
                 <description>
-                    <p>LPub3D 17.03.2025 v2.4.9 r78 Continuous Build.
+                    <p>LPub3D 18.03.2025 v2.4.9 r79 Continuous Build.
                         - Enhancement - Inconsistency with parts list shape inputs #805
                         - Enhancement - Set annotation style attributes from context menu action #812
                         - Change - Set annotation style attributes for fixed and extended types #811
@@ -96,7 +96,7 @@
                         - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
                         - Regression - Library Update failed #804
                         - Fix - Cannot edit AnnotationStyle list from menu action #810
-                        - Pointer Tip of a page pointer cannot be hidden #813
+                        - Fix - Pointer Tip of a page pointer cannot be hidden #813
                         - Fix - Submodel preview rotation #803
                     </p>
                 </description>
