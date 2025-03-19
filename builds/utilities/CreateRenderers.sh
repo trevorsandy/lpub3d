@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update March 15, 2025
+# Last Update March 18, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -266,7 +266,7 @@ InstallDependencies() {
     fedora|arch|ubuntu)
       true
       ;;
-    *) 
+    *)
       Msg="ERROR - Unable to process this target platform: [$platform_id]."
       Info $Msg && Info $Msg >> $depsLog 2>&1
       ;;
@@ -541,9 +541,9 @@ function package_renderers()
         Info "Cannot create renderer package under OBS or SNAP builds"
         return
     fi
-    if [ -d "/out" ]; then 
+    if [ -d "/out" ]; then
         LP3D_OUT_PATH=/out
-    elif [ -d "/buildpkg" ]; then 
+    elif [ -d "/buildpkg" ]; then
         LP3D_OUT_PATH=/buildpkg
     else
         LP3D_OUT_PATH=${LP3D_LOG_PATH}
@@ -809,8 +809,10 @@ if [ ! -d "${LDRAWDIR}/parts" ]; then
     [ ! -f "complete.zip" ] && \
     cp -f ${DIST_PKG_DIR}/complete.zip . || :
   fi
-  Info && Info "Extracting LDraw library into ${LDRAWDIR}..."
-  unzip -od ${LDRAWDIR_ROOT} -q complete.zip;
+  Info && Info "Extracting ${PWD}/complete.zip LDraw library into ${LDRAWDIR}..."
+  declare -r l=Log
+  ( unzip -od ${LDRAWDIR_ROOT} -q complete.zip; ) >$l.out 2>&1 && rm $l.out
+  [ -f $l.out ] && Info "ERROR - Extract complete.zip failed." && tail -20 $l.out || :
   if [ -d "${LDRAWDIR}/parts" ]; then
     Info "LDraw library extracted. LDRAWDIR defined."
   fi
