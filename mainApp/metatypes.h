@@ -653,6 +653,11 @@ class PointerAttribData
       Border,
       Tip
     } attribType;
+    enum Command {
+      Invalid,
+      Valid,
+      Scoped
+    } command;
     struct Here {
       QString modelName  = "undefined";
       int     lineNumber = 0;

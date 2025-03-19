@@ -1472,294 +1472,200 @@ QString BorderMeta::text()
 /* ------------------ */
 
 // Example: [LINE|BORDER] 1 Black 0.02
-
-Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
+Rc PointerAttribMeta::parse(QStringList &argv, int index, Where &here)
 {
-  int id = 0;
   Rc rc = FailureRc;
-  QRegExp rx("^(GLOBAL|LOCAL)$");
-  bool scoped = argv[index-1].contains(rx);
-  rx.setPattern("^(POINTER_ATTRIBUTE|DIVIDER_POINTER_ATTRIBUTE)$");
-  bool valid  = argv[index-(scoped ? 2 : 1)].contains(rx);
-  bool tip    = argv[index] == "TIP";
-  bool line   = argv[index] == "LINE";
-  bool border = argv[index] == "BORDER";
-  valid &= line || border || tip;
-  if (valid) {
-    bool ok = false;
-    bool widthKey = false;
-    int widthIndex = -1, heightIndex = -1, sizeIndex = -1, colorIndex = -1;
-    bool noParent = argv[index-(scoped ? 3 : 2)] == "CALLOUT" || argv[index-(scoped ? 2 : 1)] == "DIVIDER_POINTER_ATTRIBUTE";
-    BorderData::Line lineType = BorderData::BdrLnNone;
-    if (tip) {
-      bool ok[2];
-      widthKey = argv[index+1] == "WIDTH";
-      widthIndex = widthKey ? index+2 : index+1;
-      argv[widthIndex].toFloat(&ok[0]);                          // width
-      bool heightKey = argv[widthIndex+1] == "HEIGHT";
-      heightIndex = heightKey ? widthIndex+2 : widthIndex+1;
-      argv[heightIndex].toFloat(&ok[1]);                         // height
-      if (ok[0] && ok[1]) {
-        sizeIndex = heightIndex;
-        rc = OkRc;
-      }
-    } else {
-      if (_value[pushed].lineData.map.contains(argv[index+1])) { // line type word
-        lineType = BorderData::Line(_result.lineData.map[argv[index+1]]);
-      } else {
-        int value = argv[index+1].toInt(&ok);                  // line type integer
-        if (ok) {
-          lineType = BorderData::Line(value);
-          rc = OkRc;
-        }
-      }
-      bool colorKey = argv[index+2] == "COLOR";
-      colorIndex = colorKey ? index+3 : index+2;
-      widthKey = argv[colorIndex+1] == "WIDTH";
-      widthIndex = widthKey ? colorIndex+2 : colorIndex+1;
-      argv[widthIndex].toFloat(&ok);                             // thickness
-      if (ok) {
-        sizeIndex = widthIndex;
-        rc = OkRc;
-      }
-    }
-    bool haveId = false;
-    bool haveHideTip = false;
-    int tip_idIndex = -1, idIndex = -1;
-    if (argv.size() > sizeIndex+1) {
-      rx.setPattern("^(HIDE_TIP|ID)$");
-      bool tip_idKey = argv[sizeIndex+1].contains(rx);
-      tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;
-      if (tip_idKey) {                       // if line (hide tip or id), else if border or tip (id)
-        if (argv[sizeIndex+1] == "ID") {     // check if id
-          id = argv[tip_idIndex].toInt(&ok); // id integer
-          haveId = ok;
-          if (haveId)
-            idIndex = tip_idIndex;
-        } else {                             // set ok, hide tip captured in parseAttributes()
-          rx.setPattern("^(TRUE|FALSE)$");
-          ok = haveHideTip = argv[tip_idIndex].contains(rx);
-        }
-      }
-      rc = ok ? OkRc : FailureRc;
-    }
-    if ((line || tip) && !haveId && !scoped && tip_idIndex > -1 && argv.size() > tip_idIndex+1) {
-      bool idKey = argv[tip_idIndex+1] == "ID";
-      idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;
-      id = argv[idIndex].toInt(&ok);  // if line id
-      haveId = ok;
-      rc = ok ? OkRc : FailureRc;
-    }
-    bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
-    if (rc == OkRc) {
-      if (scoped) {
-        _result = _value[pushed];
-        if (tip) {
-          _result.attribType            = PointerAttribData::Tip;
-          _result.tipData.tipWidth      = argv[widthIndex].toFloat();
-          _result.tipData.tipHeight     = argv[heightIndex].toFloat();
-          _result.tipHere.modelName     = here.modelName;
-          _result.tipHere.lineNumber    = here.lineNumber;
-          _result.tipData.useDefault    = false;
-          _result.tipData.parametricTip = false;
-        } else if (line || border) {
-          float tipHeight               = DEFAULT_TIP_HEIGHT;
-          float lineThickness           = DEFAULT_LINE_THICKNESS;
-          float borderThickness         = DEFAULT_BORDER_THICKNESS;
-          const float defaultThickness  = DEFAULT_POINTER_THICKNESS;
-          const float tipRatio          = DEFAULT_TIP_RATIO;
-          const double epsilon          = 0.0001;
-          if (line) {
-            lineThickness                 = argv[widthIndex].toFloat();
-            _result.attribType            = PointerAttribData::Line;
-            _result.lineData.line         = lineType;
-            _result.lineData.color        = argv[colorIndex];
-            _result.lineData.thickness    = lineThickness;
-            if (haveHideTip)
-              _result.lineData.hideTip  = argv[tip_idIndex] == "TRUE";
-            else
-              _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // used to show/hide arrow tip
-            _result.lineHere.modelName    = here.modelName;
-            _result.lineHere.lineNumber   = here.lineNumber;
-            _result.lineData.useDefault   = false;
-          } else if (border) {
-            borderThickness               = argv[widthIndex].toFloat();
-            _result.attribType            = PointerAttribData::Border;
-            _result.borderData.line       = lineType;
-            _result.borderData.color      = argv[colorIndex];
-            _result.borderData.thickness  = borderThickness;
-            _result.borderHere.modelName  = here.modelName;
-            _result.borderHere.lineNumber = here.lineNumber;
-            _result.borderData.useDefault = false;
-          }
-          float delta = (lineThickness  + borderThickness) - defaultThickness;
-          if (_result.tipData.parametricTip && (trunc(1000. * delta) != trunc(1000. * epsilon))) {
-            tipHeight                += delta;
-            _result.tipData.thickness = borderThickness;
-            _result.tipData.tipWidth  = tipHeight * tipRatio;
-            _result.tipData.tipHeight = tipHeight;
-          }
-        }
-        if (_result.attribType == PointerAttribData::Tip) {
-          _result.lineData    = _value[pushed].lineData;
-          _result.lineHere    = _value[pushed].lineHere;
-          _result.borderData  = _value[pushed].borderData;
-          _result.borderHere  = _value[pushed].borderHere;
-        } else {
-          if (_result.attribType == PointerAttribData::Line) {
-            _result.borderData  = _value[pushed].borderData;
-            _result.borderHere  = _value[pushed].borderHere;
-          }
-          else if (_result.attribType == PointerAttribData::Border) {
-            _result.lineData    = _value[pushed].lineData;
-            _result.lineHere    = _value[pushed].lineHere;
-          }
-          if (_result.tipData.thickness == DEFAULT_BORDER_THICKNESS)
-            _result.tipData.thickness  = _value[pushed].tipData.thickness;
-          if (_result.tipData.tipWidth  == DEFAULT_TIP_WIDTH)
-            _result.tipData.tipWidth   = _value[pushed].tipData.tipWidth;
-          if (_result.tipData.tipHeight == DEFAULT_TIP_HEIGHT)
-           _result.tipData.tipHeight  = _value[pushed].tipData.tipHeight;
-        }
-        _result.id     = haveId ? argv[idIndex].toInt() : 0;
-        _result.parent = haveParent ? argv[idIndex+1] : "";
-        _value[pushed] = _result;
-        _here[pushed] = here;
-        return rc;
-      } // scoped (GLOBAL or LOCAL)
-      if (argv[index-2] == "CALLOUT") {
-        if (argv[index-1] == "POINTER_ATTRIBUTE")
-          rc = CalloutPointerAttribRc;
-        else if (argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE")
-          rc = CalloutDividerPointerAttribRc;
-      }
-      else if (argv[index-2] == "MULTI_STEP" && argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE") {
-        rc = StepGroupDividerPointerAttribRc;
-      }
-      else if (argv[index-2] == "PAGE" && argv[index-1] == "POINTER_ATTRIBUTE") {
-        rc = PagePointerAttribRc;
-      }
-      _here[pushed] = here;
-    }
-    if (!id && !scoped)
-    {
-      QString const message = QMessageBox::tr("Expected ID greater than 0, but got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" "));
-      emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
-      rc = FailureRc;
-    }
+
+  int arge = PointerAttribData::Invalid;
+
+   _value[pushed] = parseAttributes(argv, here, index, arge, rc);
+
+   if (arge == PointerAttribData::Invalid || rc != OkRc) {
+     QString const message = QMessageBox::tr("Invalid command \"%1\"") .arg(argv.join(" "));
+     emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+     return rc;
+   }
+
+   _here[pushed] = here;
+
+  if (arge == PointerAttribData::Scoped)
+    return rc;
+
+  if (argv[index-2] == "CALLOUT") {
+    if (argv[index-1] == "POINTER_ATTRIBUTE")
+      rc = CalloutPointerAttribRc;
+    else if (argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE")
+      rc = CalloutDividerPointerAttribRc;
+  } else if (argv[index-2] == "MULTI_STEP" && argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE") {
+    rc = StepGroupDividerPointerAttribRc;
+  } else if (argv[index-2] == "PAGE" && argv[index-1] == "POINTER_ATTRIBUTE") {
+    rc = PagePointerAttribRc;
   }
+
   return rc;
 }
 
-PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Where &here)
+PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv, const Where &here, const int indx, int &arge, Rc &rc)
 {
-  QRegExp rx("^(LINE|BORDER|TIP)$");
-  int index = argv.indexOf(rx);
-  bool widthKey = false;
-  bool tip = argv[index] == "TIP";
-  bool line = argv[index] == "LINE";
-  bool border = argv[index] == "BORDER";
-  bool noParent = argv[index-2] == "CALLOUT" || argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE";
-  int widthIndex = -1, heightIndex = -1, sizeIndex = -1, colorIndex = -1;
-  bool ok = false;
+  QRegularExpression rx("^(LINE|BORDER|TIP)$");
+  int index = indx;
+  if (!index)
+    index = argv.indexOf(rx);
+  QRegularExpressionMatch match = rx.match(argv[index]);
+  rx.setPattern("^(GLOBAL|LOCAL)$");
+  bool scoped = argv[index-1].contains(rx);
+  rx.setPattern("^(POINTER_ATTRIBUTE|DIVIDER_POINTER_ATTRIBUTE)$");
+  bool valid  = argv[index-(scoped ? 2 : 1)].contains(rx);
+  int type = PointerAttribData::Line;
 
   _result = _value[pushed];
 
+  if (valid && match.hasMatch()) {
+    if (match.captured(1) == "TIP")
+      type = PointerAttribData::Tip;
+    else if (match.captured(1) == "BORDER")
+      type = PointerAttribData::Border;
+    else // "LINE"
+      type = PointerAttribData::Line;
+
+    if (scoped)
+      arge = PointerAttribData::Scoped;
+    else
+      arge = PointerAttribData::Valid;
+  } else {
+    arge = PointerAttribData::Invalid;
+    return _result;
+  }
+
+  bool ok = false;
+  bool widthKey = false;
+  bool noParent = argv[index-(scoped ? 3 : 2)] == "CALLOUT" || argv[index-(scoped ? 2 : 1)] == "DIVIDER_POINTER_ATTRIBUTE";
+  int widthIndex = -1, heightIndex = -1, sizeIndex = -1, colorIndex = -1;
   BorderData::Line lineType = BorderData::BdrLnNone;
 
-  if (tip) {
+  if (type == PointerAttribData::Tip) {
+    bool ok[2];
     widthKey = argv[index+1] == "WIDTH";
     widthIndex = widthKey ? index+2 : index+1;
+    argv[widthIndex].toFloat(&ok[0]);                          // width
     bool heightKey = argv[widthIndex+1] == "HEIGHT";
     heightIndex = heightKey ? widthIndex+2 : widthIndex+1;
-    sizeIndex = heightIndex;
+    argv[heightIndex].toFloat(&ok[1]);                         // height
+    if (ok[0] && ok[1]) {
+      sizeIndex = heightIndex;
+      rc = OkRc;
+    } else {
+      rc = FailureRc;
+    }
   } else {
-    if (_result.lineData.map.contains(argv[index+1])) { // line type word
+    if (_value[pushed].lineData.map.contains(argv[index+1])) { // line type word
       lineType = BorderData::Line(_result.lineData.map[argv[index+1]]);
     } else {
       int value = argv[index+1].toInt(&ok);                  // line type integer
       if (ok) {
         lineType = BorderData::Line(value);
+        rc = OkRc;
+      } else {
+        rc = FailureRc;
       }
     }
-
     bool colorKey = argv[index+2] == "COLOR";
     colorIndex = colorKey ? index+3 : index+2;
     widthKey = argv[colorIndex+1] == "WIDTH";
     widthIndex = widthKey ? colorIndex+2 : colorIndex+1;
-    sizeIndex  = widthIndex;
+    argv[widthIndex].toFloat(&ok);                           // thickness
+    if (ok) {
+      sizeIndex = widthIndex;
+      rc = OkRc;
+    } else {
+      rc = FailureRc;
+    }
   }
 
   int id = 0;
   bool haveId = false;
   bool haveHideTip = false;
   int tip_idIndex = -1, idIndex = -1;
+
   if (argv.size() > sizeIndex+1) {
-    rx.setPattern("^(HIDE_TIP|ID)$");
+    QRegularExpression rx("^(HIDE_TIP|ID)$");
     bool tip_idKey = argv[sizeIndex+1].contains(rx);
     tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;
     if (tip_idKey) {                       // if line (hide tip or id), else if border or tip (id)
-      if (argv[sizeIndex+1] == "ID") {     // check if id
+      if (argv[sizeIndex+1] == "ID") {     // check if line  id
         id = argv[tip_idIndex].toInt(&ok); // id integer
         haveId = ok;
         if (haveId)
           idIndex = tip_idIndex;
-      } else {                             // hide tip
+      } else {                             // set hide tip
         rx.setPattern("^(TRUE|FALSE)$");
-        haveHideTip = argv[tip_idIndex].contains(rx);
+        ok = haveHideTip = argv[tip_idIndex].contains(rx);
       }
     }
+    rc = ok ? OkRc : FailureRc;
   }
 
-  if ((line || tip) && !haveId && tip_idIndex > -1 && argv.size() >= tip_idIndex+1) {
+  bool lineOrTip = type == PointerAttribData::Line || type == PointerAttribData::Tip;
+  if (lineOrTip && !haveId && !scoped && tip_idIndex > -1 && argv.size() > tip_idIndex+1) {
     bool idKey = argv[tip_idIndex+1] == "ID";
-    idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;           // if line id
-    id = argv[idIndex].toInt(&ok);
+    idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;
+    id = argv[idIndex].toInt(&ok);  // if line id
     haveId = ok;
+    rc = ok ? OkRc : FailureRc;
   }
 
-  Q_UNUSED(id)
+  if (!id && !scoped)
+  {
+    QString const message = QMessageBox::tr("Expected ID greater than 0, but got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" "));
+    emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false,false);
+    rc = FailureRc;
+  }
+
+  if (rc != OkRc)
+    return _result;
 
   bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
 
-  if (tip) {
-     _result.attribType            = PointerAttribData::Tip;
-     _result.tipData.tipWidth      = argv[widthIndex].toFloat();
-     _result.tipData.tipHeight     = argv[heightIndex].toFloat();
-     _result.tipHere.modelName     = here.modelName;
-     _result.tipHere.lineNumber    = here.lineNumber;
-     _result.tipData.useDefault    = false;
-     _result.tipData.parametricTip = false;
-  } else if (line || border) {
+  if (type == PointerAttribData::Tip) {
+    _result.attribType            = PointerAttribData::Tip;
+    _result.tipData.tipWidth      = argv[widthIndex].toFloat();
+    _result.tipData.tipHeight     = argv[heightIndex].toFloat();
+    _result.tipHere.modelName     = here.modelName;
+    _result.tipHere.lineNumber    = here.lineNumber;
+    _result.tipData.useDefault    = false;
+    _result.tipData.parametricTip = false;
+  } else if (type == PointerAttribData::Line || type == PointerAttribData::Border) {
     float tipHeight               = DEFAULT_TIP_HEIGHT;
     float lineThickness           = DEFAULT_LINE_THICKNESS;
     float borderThickness         = DEFAULT_BORDER_THICKNESS;
     const float defaultThickness  = DEFAULT_POINTER_THICKNESS;
     const float tipRatio          = DEFAULT_TIP_RATIO;
     const double epsilon          = 0.0001;
-    if (line) {
-      lineThickness              = argv[widthIndex].toFloat();
-      _result.attribType         = PointerAttribData::Line;
-      _result.lineData.line      = lineType;
-      _result.lineData.color     = argv[colorIndex];
-      _result.lineData.thickness = lineThickness;
+
+    if (type == PointerAttribData::Line) {
+      lineThickness               = argv[widthIndex].toFloat();
+      _result.attribType          = PointerAttribData::Line;
+      _result.lineData.line       = lineType;
+      _result.lineData.color      = argv[colorIndex];
+      _result.lineData.thickness  = lineThickness;
       if (haveHideTip)
-        _result.lineData.hideTip = argv[tip_idIndex] == "TRUE";
+        _result.lineData.hideTip  = argv[tip_idIndex] == "TRUE";
       else
-        _result.lineData.hideTip    = argv[tip_idIndex].toInt(); // used to hide tip
-      _result.lineHere.modelName    = here.modelName;
-      _result.lineHere.lineNumber   = here.lineNumber;
-      _result.lineData.useDefault   = false;
-    } else if (border) {
+        _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // set show/hide arrow tip
+      _result.lineHere.modelName  = here.modelName;
+      _result.lineHere.lineNumber = here.lineNumber;
+      _result.lineData.useDefault = false;
+    } else if (type == PointerAttribData::Border) {
       borderThickness               = argv[widthIndex].toFloat();
       _result.attribType            = PointerAttribData::Border;
       _result.borderData.line       = lineType;
       _result.borderData.color      = argv[colorIndex];
       _result.borderData.thickness  = borderThickness;
-      _result.borderData.useDefault = false;
       _result.borderHere.modelName  = here.modelName;
       _result.borderHere.lineNumber = here.lineNumber;
+      _result.borderData.useDefault = false;
     }
+
     float delta = (lineThickness  + borderThickness) - defaultThickness;
     if (_result.tipData.parametricTip && (trunc(1000. * delta) != trunc(1000. * epsilon))) {
       tipHeight                += delta;
@@ -1769,8 +1675,36 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
     }
   }
 
+  if (_result.attribType == PointerAttribData::Tip) {
+    _result.lineData    = _value[pushed].lineData;
+    _result.lineHere    = _value[pushed].lineHere;
+    _result.borderData  = _value[pushed].borderData;
+    _result.borderHere  = _value[pushed].borderHere;
+  } else {
+    if (_result.attribType == PointerAttribData::Line) {
+      _result.borderData  = _value[pushed].borderData;
+      _result.borderHere  = _value[pushed].borderHere;
+    }
+    else if (_result.attribType == PointerAttribData::Border) {
+      _result.lineData    = _value[pushed].lineData;
+      _result.lineHere    = _value[pushed].lineHere;
+    }
+
+    if (_result.tipData.thickness == DEFAULT_BORDER_THICKNESS)
+      _result.tipData.thickness = _value[pushed].tipData.thickness;
+    if (_result.tipData.tipWidth == DEFAULT_TIP_WIDTH)
+      _result.tipData.tipWidth = _value[pushed].tipData.tipWidth;
+    if (_result.tipData.tipHeight == DEFAULT_TIP_HEIGHT)
+     _result.tipData.tipHeight = _value[pushed].tipData.tipHeight;
+  }
+
   _result.id     = haveId ? argv[idIndex].toInt() : 0;
-  _result.parent = haveParent ? argv[idIndex+1] : "";
+  _result.parent = haveParent ? argv[idIndex+1] : QString();
+
+  if (!indx) {
+     _value[pushed] = _result;
+     _here[pushed] = here;
+  }
 
   return _result;
 }

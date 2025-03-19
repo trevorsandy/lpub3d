@@ -1748,7 +1748,14 @@ public:
     }
   }
 
-  PointerAttribData &parseAttributes(const QStringList &argv,Where &here);
+  PointerAttribData &parseAttributes(const QStringList &argv, Where &here)
+  {
+    Rc rc;
+    int arge = 0;
+    return parseAttributes(argv, here, 0, arge, rc);
+  }
+
+  PointerAttribData &parseAttributes(const QStringList &argv, const Where &here, const int index, int &arge, Rc &rc);
 
   PointerAttribMeta() : LeafMeta()
   {
