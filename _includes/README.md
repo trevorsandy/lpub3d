@@ -259,7 +259,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [blender-url]:         https://www.blender.org
 [leocad-url]:          https://github.com/trevorsandy/lpub3d/tree/master/lclib
 [ldglite-url]:         https://github.com/trevorsandy/ldglite
-[ldview-url]:          https://github.com/trevorsandy/ldview/tree/qmake-build
+[ldview-url]:          https://github.com/trevorsandy/ldview/tree/lpub3d-build
 [povray-url]:          https://github.com/trevorsandy/povray/tree/lpub3d/raytracer-cui
 [lsynth-url]:          https://github.com/deeice/lsynth
 [blender-addon-url]:   https://github.com/trevorsandy/blenderldrawrender
