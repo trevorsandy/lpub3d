@@ -2,7 +2,7 @@
 #  Last Update: July 28, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.4.9.4494
+pkgver=2.4.9.4495
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://trevorsandy.github.io/lpub3d"
@@ -37,10 +37,10 @@ noextract=(
 	'tenteparts.zip'
 	'vexiqparts.zip')
 sha256sums=(
-	SKIP
-	'2793182e702750daa9c3dea19b167c78d004846e44c4ad73b9c3ec34566e1dcb'
-	'e9e95a91e9d3cd0ae813210893a4d5ef6b5115bbc6e402a89124ec26d656a9d2'
-	'c2ad5e45bc391db634db6d0ed47d317c0268dccf4d1aa37ff5c780731ff5a8ca'
+	SKIP 
+	'7f953c1f0c44c8b0377efc30ef9c7d511c130b476762fc73dc6857d943dbcc5f'
+	'0d22e846858f0af7862dd7d39558434d65f5e7dfa295a1c6dadf44226d13c478'
+	'abc36955f33f664103f51d9ef1cc567df7c3cc22af4fc3b6532fbc5de00af2c9'
 	'91fe6f20339884e37a7c47bfba42fb1cd397512c9ed5ad423de369f047cd8b5c'
 	'fb5a4c2dd6ba6d1c21ab7c05129b0769544e1d68e1e3b0ffecb18e73c93055bc'
 	'eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3'
