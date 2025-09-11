@@ -42,6 +42,9 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
     connect (m_updater, SIGNAL(downloadFinished(const QString&,const QString&)),
              this,      SIGNAL(downloadFinished(const QString&,const QString&)));
 
+    connect (m_updater, SIGNAL(downloadCancelled()),
+             this,      SLOT(  setCancelled()));
+
     connect (m_updater, SIGNAL(cancel()),
              this,      SLOT(  setCancelled()));
 

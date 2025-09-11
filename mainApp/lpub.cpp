@@ -4640,16 +4640,18 @@ void Gui::refreshLDrawOfficialParts() {
     UpdateCheck *libraryDownload;
     libraryDownload      = new UpdateCheck(this, (void*)LDrawOfficialLibraryDownload);
     QEventLoop  *wait    = new QEventLoop();
-    wait->connect(libraryDownload, SIGNAL(rendererDownloadFinished(const QString&)), wait, SLOT(quit()));
-    wait->connect(libraryDownload, SIGNAL(cancel()),                                 wait, SLOT(quit()));
+    wait->connect(libraryDownload, SIGNAL(downloadFinished(const QString&, const QString&)), wait, SLOT(quit()));
+    wait->connect(libraryDownload, SIGNAL(cancel()),                                         wait, SLOT(quit()));
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), downloadPath);
     wait->exec();
     if (libraryDownload->getCancelled()) {
+        emit gui->messageSig(LOG_STATUS,"");
         return;
     }
     QString newarchive;
     libraryDownload->getDownloadReturn(newarchive);
     if (!QFileInfo::exists(newarchive)) {
+        emit gui->messageSig(LOG_STATUS,"");
         return;
     }
 

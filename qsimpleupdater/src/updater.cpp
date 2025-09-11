@@ -482,11 +482,11 @@ void Updater::onReply (QNetworkReply* reply)
 
     /* Get the available versions information if requested */
     if (versionsRequested()){
-      if (! platform.isEmpty()) {
-          m_availableVersions = platform.value ("available-versions").toString();
-      }
-      emit checkingFinished (url());
-      return;
+        if (! platform.isEmpty()) {
+            m_availableVersions = platform.value ("available-versions").toString();
+        }
+        emit checkingFinished (url());
+        return;
     }
 
     // LPub3D Mod
@@ -494,10 +494,15 @@ void Updater::onReply (QNetworkReply* reply)
     if (directDownload() || promptedDownload()) {
 
         m_openUrl = platform.value ("open-url").toString();
-        m_fileName = platform.value( "download-name").toString();
+        m_fileName = platform.value("download-name").toString();
         m_downloadUrl = platform.value ("download-url").toString();
 
-        setUpdateAvailable(true);
+        if (m_fileName.isEmpty() || m_downloadUrl.isEmpty()) {
+            showErrorMessage(tr("Error retrieving JSON data: File name or download URL is empty."));
+            emit downloadCancelled();
+            return;
+        } else
+            setUpdateAvailable(true);
 
     } else {
 

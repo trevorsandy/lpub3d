@@ -86,13 +86,14 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.9.4491" date="2025-09-10">
+            <release version="2.4.9.4492" date="2025-09-11">
                 <description>
-                    <p>LPub3D 10.09.2025 v2.4.9 r444 Continuous Build.
+                    <p>LPub3D 11.09.2025 v2.4.9 r445 Continuous Build.
                         - Feature - Upgrade development platform to Qt 6.9 #820
                         - Enhancement - Inconsistency with parts list shape inputs #805
                         - Enhancement - Set annotation style attributes from context menu action #812
                         - Enhancement - Update LDView renderer to version 4.6 #815
+                        - Change - Notify when unable to retrieve LDraw library download json file #830
                         - Change - Set annotation style attributes for fixed and extended types #811
                         - HowTo - Set annotation style attributes #809
                         - HowTo - Set theme check script in extras folder for Linux and macOS distros #806
