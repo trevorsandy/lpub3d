@@ -1405,7 +1405,7 @@ ECHO - Merging update package version inserts into lpub3dupdates.json...
     IF "%%i" EQU ""alt-version-gen-placeholder-linux-flp": {}" (
       TYPE %PKG_UPDATE_DIR%\versionInsert_flp.txt
     )
-  ECHO %%i
+    ECHO %%i
   )
 ) >temp.txt
 MOVE /y temp.txt %PKG_UPDATE_DIR%\lpub3dupdates.json | FINDSTR /i /v /r /c:"moved\>"
@@ -1414,11 +1414,44 @@ FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
 )
 
 ECHO.
-ECHO - Copying additional json FILES to media folder...
+ECHO - Generating LDraw library json FILES to media folder...
 
 REM pwd = windows\release\LP3D_PRODUCT_DIR
-COPY /V /Y ..\..\..\utilities\json\complete.json %PKG_UPDATE_DIR%\ /A | FINDSTR /i /v /r /c:"copied\>"
-COPY /V /Y ..\..\..\utilities\json\lpub3dldrawunf.json %PKG_UPDATE_DIR%\ /A | FINDSTR /i /v /r /c:"copied\>"
+SET updateName=complete
+SET updatesFile=%PKG_UPDATE_DIR%\%updateName%.json
+SET genLPub3DUpdates=%updatesFile% ECHO
+
+:GENERATE LDRaw official library json file
+>%genLPub3DUpdates% {
+>>%genLPub3DUpdates%   "_comment": "LPub3D LDraw library %updateName%.json generated on %LP3D_DATE_TIME%",
+>>%genLPub3DUpdates%   "updates": {
+SETLOCAL ENABLEDELAYEDEXPANSION
+FOR %%b IN ( %LP3D_DIST_EXTENSIONS% ) DO (
+  SET /A offCount+=1
+  CALL :GENERATE_LIBRARY_JSON %updateName% %%b !offCount!
+)
+SETLOCAL DISABLEDELAYEDEXPANSION
+>>%genLPub3DUpdates%   }
+>>%genLPub3DUpdates% }
+>>%genLPub3DUpdates%.
+
+SET updateName=lpub3dldrawunf
+SET updatesFile=%PKG_UPDATE_DIR%\%updateName%.json
+SET genLPub3DUpdates=%updatesFile% ECHO
+
+:GENERATE LDRaw unofficial library json file
+>%genLPub3DUpdates% {
+>>%genLPub3DUpdates%   "_comment": "LPub3D LDraw library %updateName%.json generated on %LP3D_DATE_TIME%",
+>>%genLPub3DUpdates%   "updates": {
+SETLOCAL ENABLEDELAYEDEXPANSION
+FOR %%b IN ( %LP3D_DIST_EXTENSIONS% ) DO (
+  SET /A unfCount+=1
+  CALL :GENERATE_LIBRARY_JSON %updateName% %%b !unfCount!
+)
+SETLOCAL DISABLEDELAYEDEXPANSION
+>>%genLPub3DUpdates%   }
+>>%genLPub3DUpdates% }
+>>%genLPub3DUpdates%.
 
 ECHO.
 ECHO - Generating latest.txt version input file (for backward compatability)...
@@ -1427,6 +1460,36 @@ SET latestFile=%PKG_UPDATE_DIR%\latest.txt
 SET genLatest=%latestFile% ECHO
 :GENERATE latest.txt file
 >%genLatest% %LP3D_VERSION%
+EXIT /b
+
+:GENERATE_LIBRARY_JSON
+IF "%1" EQU "complete" (
+  SET DIR=updates
+  SET NAME=%1
+) ELSE (
+  SET DIR=unofficial
+  SET NAME=ldrawunf
+)
+IF %3 GTR 8 (
+  SET DIST_ID=linux
+) ELSE (
+  IF %3 GTR 5 (SET DIST_ID=macos) ELSE (SET DIST_ID=windows)
+)
+SET FINAL=
+IF "%2" EQU "flp" (SET FINAL=1)
+SET updatesFile=%PKG_UPDATE_DIR%\%1.json
+SET genLPub3D1Updates=%updatesFile% ECHO
+
+:GENERATE LDraw library json file
+>>%genLPub3DUpdates%     "%DIST_ID%-%2": {
+>>%genLPub3DUpdates%       "ownload-name": "%1.zip",
+>>%genLPub3DUpdates%       "open-url": "https://library.ldraw.org/",
+>>%genLPub3DUpdates%       "download-url": "https://library.ldraw.org/library/%DIR%/%NAME%.zip"
+IF "%FINAL%" EQU "1" (
+>>%genLPub3DUpdates%     }
+) ELSE (
+>>%genLPub3DUpdates%     },
+)
 EXIT /b
 
 :GENERATE_ALT_VERSION_INSERTS

@@ -1,54 +1,124 @@
 {
   "updates": {
-    "windows": {
-    "download-name": "complete.zip",
-    "open-url": "https://library.ldraw.org/",
+    "windows-amd_exe": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "windows-arm_exe": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "windows-amd_con_exe": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "windows-amd_msys_exe": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "windows-exe": {
-    "download-name": "complete.zip",
-    "open-url": "https://library.ldraw.org/",
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
-    "windows-conda": {
-    "download-name": "complete.zip",
-    "open-url": "https://library.ldraw.org/",
+    "macos-arm_dmg": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "macos-amd_dmg": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },	
     "macos-dmg": {
-    "download-name": "complete.zip",
-    "open-url": "https://library.ldraw.org/",
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-amd_deb": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-arm_deb ": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-deb": {
-    "download-name": "complete.zip",
-    "open-url": "https://library.ldraw.org/",
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-amd_rpm": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-rpm": {
-    "download-name": "complete.zip",
-    "open-url": "https://library.ldraw.org/",
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-amd_pkg": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-pkg": {
-    "download-name": "complete.zip",
-    "open-url": "https://library.ldraw.org/",
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-amd_api": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-arm_api": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
       "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-api": {
-    "download-name": "complete.zip",
+      "download-name": "complete.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-amd_snp": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-arm_snp": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-snp": {
-    "download-name": "complete.zip",
+      "download-name": "complete.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-amd_flp": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+    },
+    "linux-arm_flp": {
+      "download-name": "complete.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     },
     "linux-flp": {
-    "download-name": "complete.zip",
+      "download-name": "complete.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/updates/complete.zip"
+      "download-url": "https://library.ldraw.org/library/updates/complete.zip"
     }
   }
 }

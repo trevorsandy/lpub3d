@@ -1,54 +1,124 @@
 {
   "updates": {
-    "windows": {
+    "windows-amd_exe": {
       "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "windows-arm_exe": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "windows-amd_con_exe": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "windows-amd_msys_exe": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "windows-exe": {
       "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
-    },
-    "windows-conda": {
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },	
+    "macos-arm_dmg": {
       "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
-    },	
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "macos-amd_dmg": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
     "macos-dmg": {
       "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-amd_deb": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-arm_deb": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "linux-deb": {
       "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-amd_rpm": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "linux-rpm": {
       "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-amd_pkg": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "linux-pkg": {
       "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-amd_api": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "linux-api": {
-    "download-name": "lpub3dldrawunf.zip",
+      "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-arm_api": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-amd_snp": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-arm_snp": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "linux-snp": {
-    "download-name": "lpub3dldrawunf.zip",
+      "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-amd_flp": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux-arm_flp": {
+      "download-name": "lpub3dldrawunf.zip",
+      "open-url": "https://library.ldraw.org/",
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     },
     "linux-flp": {
-    "download-name": "lpub3dldrawunf.zip",
+      "download-name": "lpub3dldrawunf.zip",
       "open-url": "https://library.ldraw.org/",
-    "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
+      "download-url": "https://library.ldraw.org/library/unofficial/ldrawunf.zip"
     }
   }
 }
