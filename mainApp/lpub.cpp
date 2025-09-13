@@ -7699,6 +7699,8 @@ void Gui::parseError(const QString &message,
 {
     if (Gui::parsedMessages.contains(here))
         return;
+    else
+        Gui::parsedMessages.append(here);
 
     const QString keyType[][2] = {
        // Message Title,              Type Description
@@ -7754,7 +7756,6 @@ void Gui::parseError(const QString &message,
     }
 
     if (!abortProcess && !abortInProgress) {
-        Gui::parsedMessages.append(here);
         abortProcess = abort;
         if (messageIcon == QMessageBox::Icon::NoIcon)
             messageIcon = QMessageBox::Icon::Critical;
