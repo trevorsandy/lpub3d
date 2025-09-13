@@ -50,13 +50,13 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     QRegularExpressionMatch match;
     startRx.setPattern("^(\\d+)(?:[\\w\\-\\,\\s]*)$");
     startRx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-    endRx.setPattern("([^\\s|^,|^\\-|^a-zA-Z]\\d+)$");
+    endRx.setPattern("([^\\s]|[^,]|[^\\-]|[^a-zA-Z]\\d+)$");
     match = startRx.match(cleanRange);
     if (match.hasMatch()) {
-        rangeMin = match.captured(1).toInt(&ok[0]);
+        rangeMin = match.captured(1).trimmed().toInt(&ok[0]);
         match = endRx.match(cleanRange);
         if (match.hasMatch())
-            rangeMax = match.captured(1).toInt(&ok[1]);
+            rangeMax = match.captured(1).trimmed().toInt(&ok[1]);
         if (ok[0] && ok[1] && rangeMin > rangeMax)
             Gui::pageDirection = PAGE_BACKWARD;
     }
