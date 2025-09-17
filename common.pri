@@ -339,6 +339,13 @@ equals(TARGET, LPub3D) {
     } else {
         LDRAW_DIR_FOUND_MSG = ERROR - LDRAW PARTS LIBRARY NOT FOUND
     }
+
+#~~ Set OBS Macro ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    OBS = $$(OBS)
+    equals(OBS, true) {
+        DEFINES += OBS
+        OBS_BUILD_MSG = BUILDING ON OPEN BUILD SERVICE
+    }
 }
 
 #~~ Use c++ 11 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

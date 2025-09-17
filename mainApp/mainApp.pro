@@ -93,6 +93,7 @@ message("~~~ $${LPUB3D} BUILDING WITH QT VERSION: $$QT_VERSION ~~~")
 !isEmpty(QMAKE_MSC_VER_MSG): message("~~~ $${LPUB3D} $${QMAKE_MSC_VER_MSG} ~~~")
 !isEmpty(LDRAW_DIR_FOUND_MSG): message("~~~ $${LPUB3D} $${LDRAW_DIR_FOUND_MSG} ~~~")
 !isEmpty(LDRAW_ZIP_FOUND_MSG): message("~~~ $${LPUB3D} $${LDRAW_ZIP_FOUND_MSG} ~~~")
+!isEmpty(OBS_BUILD_MSG): message("~~~ $${LPUB3D} $${OBS_BUILD_MSG} ~~~")
 !isEmpty(CPP11_MSG):  message("~~~ $${LPUB3D} $${CPP11_MSG} ~~~")
 !isEmpty(CPP17_MSG):  message("~~~ $${LPUB3D} $${CPP17_MSG} ~~~")
 

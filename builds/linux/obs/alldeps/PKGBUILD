@@ -2,7 +2,7 @@
 #  Last Update: July 28, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.4.9.4505
+pkgver=2.4.9.4506
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://trevorsandy.github.io/lpub3d"
@@ -82,7 +82,7 @@ prepare() {
 	# Until LDView converts to tinyxml2, build tinyxml from source 
 	export build_tinyxml=1	
 	# copy version.info to utilities
-	[ -f "../version.info" ] && cp -f ../version.info builds/utilities/ || :
+	[ -f "../version.info" ] && export OBS=true; cp -f ../version.info builds/utilities/ || :
 	# build 3rd-party renderers
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	# set qmake and generate Makefiles

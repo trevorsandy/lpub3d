@@ -91,7 +91,7 @@ override_dh_auto_configure:
     fi
 	# copy version.info to utilities if available in SOURCES (e.g. OBS)
 	if [ -f "../SOURCES/version.info" ]; then \
-        cp -f ../SOURCES/version.info builds/utilities; \
+        export OBS=true; cp -f ../SOURCES/version.info builds/utilities; \
         [ -f "builds/utilities/version.info" ] && \
         echo "Copied version.info into $$(readlink -e builds/utilities)" || \
         echo "ERROR: version.info not copied to $$(readlink -e builds/utilities)."; \

@@ -80,9 +80,9 @@ prepare() {
 	# LLVM not needed for default Mesa 21.3.9 configuration
 	export llvm_not_used=1
 	# Until LDView converts to tinyxml2, build tinyxml from source 
-	export build_tinyxml=1	
+	export build_tinyxml=1
 	# copy version.info to utilities
-	[ -f "../version.info" ] && cp -f ../version.info builds/utilities/ || :
+	[ -f "../version.info" ] && export OBS=true; cp -f ../version.info builds/utilities/ || :
 	# build 3rd-party renderers
 	chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 	# set qmake and generate Makefiles

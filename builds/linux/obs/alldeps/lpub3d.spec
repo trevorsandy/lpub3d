@@ -133,7 +133,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.9.4505
+Version: 2.4.9.4506
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -740,7 +740,7 @@ export skip_local_POVRay_libs=%{skip_local_POVRay_libs}
 %endif
 set -x
 %endif
-# Indicate OBS status (should always be yes for this spec file)
+# Indicate OBS status
 export OBS=%{usingbuildservice}
 # RPM exported variables
 export TARGET_VENDOR=%{_target_vendor}
@@ -865,7 +865,7 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Wed Sep 17 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4505
+* Wed Sep 17 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4506
 - LPub3D 2.4.9 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue Jan 07 2025 - trevor dot sandy at gmail dot com 2.4.9.4047
