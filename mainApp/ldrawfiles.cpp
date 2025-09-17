@@ -1842,11 +1842,14 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
     bool endStepMetaMissing  = false;
     bool partHeaderFinished  = false;
     bool stagedSubfilesFound = externalFile;
-    bool modelHeaderFinished = externalFile ? true : false;
+    bool modelHeaderFinished = false;
+    bool loadingExternalFile = false;
     bool sof  = false;
     bool eof  = false;
     bool sosf = false;
     bool eosf = false;
+    bool soef = false;
+    bool eoef = false;
     _mpd      = true;
 
     if (topLevelModel) {
@@ -1854,8 +1857,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         topFileNotFound            = true;
         displayModel               = false;
         hdrFILENotFound            = true;
-        hdrDescNotFound            = true;
-        hdrCategNotFound           = true;
         helperPartsNotFound        = true;
         lsynthPartsNotFound        = true;
         metaLoadUnoffPartsNotFound = true;
@@ -1870,6 +1871,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
     hdrNameNotFound   = true;
     hdrAuthorNotFound = true;
+    hdrDescNotFound   = true;
+    hdrCategNotFound  = true;
     hdrNameKey        = false;
     hdrAuthorKey      = false;
     hdrNameLine       = 0;
@@ -1943,11 +1946,31 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             continue;
 
         sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
-        if (!topFileNotFound && sof && !eof && !eosf)
+        if (!topFileNotFound && sof && !eof && !eosf && !eoef && !externalFile)
             endStepMetaMissing = true;
         eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
 
         smLineNum = (sof ? 0 : smLineNum++);
+
+        if (externalFile) {
+            if (!loadingExternalFile && !((lineIndx + 1) >= lineCount)) {
+                if ((soef = stagedContents.at(lineIndx + 1).trimmed().contains(_fileRegExp[NAM_RX]))) {
+                    for (QString &line : stagedContents) {
+                        if (!line.isEmpty() && !line.startsWith("0 "))
+                            break;
+                        if (getUnofficialFileType(line) > UNOFFICIAL_SUBMODEL) // external file is a part so exit
+                            return;
+                    }
+                    hdrDescLine = smLineNum;
+                }
+                loadingExternalFile = true;
+            } else {
+                eoef = smLine.contains(_fileRegExp[EOF_RX]);
+                if (!eoef && (eoef = (lineIndx + 1) == lineCount)) {
+                    contents << smLine;
+                }
+            }
+        }
 
         // load LDCad groups
         if (!ldcadGroupsLoaded) {
@@ -2002,7 +2025,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             }
         }
 
-        if ((sof || !hdrFILENotFound) && !modelHeaderFinished) {
+        if ((sof || soef || !hdrFILENotFound) && !modelHeaderFinished) {
             if (sof) {
                 hdrFILENotFound = false;        /* we have an LDraw submodel */
                 hdrDescLine = smLineNum + 1;    /* next line should be description */
@@ -2077,28 +2100,30 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     }
                 }
 
-                // Check for include file
-                if (smLine.contains(_fileRegExp[INC_RX])) {
-                    const QString inclFilePath = LPub::getFilePath(_fileRegExp[INC_RX].match(smLine).captured(1));
-                    QFileInfo inclFileInfo(inclFilePath);
-                    if (inclFileInfo.isReadable()) {
-                        if (loadIncludeFile(inclFilePath)) {
-                            const QString statusEntry = QObject::tr("%1|%2|MPD Include file %2 (file: %3, line: %4)")
-                                              .arg(INCLUDE_FILE_LOAD_MSG).arg(inclFileInfo.fileName(), subfileName).arg(lineIndx + 1);
-                            loadStatusEntry(INCLUDE_FILE_LOAD_MSG, statusEntry, inclFileInfo.fileName(), QObject::tr("Subfile [%1] is a MPD Include file"));
+                if (!externalFile) {
+                    // Check for include file
+                    if (smLine.contains(_fileRegExp[INC_RX])) {
+                        const QString inclFilePath = LPub::getFilePath(_fileRegExp[INC_RX].match(smLine).captured(1));
+                        QFileInfo inclFileInfo(inclFilePath);
+                        if (inclFileInfo.isReadable()) {
+                            if (loadIncludeFile(inclFilePath)) {
+                                const QString statusEntry = QObject::tr("%1|%2|MPD Include file %2 (file: %3, line: %4)")
+                                                  .arg(INCLUDE_FILE_LOAD_MSG).arg(inclFileInfo.fileName(), subfileName).arg(lineIndx + 1);
+                                loadStatusEntry(INCLUDE_FILE_LOAD_MSG, statusEntry, inclFileInfo.fileName(), QObject::tr("Subfile [%1] is a MPD Include file"));
+                            }
+                        } else {
+                            const QString message = QObject::tr("MPD Include file '%1' was not found (file: %2, line: %3).")
+                                                                .arg(inclFilePath, fileInfo.fileName()).arg(lineIndx + 1);
+                            const QString statusEntry = QObject::tr("%1|%2|MPD Include file '%2' was not found (subfile: %3, line: %4).")
+                                                                    .arg(BAD_INCLUDE_LOAD_MSG).arg(inclFileInfo.fileName(), subfileName).arg(lineIndx + 1);
+                            loadStatusEntry(BAD_INCLUDE_LOAD_MSG, statusEntry, inclFileInfo.fileName(), message);
                         }
-                    } else {
-                        const QString message = QObject::tr("MPD Include file '%1' was not found (file: %2, line: %3).")
-                                                            .arg(inclFilePath, fileInfo.fileName()).arg(lineIndx + 1);
-                        const QString statusEntry = QObject::tr("%1|%2|MPD Include file '%2' was not found (subfile: %3, line: %4).")
-                                                                .arg(BAD_INCLUDE_LOAD_MSG).arg(inclFileInfo.fileName(), subfileName).arg(lineIndx + 1);
-                        loadStatusEntry(BAD_INCLUDE_LOAD_MSG, statusEntry, inclFileInfo.fileName(), message);
                     }
-                }
 
-                // Check meta commands
-                if (!isComment(smLine))
-                    processMetaCommand(tokens);
+                    // Check meta commands
+                    if (!isComment(smLine))
+                        processMetaCommand(tokens);
+                }
             }
         } // modelHeaderFinished
 
@@ -2153,7 +2178,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         /* - if at start of file marker, populate subfileName
          * - if at end of file marker, clear subfileName
          */
-        if (sof || eof || sosf || eosf) {
+        if (sof || eof || sosf || eosf || soef || eoef) {
             /* - if at end of file marker
              * - insert items if subfileName and contents are not empty
              * - after insert, clear contents
@@ -2168,7 +2193,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     } else {
                         if (endStepMetaMissing) {
                             if ((eof = setEndStepMeta(contents))) {
-                                const QString message = QObject::tr("MPD %1 '%2' end STEP and was added by %3 (file: %4, line: %5).")
+                                const QString message = QObject::tr("MPD %1 '%2' end STEP was added by %3 (file: %4, line: %5).")
                                                                     .arg(fileType(), subfileName, VER_PRODUCTNAME_STR, fileInfo.fileName()).arg(lineIndx + 1);
                                 const QString statusEntry = QString("%1|%2|%3").arg(BAD_DATA_LOAD_MSG).arg(subfileName, message);
                                 loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, subfileName, message);
@@ -2208,18 +2233,25 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
              * - set subfileName of new file
              * - else if at end of file marker, clear subfileName
              */
-            if (sof || sosf) {
-                if (sof) {
+            if (sof || sosf || soef) {
+                if (sof || soef) {
                     hdrNameLine       = 0;
                     hdrAuthorLine     = 0;
                     hdrDescLine       = 0;
-                    hdrNameKey        = false;
-                    hdrAuthorKey      = false;
                     hdrNameNotFound   = true;
                     hdrAuthorNotFound = true;
-                    hdrFILENotFound   = false; /* we are at the beginning of an LDraw submodel */
-                    modelHeaderFinished = false;
-                    subfileName = _fileRegExp[SOF_RX].match(smLine).captured(1).trimmed();
+                    if (sof) {
+                        hdrNameKey      = false;
+                        hdrAuthorKey    = false;
+                        hdrFILENotFound = false; /* we are at the beginning of an LDraw submodel */
+                        modelHeaderFinished = false;
+                        subfileName = _fileRegExp[SOF_RX].match(smLine).captured(1).trimmed();
+                    } else if (soef) {
+                        soef = false;
+                        subfileName = _fileRegExp[NAM_RX].match(stagedContents.at(lineIndx + 1)).captured(1).trimmed();
+                        //subfileName = QFileInfo(fileName).fileName();
+                        contents << smLine;
+                    }
                 } else/*sosf*/ {
                     hdrNameNotFound = sosf = false;
                     partHeaderFinished = isDatafile ? true : false;
@@ -2243,7 +2275,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                         emit gui->messageSig(LOG_TRACE, QObject::tr("MPD subfile '%1' spcified as %2.").arg(subfileName, fileType()));
                     }
                 }
-            } else if (eof || eosf) {
+            } else if (eof || eosf || eoef) {
                 /* - at the end of submodel file or inline part
                 */
                 subfileName.clear();
@@ -2255,9 +2287,15 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 hdrNameLine       = 0;
                 hdrAuthorLine     = 0;
                 hdrDescLine       = 0;
-                if (eof) {
-                    hdrFILENotFound = true; /* we are at the end of an LDraw submodel */
-                    modelHeaderFinished = false;
+                if (eof || eoef) {
+                    if (eof) {
+                        hdrFILENotFound = true; /* we are at the end of an LDraw submodel */
+                        modelHeaderFinished = false;
+                    }
+                    if (eoef) {
+                        loadingExternalFile = false;
+                        eoef = false;
+                    }
                 } else/*eosf*/ {
                     /* - if description found, add it to the start of the part's contents
                     */
@@ -2297,7 +2335,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             } else {
                 if (!eof && !eosf) {
                     if (setEndStepMeta(contents)) {
-                        const QString message = QObject::tr("MPD %1 '%2' end STEP and was added by %3 (file: %4, line: %5).")
+                        const QString message = QObject::tr("MPD %1 '%2' end STEP was added by %3 (file: %4, line: %5).")
                                                             .arg(fileType(), subfileName, VER_PRODUCTNAME_STR, fileInfo.fileName()).arg(lineIndx + 1);
                         const QString statusEntry = QString("%1|%2|%3").arg(BAD_DATA_LOAD_MSG).arg(subfileName, message);
                         loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, subfileName, message);
@@ -2317,7 +2355,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             if (contents.size()) {
                 if (!isDatafile && (headerMissing = MissingHeaderType(missingHeaders())))
                     normalizeHeader(subfileName, fileInfo.fileName(), headerMissing);
-                emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
+                emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD [EOF] %1 '%2' with %3 lines loaded.")
                                                              .arg(fileType(), subfileName, QString::number(size(subfileName))));
             }
         }
@@ -2361,9 +2399,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                                                             .arg(fileDesc, subfileType, subfile));
                 continue;
             }
+
             // subfile path
-            if ((subfileFound = QFileInfo(subfile).isFile())) {
-                fileInfo = QFileInfo(subfile);
+            bool externalSubfile = false;
+            QFileInfo esInfo(subfile);
+            if ((subfileFound = esInfo.isFile())) {
+                fileInfo = esInfo;
+                externalSubfile = true;
             } else if (Preferences::extendedSubfileSearch) {
                 // extended search - current project path
                 if (Preferences::searchProjectPath && (subfileFound = QFileInfo(projectPath + QDir::separator() + subfile).isFile())) {
@@ -2374,13 +2416,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     for (QString &subFilePath : searchPaths) {
                         if ((subfileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
                             fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
+                            externalSubfile = true;
                             break;
                         }
                     }
                 }
             }
 
-            bool externalSubfile = true;
             if (!subfileFound) {
                 QString partFile = subfile.toUpper();
                 if (partFile.startsWith("S\\"))
@@ -2411,8 +2453,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 loadMPDFile(fileInfo.absoluteFilePath(), true/*external*/);
 
                 subfileIndx = stagedSubfiles.indexOf(subfile);
-                if (subfileIndx > NOT_FOUND)
+                if (subfileIndx > NOT_FOUND) {
                     stagedSubfiles.removeAt(subfileIndx);
+                    subfileName.clear();
+                }
 
                 topLevelModel  = savedTopLevelModel;
                 unofficialPart = savedUnofficialPart;
@@ -2422,35 +2466,37 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         }
     } // resolve outstanding subfiles
 
-    // restore last subfileName for final processing
-    if (stagedSubfilesFound && subfileName.isEmpty())
-        subfileName = QFileInfo(fileName).fileName();
-    else
-        subfileName = fileInfo.fileName();
+    if (!externalFile) {
+        // restore last subfileName for final processing
+        if (stagedSubfilesFound && subfileName.isEmpty())
+            subfileName = QFileInfo(fileName).fileName();
+        else
+            subfileName = fileInfo.fileName();
 
 #ifdef QT_DEBUG_MODE
-    if (!stagedSubfiles.size())
-        emit gui->messageSig(LOG_DEBUG, QString("All '%1' staged subfiles processed.").arg(subfileName));
+        if (!stagedSubfiles.size())
+            emit gui->messageSig(LOG_DEBUG, QString("All '%1' staged subfiles processed.").arg(subfileName));
 #if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
-    QMultiHashIterator<QString, int> i(_ldcadGroups);
+        QMultiHashIterator<QString, int> i(_ldcadGroups);
 #else
-    QHashIterator<QString, int> i(_ldcadGroups);
+        QHashIterator<QString, int> i(_ldcadGroups);
 #endif
-    while (i.hasNext()) {
-        i.next();
-        emit gui->messageSig(LOG_TRACE, QString("LDCad Groups: Name[%1], LineID[%2].")
-                             .arg(i.key()).arg(i.value()));
-    }
+        while (i.hasNext()) {
+            i.next();
+            emit gui->messageSig(LOG_TRACE, QString("LDCad Groups: Name[%1], LineID[%2].")
+                                 .arg(i.key()).arg(i.value()));
+        }
 #endif
 
-    emit gui->progressBarPermSetValueSig(lineCount);
-    if (!stagedSubfiles.size()) {
-        emit gui->progressLabelPermSetTextSig(QString());
-        emit gui->progressPermStatusRemoveSig();
-    }
+        emit gui->progressBarPermSetValueSig(lineCount);
+        if (!stagedSubfiles.size()) {
+            emit gui->progressLabelPermSetTextSig(QString());
+            emit gui->progressPermStatusRemoveSig();
+        }
 
-    emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD file '%1' with %2 lines loaded.")
-                                                 .arg(subfileName).arg(lineCount));
+        emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD file '%1' with %2 lines loaded.")
+                                                     .arg(subfileName).arg(lineCount));
+    }
 }
 
 void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bool externalFile)
@@ -3876,6 +3922,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                             */
                         } else
                         if (QFileInfo(type).isFile()) {
+                            // QString const sourceFilePath = getSubFilePath(type);
                             // external file in current directory
                             description = QFileInfo(type).baseName();
                             statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
