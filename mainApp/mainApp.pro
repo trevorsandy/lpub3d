@@ -335,6 +335,14 @@ if(!isEmpty(option)) {
         CONFIG += stage3rdcontent
         include(winfiledistro.pri)
     }
+} else {
+    win32-msvc*:      DISTRO_PACKAGE = exe-win-10.0-$${STG_ARCH}
+    win32-arm64-msvc: DISTRO_PACKAGE = exe-win-10.0-$${STG_ARCH}
+    msys:             DISTRO_PACKAGE = msys-win-10.0-$${STG_ARCH}
+    macx:             DISTRO_PACKAGE = dmg-$${HOST_VERSION}-$${QT_ARCH}
+    linux:            DISTRO_PACKAGE = deb-db-$${HOST_VERSION}-$${QT_ARCH}
+    message("~~~ $${LPUB3D} DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
+    DEFINES += VER_DISTRO_PACKAGE=\\\"$$DISTRO_PACKAGE\\\"
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
