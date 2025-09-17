@@ -378,7 +378,7 @@ if [ -z "$LP3D_BUNDLED_APP" ]; then
 fi
 
 unset SUMMARY_MSG
-SUMMARY_MSG+="----Build Check Completed: PASS (${LP3D_CHECK_PASS})[${LP3D_CHECKS_PASS}], "
+SUMMARY_MSG+="----Build Checks Completed: PASS (${LP3D_CHECK_PASS})[${LP3D_CHECKS_PASS}], "
 (( ${LP3D_CHECK_FAIL} > 0 )) && \
 SUMMARY_MSG+="FAIL (${LP3D_CHECK_FAIL})[${LP3D_CHECKS_FAIL}], " || :
 SUMMARY_MSG+="ELAPSED TIME [$(ElapsedCheckTime $lp3d_elapsed_check_start)]----"
