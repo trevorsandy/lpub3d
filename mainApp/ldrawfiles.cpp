@@ -3796,10 +3796,10 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                                                                  : INLINE_PART_LOAD_MSG)
                                                           .arg(type, statusDesc);
                                 loadStatusEntry(INLINE_PART_LOAD_MSG, statusEntry, type, subFileType == UNOFFICIAL_GENERATED_PART
-                                                                                             ? QObject::tr("Part %1 is an LDCad Generated INLINE PART.")
+                                                                                             ? QObject::tr("Part [%1] is an LDCad Generated INLINE PART.")
                                                                                              : helperPart
-                                                                                                   ? QObject::tr("Part %1 is a Helper INLINE PART.")
-                                                                                                   : QObject::tr("Part %1 is an INLINE PART."));
+                                                                                                   ? QObject::tr("Part [%1] is a Helper INLINE PART.")
+                                                                                                   : QObject::tr("Part [%1] is an INLINE PART."));
                                 statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type, statusDesc);
                                 loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [Inline %2] validated."),true/*unique count*/);
                                 if (subFileType == UNOFFICIAL_PART) {
@@ -3846,7 +3846,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                                                       .arg(HELPER_PART_LOAD_MSG)
                                                       .arg(type, pieceInfo->m_strDescription)
                                                       .arg(top.modelName).arg(top.lineNumber);
-                                    loadStatusEntry(HELPER_PART_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 is a Helper PART."));
+                                    loadStatusEntry(HELPER_PART_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is a Helper PART."));
                                     _helperPartCount++;
                                 }
                                 _displayModelPartCount++;
@@ -3876,9 +3876,14 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                             */
                         } else
                         if (QFileInfo(type).isFile()) {
+                            // external file in current directory
+                            description = QFileInfo(type).baseName();
                             statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
                                                       .arg(EXTERNAL_SUBFILE_LOAD_MSG).arg(type, description, top.modelName).arg(top.lineNumber);
                             loadStatusEntry(EXTERNAL_SUBFILE_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 is an EXTERNAL PART"));
+                            statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type, description);
+                            loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [External %2] validated."),true/*unique count*/);
+                            _partCount++;
                         } else {
                             const QString message = QObject::tr("Part [%1] was not found!");
                             statusEntry = QObject::tr("%1|%2|Part not found! [%3] (file: %4, line: %5)")
