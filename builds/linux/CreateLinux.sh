@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 06, 2025
+# Last Update September 16, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -139,7 +139,13 @@ LP3D_GITHUB_URL="https://github.com/trevorsandy"
 [ -n "${BUILD_OPT}" ] && Info "BUILD OPTION.......${BUILD_OPT}" || :
 [ -n "${LPUB3D}" ] && Info "SOURCE DIR.........${LPUB3D}" || :
 [ -n "${BUILD_DIR}" ] && Info "BUILD DIR..........${BUILD_DIR}" || :
-[ -n "${LP3D_BASE}" ] && Info "BUILD BASE.........${LP3D_BASE}" || :
+if [ -n "${LP3D_BASE}" ]; then
+  Info "BUILD BASE.........${LP3D_BASE}"
+  if [ "${LP3D_BASE}" = "fedora" ]; then
+    LP3D_SPEC_VERSION="$(grep Version: /${LPUB3D}.spec | cut -d: -f2| sed 's/(.*)//g' | tr -d ' ')"
+    Info "RPM SPEC VERSION...${LP3D_SPEC_VERSION}"
+  fi
+fi
 [ -n "${LP3D_ARCH}" ] && Info "BUILD ARCH.........${LP3D_ARCH}" || :
 [ -n "${CI}" ] && Info "CI.................${CI}" || :
 [ -n "${GITHUB}" ] && Info "GITHUB.............${GITHUB}" || :
@@ -181,7 +187,7 @@ if [[ "${LP3D_APPIMAGE}" != "true" ]]; then
       pkgscript="CreateDeb.sh"
       ;;
     "fedora")
-      pkgblddir="rpmbuild/BUILD"
+      pkgblddir="rpmbuild/BUILD/${LPUB3D}-${LP3D_SPEC_VERSION}-build"
       pkgsrcdir="rpmbuild/SOURCES"
       pkgscript="CreateRpm.sh"
       ;;

@@ -82,7 +82,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.9.4508
+Version: 2.4.9.4509
 Release: 1%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -227,11 +227,8 @@ export WD=$(readlink -e ../)
 export LP3D_LOG_PATH="%{_lp3d_log_path}"
 export LP3D_CPU_CORES="%{_lp3d_cpu_cores}"
 export LP3D_3RD_DIST_DIR="%{_lp3d_3rd_dist_dir}"
-# parent path for 3rdParty distribution directory
-export LP3D_DIST_DIR_PATH="$(cd ${SrcPath}/.. && pwd)"
+export LP3D_DIST_DIR_PATH="${WD}/${LP3D_3RD_DIST_DIR}"
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-# append 3rdParty distribution directory
-export LP3D_DIST_DIR_PATH="${LP3D_DIST_DIR_PATH}/${LP3D_3RD_DIST_DIR}"
 # Qt setup
 if which qmake6 >/dev/null 2>&1; then
   QMAKE_EXEC=qmake6
@@ -292,7 +289,7 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Wed Sep 17 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4508
+* Wed Sep 17 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4509
 - LPub3D 2.4.9 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue Jan 07 2025 - trevor dot sandy at gmail dot com 2.4.9.4047
