@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 08, 2025
+rem  Last Update: September 12, 2025
 rem  Copyright (C) 2015 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -168,7 +168,7 @@ SET "SIGN_UTILITY=%ProgramFiles(x86)%\Windows Kits\8.1\bin\x64\signtool.exe"
 
 SET "UTILITIES_DIR=..\utilities"
 SET "MAIN_APP_DIR=..\..\mainApp"
-SET LPUB3D_DIR=lpub3d
+SET "LP3D_REPO_DIR=lpub3d"
 
 SET VER_LDGLITE=ldglite-1.3
 SET VER_LDVIEW=ldview-4.6
@@ -279,63 +279,51 @@ SET LP3D_SUPPORT=unknown
 SET LP3D_DISTRO_ARCH=unknown
 SET LPUB3D_BUILD_FILE=unknown
 
-SET LP3D_AVAILABLE_VERSIONS_amd_exe=unknown
-SET LP3D_AVAILABLE_VERSIONS_arm_exe=unknown
-SET LP3D_AVAILABLE_VERSIONS_amd_con_exe=unknown
-SET LP3D_AVAILABLE_VERSIONS_amd_msys_exe=unknown
-SET LP3D_AVAILABLE_VERSIONS_exe=unknown
-SET LP3D_AVAILABLE_VERSIONS_arm_dmg=unknown
-SET LP3D_AVAILABLE_VERSIONS_amd_dmg=unknown
-SET LP3D_AVAILABLE_VERSIONS_dmg=unknown
-SET LP3D_AVAILABLE_VERSIONS_amd_deb=unknown
-SET LP3D_AVAILABLE_VERSIONS_arm_deb=unknown
-SET LP3D_AVAILABLE_VERSIONS_deb=unknown
-SET LP3D_AVAILABLE_VERSIONS_amd_rpm=unknown
-SET LP3D_AVAILABLE_VERSIONS_rpm=unknown
-SET LP3D_AVAILABLE_VERSIONS_amd_pkg=unknown
-SET LP3D_AVAILABLE_VERSIONS_pkg=unknown
-SET LP3D_AVAILABLE_VERSIONS_amd_api=unknown
-SET LP3D_AVAILABLE_VERSIONS_arm_api=unknown
-SET LP3D_AVAILABLE_VERSIONS_api=unknown
-SET LP3D_AVAILABLE_VERSIONS_amd_snp=unknown
-SET LP3D_AVAILABLE_VERSIONS_arm_snp=unknown
-SET LP3D_AVAILABLE_VERSIONS_snp=unknown
-SET LP3D_AVAILABLE_VERSIONS_amd_flp=unknown
-SET LP3D_AVAILABLE_VERSIONS_arm_flp=unknown
-SET LP3D_AVAILABLE_VERSIONS_flp=unknown
-
-SET LP3D_ALTERNATE_VERSIONS_amd_exe=unknown
-SET LP3D_ALTERNATE_VERSIONS_arm_exe=unknown
-SET LP3D_ALTERNATE_VERSIONS_amd_con_exe=unknown
-SET LP3D_ALTERNATE_VERSIONS_amd_msys_exe=unknown
-SET LP3D_ALTERNATE_VERSIONS_exe=unknown
-SET LP3D_ALTERNATE_VERSIONS_arm_dmg=unknown
-SET LP3D_ALTERNATE_VERSIONS_amd_dmg=unknown
-SET LP3D_ALTERNATE_VERSIONS_dmg=unknown
-SET LP3D_ALTERNATE_VERSIONS_amd_deb=unknown
-SET LP3D_ALTERNATE_VERSIONS_arm_deb=unknown
-SET LP3D_ALTERNATE_VERSIONS_deb=unknown
-SET LP3D_ALTERNATE_VERSIONS_amd_rpm=unknown
-SET LP3D_ALTERNATE_VERSIONS_rpm=unknown
-SET LP3D_ALTERNATE_VERSIONS_amd_pkg=unknown
-SET LP3D_ALTERNATE_VERSIONS_pkg=unknown
-SET LP3D_ALTERNATE_VERSIONS_amd_api=unknown
-SET LP3D_ALTERNATE_VERSIONS_arm_api=unknown
-SET LP3D_ALTERNATE_VERSIONS_api=unknown
-SET LP3D_ALTERNATE_VERSIONS_amd_snp=unknown
-SET LP3D_ALTERNATE_VERSIONS_arm_snp=unknown
-SET LP3D_ALTERNATE_VERSIONS_snp=unknown
-SET LP3D_ALTERNATE_VERSIONS_amd_flp=unknown
-SET LP3D_ALTERNATE_VERSIONS_arm_flp=unknown
-SET LP3D_ALTERNATE_VERSIONS_flp=unknown
-
 SET "LP3D_GITHUB_URL=https://github.com/trevorsandy"
-SET "LP3D_GITHUB_BASE=%LP3D_GITHUB_URL%/%LPUB3D_DIR%"
+SET "LP3D_GITHUB_BASE=%LP3D_GITHUB_URL%/%LP3D_REPO_DIR%"
 SET "LP3D_SOURCEFORGE_OPEN_BASE=https://sourceforge.net"
 SET "LP3D_SOURCEFORGE_UPDATE_BASE=https://lpub3d.sourceforge.io"
 SET "LP3D_LIBS_BASE=%LP3D_GITHUB_URL%/lpub3d_libs/releases/download/v1.0.1"
+
+SET LP3D_AARCH64_ARCH=aarch64
+SET LP3D_X64_ARCH=x86_64
+SET LP3D_AMD_ARCH=amd64
+SET LP3D_ARM_ARCH=arm64
+SET LP3D_UPDATE_SIZE=0
 SET LP3D_DEB=noble
 SET LP3D_FCV=fc41
+
+SET LP3D_DIST_EXTENSIONS=amd_exe, arm_exe, amd_con_exe, amd_msys_exe, exe, arm_dmg, amd_dmg, dmg, amd_deb, arm_deb, deb, amd_rpm, rpm, amd_pkg, pkg, amd_api, arm_api, api, amd_snp, arm_snp, snp, amd_flp, arm_flp, flp
+FOR %%C IN ( %LP3D_DIST_EXTENSIONS% ) DO (SET /A LP3D_UPDATE_SIZE+=1)
+FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
+  SET LP3D_AVAILABLE_VERSIONS_%%e=unknown
+  SET LP3D_ALTERNATE_VERSIONS_%%e=unknown
+)
+
+SET "amd_exe=.exe"                              & ::- 01 Windows
+SET "arm_exe=.exe"                              & ::- 02 Windows
+SET "amd_con_exe=-%LP3D_X64_ARCH%.tar.bz2"      & ::- 03 Windows
+SET "amd_msys_exe=-any.pkg.tar.zst"             & ::- 04 Windows
+SET "win_exe=.exe"                                  & ::- 05 Windows
+SET "arm_dmg=-%LP3D_ARM_ARCH%-macos.dmg"        & ::- 06 Apple macOS
+SET "amd_dmg=-%LP3D_X64_ARCH%-macos.dmg"        & ::- 07 Apple macOS
+SET "dmg=-macos.dmg"                            & ::- 08 Apple macOS
+SET "amd_deb=-%LP3D_DEB%-%LP3D_AMD_ARCH%.deb"   & ::- 09 Debian Linux
+SET "arm_deb=-%LP3D_DEB%-%LP3D_ARM_ARCH%.deb"   & ::- 10 Debian Linux
+SET "deb=-%LP3D_DEB%-%LP3D_AMD_ARCH%.deb"       & ::- 11 Debian Linux
+SET "amd_rpm=-1.%LP3D_FCV%.%LP3D_X64_ARCH%.rpm" & ::- 12 Red Hat Linux
+SET "rpm=-1.%LP3D_FCV%.%LP3D_X64_ARCH%.rpm"     & ::- 13 Red Hat Linux
+SET "amd_pkg=-%LP3D_X64_ARCH%.pkg.tar.zst"      & ::- 14 Arch Linux
+SET "pkg=-%LP3D_X64_ARCH%.pkg.tar.xz"           & ::- 15 Arch Linux
+SET "amd_api=-%LP3D_X64_ARCH%.AppImage"         & ::- 16 Linux AppImage
+SET "arm_api=-%LP3D_AARCH64_ARCH%.AppImage"     & ::- 17 Linux AppImage
+SET "api=-%LP3D_X64_ARCH%.AppImage"             & ::- 18 Linux AppImage
+SET "amd_snp=-%LP3D_X64_ARCH%.snap"             & ::- 19 Linux Snap
+SET "arm_snp=-%LP3D_ARM_ARCH%.snap"             & ::- 20 Linux Snap
+SET "snp=-%LP3D_X64_ARCH%.snap"                 & ::- 21 Linux Snap
+SET "amd_flp=-%LP3D_X64_ARCH%.flatpak"          & ::- 22 Linux Flatpak
+SET "arm_flp=-%LP3D_ARM_ARCH%.flatpak"          & ::- 23 Linux Flatpak
+SET "flp=-%LP3D_X64_ARCH%.flatpak"              & ::- 24 Linux Flatpak
 
 ECHO.
 ECHO - Setting up release build parameters...
@@ -528,40 +516,25 @@ IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
 ECHO   COMPILATION..........................[Cross compile ARM64 build on AMD64 host]
 )
 )
-ECHO.
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_exe......[%LP3D_AVAILABLE_VERSIONS_amd_exe%]
-ECHO   LP3D_AVAILABLE_VERSIONS_arm_exe......[%LP3D_AVAILABLE_VERSIONS_arm_exe%]
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_con_exe..[%LP3D_AVAILABLE_VERSIONS_amd_con_exe%]
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_msys_exe.[%LP3D_AVAILABLE_VERSIONS_amd_msys_exe%]
-ECHO   LP3D_AVAILABLE_VERSIONS_arm_dmg......[%LP3D_AVAILABLE_VERSIONS_arm_dmg%]
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_dmg......[%LP3D_AVAILABLE_VERSIONS_amd_dmg%]
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_deb......[%LP3D_AVAILABLE_VERSIONS_amd_deb%]
-ECHO   LP3D_AVAILABLE_VERSIONS_arm_deb......[%LP3D_AVAILABLE_VERSIONS_arm_deb%]
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_rpm......[%LP3D_AVAILABLE_VERSIONS_amd_rpm%]
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_pkg......[%LP3D_AVAILABLE_VERSIONS_amd_pkg%]
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_api......[%LP3D_AVAILABLE_VERSIONS_amd_api%]
-ECHO   LP3D_AVAILABLE_VERSIONS_arm_api......[%LP3D_AVAILABLE_VERSIONS_arm_api%]
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_snp......[%LP3D_AVAILABLE_VERSIONS_amd_snp%]
-ECHO   LP3D_AVAILABLE_VERSIONS_arm_snp......[%LP3D_AVAILABLE_VERSIONS_arm_snp%]
-ECHO   LP3D_AVAILABLE_VERSIONS_amd_flp......[%LP3D_AVAILABLE_VERSIONS_amd_flp%]
-ECHO   LP3D_AVAILABLE_VERSIONS_arm_flp......[%LP3D_AVAILABLE_VERSIONS_arm_flp%]
-ECHO.
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_exe......[%LP3D_ALTERNATE_VERSIONS_amd_exe%]
-ECHO   LP3D_ALTERNATE_VERSIONS_arm_exe......[%LP3D_ALTERNATE_VERSIONS_arm_exe%]
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_con_exe..[%LP3D_ALTERNATE_VERSIONS_amd_con_exe%]
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_msys_exe.[%LP3D_ALTERNATE_VERSIONS_amd_msys_exe%]
-ECHO   LP3D_ALTERNATE_VERSIONS_arm_dmg......[%LP3D_ALTERNATE_VERSIONS_arm_dmg%]
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_dmg......[%LP3D_ALTERNATE_VERSIONS_amd_dmg%]
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_deb......[%LP3D_ALTERNATE_VERSIONS_amd_deb%]
-ECHO   LP3D_ALTERNATE_VERSIONS_arm_deb......[%LP3D_ALTERNATE_VERSIONS_arm_deb%]
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_rpm......[%LP3D_ALTERNATE_VERSIONS_amd_rpm%]
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_pkg......[%LP3D_ALTERNATE_VERSIONS_amd_pkg%]
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_api......[%LP3D_ALTERNATE_VERSIONS_amd_api%]
-ECHO   LP3D_ALTERNATE_VERSIONS_arm_api......[%LP3D_ALTERNATE_VERSIONS_arm_api%]
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_snp......[%LP3D_ALTERNATE_VERSIONS_amd_snp%]
-ECHO   LP3D_ALTERNATE_VERSIONS_arm_snp......[%LP3D_ALTERNATE_VERSIONS_arm_snp%]
-ECHO   LP3D_ALTERNATE_VERSIONS_amd_flp......[%LP3D_ALTERNATE_VERSIONS_amd_flp%]
-ECHO   LP3D_ALTERNATE_VERSIONS_arm_flp......[%LP3D_ALTERNATE_VERSIONS_arm_flp%]
+
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET LP3D_DIST_EXTENSIONS_ECHO=amd_exe, arm_exe, amd_con_exe, amd_msys_exe, arm_dmg, amd_dmg, amd_deb, arm_deb, amd_rpm, amd_pkg, amd_api, arm_api, amd_snp, arm_snp, amd_flp, arm_flp
+FOR %%e IN ( AVAILABLE, ALTERNATE ) DO (
+  ECHO.
+  SET /A c=0
+  SET "VERSION_KEY=LP3D_%%e_VERSIONS"
+  FOR %%f IN ( %LP3D_DIST_EXTENSIONS_ECHO% ) DO (
+    SET /A c+=1
+    IF !c! EQU 3 (
+      SET DOTS=..
+    ) ELSE (
+      IF !c! EQU 4 (SET DOTS=.) ELSE (SET DOTS=......)
+    )
+    CALL SET "VERSION_VALUE=%%!VERSION_KEY!_%%f%%"
+    ECHO   !VERSION_KEY!_%%f!DOTS![!VERSION_VALUE!]
+  )
+)
+SETLOCAL DISABLEDELAYEDEXPANSION
 
 IF %LP3D_AMD_UNIVERSAL_BUILD% NEQ 1 (
   REM SINGLE ARCH BUILD
@@ -764,7 +737,7 @@ SET LP3D_LDGLITE_STATUS=Installed
 SET LP3D_LDVIEW_STATUS=Installed
 SET LP3D_LPUB3D_TRACE_STATUS=Installed
 ECHO.
-ECHO - Generating AppVersion.nsh build parameters script...
+ECHO - Generate AppVersion.nsh build parameters script...
 ECHO.
 SETLOCAL ENABLEDELAYEDEXPANSION
 IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
@@ -863,110 +836,110 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion% !define WinBuildDir "%LP3D_BUILD_DIR%_%LP3D_DISTRO_ARCH%"
 >>%genVersion% ; ${WinBuildDir} - Input path for documents and extras - using %LP3D_DISTRO_ARCH% location
 IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
->>%genVersion%.
->>%genVersion% !define X86_INSTALL
->>%genVersion% ; X86_INSTALL
->>%genVersion%.
->>%genVersion% !define X64_INSTALL
->>%genVersion% ; X64_INSTALL
->>%genVersion%.
->>%genVersion% !define Win64BuildDir "%LP3D_BUILD_DIR%_x86_64"
->>%genVersion% ; ${Win64BuildDir} - Input path for x86_64 architecture
->>%genVersion%.
->>%genVersion% !define Win32BuildDir "%LP3D_BUILD_DIR%_x86"
->>%genVersion% ; ${Win32BuildDir} - Input path for x86 architecture
+  >>%genVersion%.
+  >>%genVersion% !define X86_INSTALL
+  >>%genVersion% ; X86_INSTALL
+  >>%genVersion%.
+  >>%genVersion% !define X64_INSTALL
+  >>%genVersion% ; X64_INSTALL
+  >>%genVersion%.
+  >>%genVersion% !define Win64BuildDir "%LP3D_BUILD_DIR%_x86_64"
+  >>%genVersion% ; ${Win64BuildDir} - Input path for x86_64 architecture
+  >>%genVersion%.
+  >>%genVersion% !define Win32BuildDir "%LP3D_BUILD_DIR%_x86"
+  >>%genVersion% ; ${Win32BuildDir} - Input path for x86 architecture
 ) ELSE (
-IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
->>%genVersion%.
->>%genVersion% !define X86_INSTALL
->>%genVersion% ; X86_INSTALL
->>%genVersion%.
->>%genVersion% !define Win32BuildDir "%LP3D_BUILD_DIR%_x86"
->>%genVersion% ; ${Win32BuildDir} - Input path for x86 architecture
-) ELSE (
->>%genVersion%.
->>%genVersion% !define X64_INSTALL
->>%genVersion% ; X64_INSTALL
-IF "%LP3D_DISTRO_ARCH%" EQU "ARM64" (
->>%genVersion%.
->>%genVersion% !define ARM64_INSTALL
->>%genVersion% ; ARM64_INSTALL
-)
->>%genVersion%.
->>%genVersion% !define Win64BuildDir "%LP3D_BUILD_DIR%_%LP3D_DISTRO_ARCH%"
->>%genVersion% ; ${Win64BuildDir} - Input path for %LP3D_DISTRO_ARCH% architecture
-)
+  IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
+    >>%genVersion%.
+    >>%genVersion% !define X86_INSTALL
+    >>%genVersion% ; X86_INSTALL
+    >>%genVersion%.
+    >>%genVersion% !define Win32BuildDir "%LP3D_BUILD_DIR%_x86"
+    >>%genVersion% ; ${Win32BuildDir} - Input path for x86 architecture
+  ) ELSE (
+    >>%genVersion%.
+    >>%genVersion% !define X64_INSTALL
+    >>%genVersion% ; X64_INSTALL
+    IF "%LP3D_DISTRO_ARCH%" EQU "ARM64" (
+      >>%genVersion%.
+      >>%genVersion% !define ARM64_INSTALL
+      >>%genVersion% ; ARM64_INSTALL
+    )
+    >>%genVersion%.
+    >>%genVersion% !define Win64BuildDir "%LP3D_BUILD_DIR%_%LP3D_DISTRO_ARCH%"
+    >>%genVersion% ; ${Win64BuildDir} - Input path for %LP3D_DISTRO_ARCH% architecture
+  )
 )
 IF "%OPENSSL_VER%" EQU "v1.1" (
-IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
-IF %WIN64_SSL% == 1 (
->>%genVersion%.
->>%genVersion% !define WIN64_SSL
->>%genVersion% ; WIN64_SSL
->>%genVersion%.
->>%genVersion% !define OpenSSL64LibCrypto "libcrypto-1_1-x64.dll"
->>%genVersion% ; ${OpenSSL64LibCrypto}
->>%genVersion%.
->>%genVersion% !define OpenSSL64LibSSL "libssl-1_1-x64.dll"
->>%genVersion% ; ${OpenSSL64LibSSL}
-)
->>%genVersion%.
->>%genVersion% !define OpenSSL32LibCrypto "libcrypto-1_1.dll"
->>%genVersion% ; ${OpenSSL32LibCrypto}
->>%genVersion%.
->>%genVersion% !define OpenSSL32LibSSL "libssl-1_1.dll"
->>%genVersion% ; ${OpenSSL32LibSSL}
-) ELSE (
-IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
->>%genVersion%.
->>%genVersion% !define OpenSSL32LibCrypto "libcrypto-1_1.dll"
->>%genVersion% ; ${OpenSSL32LibCrypto}
->>%genVersion%.
->>%genVersion% !define OpenSSL32LibSSL "libssl-1_1.dll"
->>%genVersion% ; ${OpenSSL32LibSSL}
-) ELSE (
-IF %WIN64_SSL% == 1 (
->>%genVersion%.
->>%genVersion% !define OpenSSL64LibCrypto "libcrypto-1_1-x64.dll"
->>%genVersion% ; ${OpenSSL64LibCrypto}
->>%genVersion%.
->>%genVersion% !define OpenSSL64LibSSL "libssl-1_1-x64.dll"
->>%genVersion% ; ${OpenSSL64LibSSL}
-)
-)
-)
+  IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
+    IF %WIN64_SSL% == 1 (
+      >>%genVersion%.
+      >>%genVersion% !define WIN64_SSL
+      >>%genVersion% ; WIN64_SSL
+      >>%genVersion%.
+      >>%genVersion% !define OpenSSL64LibCrypto "libcrypto-1_1-x64.dll"
+      >>%genVersion% ; ${OpenSSL64LibCrypto}
+      >>%genVersion%.
+      >>%genVersion% !define OpenSSL64LibSSL "libssl-1_1-x64.dll"
+      >>%genVersion% ; ${OpenSSL64LibSSL}
+    )
+    >>%genVersion%.
+    >>%genVersion% !define OpenSSL32LibCrypto "libcrypto-1_1.dll"
+    >>%genVersion% ; ${OpenSSL32LibCrypto}
+    >>%genVersion%.
+    >>%genVersion% !define OpenSSL32LibSSL "libssl-1_1.dll"
+    >>%genVersion% ; ${OpenSSL32LibSSL}
+  ) ELSE (
+    IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
+      >>%genVersion%.
+      >>%genVersion% !define OpenSSL32LibCrypto "libcrypto-1_1.dll"
+      >>%genVersion% ; ${OpenSSL32LibCrypto}
+      >>%genVersion%.
+      >>%genVersion% !define OpenSSL32LibSSL "libssl-1_1.dll"
+      >>%genVersion% ; ${OpenSSL32LibSSL}
+    ) ELSE (
+      IF %WIN64_SSL% == 1 (
+        >>%genVersion%.
+        >>%genVersion% !define OpenSSL64LibCrypto "libcrypto-1_1-x64.dll"
+        >>%genVersion% ; ${OpenSSL64LibCrypto}
+        >>%genVersion%.
+        >>%genVersion% !define OpenSSL64LibSSL "libssl-1_1-x64.dll"
+        >>%genVersion% ; ${OpenSSL64LibSSL}
+      )
+    )
+  )
 )
 IF "%OPENSSL_VER%" EQU "v1.0" (
-IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
->>%genVersion%.
->>%genVersion% !define OpenSSL64LibCrypto "libeay32.dll"
->>%genVersion% ; ${OpenSSL64LibCrypto}
->>%genVersion%.
->>%genVersion% !define OpenSSL64LibSSL "ssleay32.dll"
->>%genVersion% ; ${OpenSSL64LibSSL}
->>%genVersion%.
->>%genVersion% !define OpenSSL32LibCrypto "libeay32.dll"
->>%genVersion% ; ${OpenSSL32LibCrypto}
->>%genVersion%.
->>%genVersion% !define OpenSSL32LibSSL "ssleay32.dll"
->>%genVersion% ; ${OpenSSL32LibSSL}
-) ELSE (
-IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
->>%genVersion%.
->>%genVersion% !define OpenSSL32LibCrypto "libeay32.dll"
->>%genVersion% ; ${OpenSSL32LibCrypto}
->>%genVersion%.
->>%genVersion% !define OpenSSL32LibSSL "ssleay32.dll"
->>%genVersion% ; ${OpenSSL32LibSSL}
-) ELSE (
->>%genVersion%.
->>%genVersion% !define OpenSSL64LibCrypto "libeay32.dll"
->>%genVersion% ; ${OpenSSL64LibCrypto}
->>%genVersion%.
->>%genVersion% !define OpenSSL64LibSSL "ssleay32.dll"
->>%genVersion% ; ${OpenSSL64LibSSL}
-)
-)
+  IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
+    >>%genVersion%.
+    >>%genVersion% !define OpenSSL64LibCrypto "libeay32.dll"
+    >>%genVersion% ; ${OpenSSL64LibCrypto}
+    >>%genVersion%.
+    >>%genVersion% !define OpenSSL64LibSSL "ssleay32.dll"
+    >>%genVersion% ; ${OpenSSL64LibSSL}
+    >>%genVersion%.
+    >>%genVersion% !define OpenSSL32LibCrypto "libeay32.dll"
+    >>%genVersion% ; ${OpenSSL32LibCrypto}
+    >>%genVersion%.
+    >>%genVersion% !define OpenSSL32LibSSL "ssleay32.dll"
+    >>%genVersion% ; ${OpenSSL32LibSSL}
+  ) ELSE (
+    IF "%LP3D_DISTRO_ARCH%" EQU "x86" (
+      >>%genVersion%.
+      >>%genVersion% !define OpenSSL32LibCrypto "libeay32.dll"
+      >>%genVersion% ; ${OpenSSL32LibCrypto}
+      >>%genVersion%.
+      >>%genVersion% !define OpenSSL32LibSSL "ssleay32.dll"
+      >>%genVersion% ; ${OpenSSL32LibSSL}
+    ) ELSE (
+      >>%genVersion%.
+      >>%genVersion% !define OpenSSL64LibCrypto "libeay32.dll"
+      >>%genVersion% ; ${OpenSSL64LibCrypto}
+      >>%genVersion%.
+      >>%genVersion% !define OpenSSL64LibSSL "ssleay32.dll"
+      >>%genVersion% ; ${OpenSSL64LibSSL}
+    )
+  )
 )
 >>%genVersion%.
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
@@ -1019,7 +992,7 @@ IF %CREATE_PORTABLE% == 1 ECHO.
 IF %CREATE_PORTABLE% == 1 ECHO - Create %LP3D_PRODUCT% %LP3D_DISTRO_ARCH% portable install archive package file...
 
 IF %CREATE_PORTABLE% == 0 ECHO.
-IF %CREATE_PORTABLE% == 0 ECHO - Ignore creating %LP3D_PRODUCT% portable install archive package file
+IF %CREATE_PORTABLE% == 0 ECHO - Ignore creating %LP3D_PRODUCT% %LP3D_DISTRO_ARCH% portable install archive package file
 
 IF %CREATE_PORTABLE% == 1 (
   IF %LP3D_VALID_TAR% == 1 (
@@ -1062,7 +1035,7 @@ IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1 (
 )
 
 IF %SIGN_APP% == 1 ECHO.
-IF %SIGN_APP% == 1 ECHO - Generating Code Signing Hash Checksum listing...
+IF %SIGN_APP% == 1 ECHO - Generate Code Signing Hash Checksum listing...
 
 IF %SIGN_APP% == 1 CertUtil -hashfile %PKG_DOWNLOAD_DIR%\%LP3D_DOWNLOAD_PRODUCT%.exe SHA256  >  %PKG_DOWNLOAD_DIR%\LPub3D.%LP3D_VERSION%.Checksums.txt
 IF %LP3D_AMD_UNIVERSAL_BUILD% EQU 1
@@ -1077,344 +1050,67 @@ EXIT /b
 
 :GENERATE_JSON
 ECHO.
-ECHO - Generating update package alternate version json inserts...
-SET LP3D_X86_ARCH=x86_64
-SET LP3D_AMD_ARCH=amd64
-SET LP3D_ARM_ARCH=arm64
-SET LP3D_AARCH64_ARCH=aarch64
-SET LP3D_DIST_EXTENSIONS=amd_exe, arm_exe, amd_con_exe, amd_msys_exe, exe, arm_dmg, amd_dmg, dmg, amd_deb, arm_deb, deb, amd_rpm, rpm, amd_pkg, pkg, amd_api, arm_api, api, amd_snp, arm_snp, snp, amd_flp, arm_flp, flp
+ECHO - Generate update package alternate version json inserts...
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET /A updateCount=0
 FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
- CALL :GENERATE_ALT_VERSION_INSERTS %%e
+ SET /A updateCount+=1
+ CALL :GENERATE_ALT_VERSION_INSERTS %%e !updateCount!
 )
+SETLOCAL DISABLEDELAYEDEXPANSION
 
 ECHO.
-ECHO - Generating update package lpub3dupdates.json template file...
+ECHO - Generate update package lpub3dupdates.json template file...
 
-SET updatesFile=%PKG_UPDATE_DIR%\lpub3dupdates.json
+SET updateName=lpub3dupdates
+SET updatesFile=%PKG_UPDATE_DIR%\%updateName%.json
 SET genLPub3DUpdates=%updatesFile% ECHO
 
-:GENERATE lpub3dupdates.json template file
+:GENERATE LPub3D lpub3dupdates.json template file
 >%genLPub3DUpdates% {
->>%genLPub3DUpdates%   "_comment": "LPub3D lpub3dupdates.json generated on %LP3D_DATE_TIME%",
+>>%genLPub3DUpdates%   "_comment": "LPub3D application updates %updateName%.json generated on %LP3D_DATE_TIME%",
 >>%genLPub3DUpdates%   "updates": {
->>%genLPub3DUpdates%     "windows-amd_exe": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%.exe",
->>%genLPub3DUpdates%       "x86-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D_x86-%LP3D_APP_VERSION_LONG%.zip",
->>%genLPub3DUpdates%       "%LP3D_X86_ARCH%-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D_%LP3D_X86_ARCH%-%LP3D_APP_VERSION_LONG%.zip",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_exe%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-amd_exe": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "windows-arm_exe": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_ARM_ARCH%-%LP3D_APP_VERSION_LONG%.exe",
->>%genLPub3DUpdates%       "%LP3D_ARM_ARCH%-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D_%LP3D_ARM_ARCH%-%LP3D_APP_VERSION_LONG%.zip",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_arm_exe%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-arm_exe": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "windows-amd_con_exe": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%.tar.bz2",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_con_exe%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-amd_con_exe": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "windows-amd_msys_exe": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/mingw-w64-%LP3D_X86_ARCH%-lpub3d-%LP3D_APP_VERSION%-any.pkg.tar.zst",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_msys_exe%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-amd_msys_exe": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "_comment_exe": "legacy windows block",
->>%genLPub3DUpdates%     "windows": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%.exe",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/release_notes.html",
->>%genLPub3DUpdates%       "download-url-": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%.exe",
->>%genLPub3DUpdates%       "changelog-url-": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_exe%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "macos-arm_dmg": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARM_ARCH%-macos.dmg",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_arm_dmg%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-macos-arm_dmg": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "macos-amd_dmg": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%-macos.dmg",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_dmg%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-macos-amd_dmg": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "_comment_dmg": "legacy macos block",
->>%genLPub3DUpdates%     "macos-dmg": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-macos.dmg",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_dmg%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-macos-dmg": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-amd_deb": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_DEB%-%LP3D_AMD_ARCH%.deb",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_deb%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-amd_deb": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-arm_deb": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_DEB%-%LP3D_ARM_ARCH%.deb",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_arm_deb%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-arm_deb": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "_comment_deb": "legacy linux deb block",
->>%genLPub3DUpdates%     "linux-deb": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_DEB%-%LP3D_AMD_ARCH%.deb",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-deb": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-amd_rpm": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-1.%LP3D_FCV%.%LP3D_X86_ARCH%.rpm",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_rpm%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-amd_rpm": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "_comment_rpm": "legacy linux rpm block",
->>%genLPub3DUpdates%     "linux-rpm": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-1.%LP3D_FCV%.%LP3D_X86_ARCH%.rpm",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_rpm%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-rpm": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-amd_pkg": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%.pkg.tar.zst",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_pkg%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-amd_pkg": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "_comment_pkg": "legacy linux package block",
->>%genLPub3DUpdates%     "linux-pkg": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%.pkg.tar.zst",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_pkg%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-pkg": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-amd_api": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%.AppImage",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_api%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-amd_api": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-arm_api": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_AARCH64_ARCH%.AppImage",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_arm_api%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-arm_api": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "_comment_api": "legacy linux app-image block",
->>%genLPub3DUpdates%     "linux-api": {
->>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%.AppImage",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_api%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-api": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-amd_snp": {
->>%genLPub3DUpdates%       "open-url": "https://snapcraft.io/lpub3d",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%.snap",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_snp%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-amd_snp": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-arm_snp": {
->>%genLPub3DUpdates%       "open-url": "https://snapcraft.io/lpub3d",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARM_ARCH%.snap",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_arm_snp%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-arm_snp": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "_comment_snp": "legacy linux snap block",
->>%genLPub3DUpdates%     "linux-snp": {
->>%genLPub3DUpdates%       "open-url": "https://snapcraft.io/lpub3d",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%.snap",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_snp%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-snp": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-amd_flp": {
->>%genLPub3DUpdates%       "open-url": "https://flathub.org/apps/details/io.github.trevorsandy.LPub3D",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%.flatpack",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_amd_flp%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-amd_flp": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "linux-arm_flp": {
->>%genLPub3DUpdates%       "open-url": "https://flathub.org/apps/details/io.github.trevorsandy.LPub3D",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARM_ARCH%.flatpack",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_arm_flp%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-arm_flp": {}
->>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "_comment_flp": "legacy linux flatpak block",
->>%genLPub3DUpdates%     "linux-flp": {
->>%genLPub3DUpdates%       "open-url": "https://flathub.org/apps/details/io.github.trevorsandy.LPub3D",
->>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_X86_ARCH%.flatpack",
->>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
->>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_flp%",
->>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-flp": {}
->>%genLPub3DUpdates%     }
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET /A updateCount=0
+FOR %%b IN ( %LP3D_DIST_EXTENSIONS% ) DO (
+  SET /A updateCount+=1
+  CALL :GENERATE_UPDATES_JSON %updateName% %%b !updateCount!
+)
+SETLOCAL DISABLEDELAYEDEXPANSION
 >>%genLPub3DUpdates%   }
 >>%genLPub3DUpdates% }
 >>%genLPub3DUpdates%.
 
 ECHO.
-ECHO - Merging update package version inserts into lpub3dupdates.json...
+ECHO - Merge update package version inserts into %updateName%.json...
 (
-  FOR /F "tokens=*" %%i IN (%PKG_UPDATE_DIR%\lpub3dupdates.json) DO (
-    IF "%%i" EQU ""alt-version-gen-placeholder-windows-amd_exe": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_exe.txt
+  SETLOCAL ENABLEDELAYEDEXPANSION
+  FOR /F "tokens=*" %%i IN (%PKG_UPDATE_DIR%\%updateName%.json) DO (
+    SET /A updateCount=0
+    FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
+      SET /A updateCount+=1
+      IF !updateCount! GTR 8 (
+        SET DIST_ID=linux
+      ) ELSE (
+        IF !updateCount! GTR 5 (SET DIST_ID=macos) ELSE (SET DIST_ID=windows)
+      )
+      IF "%%i" EQU ""alt-version-gen-placeholder-!DIST_ID!-%%e": {}" (
+        TYPE %PKG_UPDATE_DIR%\versionInsert_%%e.txt
+        SET SKIP_TOKEN=1
+      )
     )
-    IF "%%i" EQU ""alt-version-gen-placeholder-windows-arm_exe": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_arm_exe.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-windows-amd_con_exe": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_con_exe.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-windows-amd_msys_exe": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_msys_exe.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-windows": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_exe.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-macos-arm_dmg": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_arm_dmg.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-macos-amd_dmg": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_dmg.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-macos-dmg": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_dmg.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-amd_deb": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_deb.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-arm_deb": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_arm_deb.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-deb": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_deb.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-amd_rpm": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_rpm.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-rpm": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_rpm.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-amd_pkg": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_pkg.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-pkg": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_pkg.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-amd_api": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_api.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-arm_api": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_arm_api.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-api": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_api.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-amd_snp": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_snp.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-arm_snp": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_arm_snp.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-snp": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_snp.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-amd_flp": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_amd_flp.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-arm_flp": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_arm_flp.txt
-    )
-    IF "%%i" EQU ""alt-version-gen-placeholder-linux-flp": {}" (
-      TYPE %PKG_UPDATE_DIR%\versionInsert_flp.txt
-    )
-    ECHO %%i
+    IF NOT "!SKIP_TOKEN!" EQU "1" (ECHO %%i)
+    SET SKIP_TOKEN=
   )
+  SETLOCAL DISABLEDELAYEDEXPANSION
 ) >temp.txt
-MOVE /y temp.txt %PKG_UPDATE_DIR%\lpub3dupdates.json | FINDSTR /i /v /r /c:"moved\>"
+MOVE /y temp.txt %PKG_UPDATE_DIR%\%updateName%.json | FINDSTR /i /v /r /c:"moved\>"
 FOR %%e IN ( %LP3D_DIST_EXTENSIONS% ) DO (
   DEL /Q %PKG_UPDATE_DIR%\versionInsert_%%e.txt
 )
 
 ECHO.
-ECHO - Generating LDraw library json FILES to media folder...
+ECHO - Generate LDraw library json FILES to media folder...
 
 REM pwd = windows\release\LP3D_PRODUCT_DIR
 SET updateName=complete
@@ -1426,9 +1122,10 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%   "_comment": "LPub3D LDraw library %updateName%.json generated on %LP3D_DATE_TIME%",
 >>%genLPub3DUpdates%   "updates": {
 SETLOCAL ENABLEDELAYEDEXPANSION
+SET /A updateCount=0
 FOR %%b IN ( %LP3D_DIST_EXTENSIONS% ) DO (
-  SET /A offCount+=1
-  CALL :GENERATE_LIBRARY_JSON %updateName% %%b !offCount!
+  SET /A updateCount+=1
+  CALL :GENERATE_LIBRARY_JSON %updateName% %%b !updateCount!
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
 >>%genLPub3DUpdates%   }
@@ -1441,12 +1138,13 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 
 :GENERATE LDRaw unofficial library json file
 >%genLPub3DUpdates% {
->>%genLPub3DUpdates%   "_comment": "LPub3D LDraw library %updateName%.json generated on %LP3D_DATE_TIME%",
+>>%genLPub3DUpdates%   "_comment": "LPub3D lpub3dupdates.json generated on %LP3D_DATE_TIME%",
 >>%genLPub3DUpdates%   "updates": {
 SETLOCAL ENABLEDELAYEDEXPANSION
+SET /A updateCount=0
 FOR %%b IN ( %LP3D_DIST_EXTENSIONS% ) DO (
-  SET /A unfCount+=1
-  CALL :GENERATE_LIBRARY_JSON %updateName% %%b !unfCount!
+  SET /A updateCount+=1
+  CALL :GENERATE_LIBRARY_JSON %updateName% %%b !updateCount!
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
 >>%genLPub3DUpdates%   }
@@ -1454,12 +1152,75 @@ SETLOCAL DISABLEDELAYEDEXPANSION
 >>%genLPub3DUpdates%.
 
 ECHO.
-ECHO - Generating latest.txt version input file (for backward compatability)...
+ECHO - Generate latest.txt version input file (for backward compatability)...
 
 SET latestFile=%PKG_UPDATE_DIR%\latest.txt
 SET genLatest=%latestFile% ECHO
 :GENERATE latest.txt file
 >%genLatest% %LP3D_VERSION%
+EXIT /b
+
+:GENERATE_UPDATES_JSON
+IF %3 GTR 8 (
+  SET DIST_ID=linux
+) ELSE (
+  IF %3 GTR 5 (SET DIST_ID=macos) ELSE (SET DIST_ID=windows)
+)
+SET "LP3D_EXT=%2"
+SET "LP3D_AVAILABLE_VERSIONS=LP3D_AVAILABLE_VERSIONS_%LP3D_EXT%"
+SET LP3D_UPDATE_ARCH=%LP3D_X64_ARCH%
+IF %3 EQU  2 (SET LP3D_UPDATE_ARCH=%LP3D_ARM_ARCH%)
+IF %3 EQU  6 (SET LP3D_UPDATE_ARCH=%LP3D_ARM_ARCH%)
+IF %3 EQU 10 (SET LP3D_UPDATE_ARCH=%LP3D_ARM_ARCH%)
+IF %3 EQU 17 (SET LP3D_UPDATE_ARCH=%LP3D_AARCH64_ARCH%)
+IF %3 EQU 20 (SET LP3D_UPDATE_ARCH=%LP3D_ARM_ARCH%)
+IF %3 EQU 23 (SET LP3D_UPDATE_ARCH=%LP3D_ARM_ARCH%)
+REM LP3D_EXT expands to the file extension - if %1 is 'api', %LP3D_EXT% is '-api.AppImage'
+CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
+CALL SET "LP3D_AVAILABLE_VERSIONS=%%%LP3D_AVAILABLE_VERSIONS%%%"
+
+SET updatesFile=%PKG_UPDATE_DIR%\%1.json
+SET genLPub3D1Updates=%updatesFile% ECHO
+
+:GENERATE Generate LPub3D application updates json file
+IF %3 EQU  5 (>>%genLPub3DUpdates%     "_comment_exe": "legacy windows block",)         & ::windows-exe
+IF %3 EQU  8 (>>%genLPub3DUpdates%     "_comment_dmg": "legacy macos block",)           & ::macos-dmg
+IF %3 EQU 11 (>>%genLPub3DUpdates%     "_comment_deb": "legacy linux deb block",)       & ::linux-deb
+IF %3 EQU 13 (>>%genLPub3DUpdates%     "_comment_rpm": "legacy linux rpm block",)       & ::linux-rpm
+IF %3 EQU 15 (>>%genLPub3DUpdates%     "_comment_pkg": "legacy linux package block",)   & ::linux-pkg
+IF %3 EQU 18 (>>%genLPub3DUpdates%     "_comment_api": "legacy linux app-image block",) & ::linux-api
+IF %3 EQU 21 (>>%genLPub3DUpdates%     "_comment_snp": "legacy linux snap block",)      & ::linux-snp
+IF %3 EQU 24 (>>%genLPub3DUpdates%     "_comment_flp": "legacy linux flatpak block",)   & ::linux-flp
+>>%genLPub3DUpdates%     "%DIST_ID%-%LP3D_EXT%": {
+>>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
+>>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
+>>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
+IF %3 EQU 4 (
+  ::windows-amd_msys_exe
+  >>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/mingw-w64-%LP3D_X64_ARCH%-lpub3d-%LP3D_APP_VERSION%%LP3D_DIST_SUFFIX%",
+) ELSE (
+  IF %3 EQU 2 (
+    ::windows-arm_exe
+    >>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_UPDATE_ARCH%-%LP3D_APP_VERSION_LONG%%LP3D_DIST_SUFFIX%",
+  ) ELSE (
+    >>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%%LP3D_DIST_SUFFIX%",
+  )
+)
+REM Windows Portable Distros
+ECHO.%2 | FINDSTR /I /R /C:"^exe" /C:"amd_exe" /C:"arm_exe" >NUL && (
+  ECHO.%2 | FINDSTR /I /R /C:"^exe" /C:"amd_exe" >NUL && (
+    >>%genLPub3DUpdates%       "x86-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D_x86-%LP3D_APP_VERSION_LONG%.zip",
+  )
+  >>%genLPub3DUpdates%       "%LP3D_UPDATE_ARCH%-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D_%LP3D_UPDATE_ARCH%-%LP3D_APP_VERSION_LONG%.zip",
+)
+>>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
+>>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS%",
+>>%genLPub3DUpdates%       "alt-version-gen-placeholder-%DIST_ID%-%LP3D_EXT%": {}
+IF %3 EQU %LP3D_UPDATE_SIZE% (
+  >>%genLPub3DUpdates%     }
+) ELSE (
+  >>%genLPub3DUpdates%     },
+)
 EXIT /b
 
 :GENERATE_LIBRARY_JSON
@@ -1475,17 +1236,16 @@ IF %3 GTR 8 (
 ) ELSE (
   IF %3 GTR 5 (SET DIST_ID=macos) ELSE (SET DIST_ID=windows)
 )
-SET FINAL=
-IF "%2" EQU "flp" (SET FINAL=1)
+
 SET updatesFile=%PKG_UPDATE_DIR%\%1.json
 SET genLPub3D1Updates=%updatesFile% ECHO
 
-:GENERATE LDraw library json file
+:GENERATE Generate LDraw library json file
 >>%genLPub3DUpdates%     "%DIST_ID%-%2": {
 >>%genLPub3DUpdates%       "ownload-name": "%1.zip",
 >>%genLPub3DUpdates%       "open-url": "https://library.ldraw.org/",
 >>%genLPub3DUpdates%       "download-url": "https://library.ldraw.org/library/%DIR%/%NAME%.zip"
-IF "%FINAL%" EQU "1" (
+IF %3 EQU %LP3D_UPDATE_SIZE% (
 >>%genLPub3DUpdates%     }
 ) ELSE (
 >>%genLPub3DUpdates%     },
@@ -1494,174 +1254,132 @@ EXIT /b
 
 :GENERATE_ALT_VERSION_INSERTS
 SET "LP3D_EXT=%1"
-SET "amd_exe=.exe"
-SET "arm_exe=.exe"
-SET "amd_con_exe=-%LP3D_X86_ARCH%.tar.bz2"
-SET "amd_msys_exe=-any.pkg.tar.zst"
-REM Legacy insert
-SET "exe=.%LP3D_EXT%"
-SET "arm_dmg=_%LP3D_ARM_ARCH%.macos.dmg"
-SET "amd_dmg=_%LP3D_X86_ARCH%.macos.dmg"
-REM Legacy insert
-SET "dmg=_macos.%LP3D_EXT%"
-SET "amd_deb=_0ubuntu1_%LP3D_AMD_ARCH%.deb"
-SET "arm_deb=_0ubuntu1_%LP3D_ARM_ARCH%.deb"
-REM Legacy insert
-SET "deb=_0ubuntu1_%LP3D_AMD_ARCH%.%LP3D_EXT%"
-SET "amd_rpm=_1fedora.%LP3D_X86_ARCH%.%LP3D_EXT%"
-REM Legacy insert
-SET "rpm=_1fedora.%LP3D_X86_ARCH%.%LP3D_EXT%"
-SET "amd_pkg=.645_%LP3D_X86_ARCH%.%LP3D_EXT%.tar.xz"
-REM Legacy insert
-SET "pkg=.645_%LP3D_X86_ARCH%.%LP3D_EXT%.tar.xz"
-SET "amd_api=-%LP3D_X86_ARCH%.AppImage"
-SET "arm_api=-%LP3D_AARCH64_ARCH%.AppImage"
-SET "api=-%LP3D_X86_ARCH%.AppImage"
-SET "amd_snp=-%LP3D_X86_ARCH%.snap"
-SET "arm_snp=-%LP3D_ARM_ARCH%.snap"
-REM Legacy insert
-SET "snp=-%LP3D_X86_ARCH%.snap"
-SET "amd_flp=-%LP3D_X86_ARCH%.flatpack"
-SET "arm_flp=-%LP3D_ARM_ARCH%.flatpack"
-REM Legacy insert
-SET "flp=-%LP3D_X86_ARCH%.flatpack"
-SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%LP3D_EXT%"
-REM LP3D_DIST_SUFFIX expands to the LP3D_EXTension - if %1 is 'api', %LP3D_DIST_SUFFIX% is '-api.AppImage'
-CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
-REM LP3D_ALT_VERS expands to the alternate version for a given LP3D_EXTension
+SET LP3D_MASTER=1
+IF "%LP3D_EXT%" EQU "exe" (SET "LP3D_EXT=win_exe") & ::Replace 'exe' to avoid 'exe=.exe' which expands to 'exeexe'
+SET "LP3D_ALT_VERS=LP3D_ALTERNATE_VERSIONS_%1"
+REM LP3D_ALT_VERS expands to the alternate versions for a given LP3D_EXTension
 CALL SET "LP3D_ALTERNATE_VERSIONS=%%%LP3D_ALT_VERS%%%"
 SET "LP3D_DIST_PREFIX=LPub3D-"
-IF "%1" NEQ "amd_exe" (GOTO :SET_VERSION_INSERTS)
-SET "LP3D_DIST_PREFIX=LPub3D-UpdateMaster_"
-:SET_VERSION_INSERTS
-SET versionInsert=%PKG_UPDATE_DIR%\versionInsert_%LP3D_EXT%.txt
+ECHO.%1 | FINDSTR /I /R /C:"api" /C:"snp" /C:"flp" /C:"con_exe" /C:"msys_exe" /C:"arm_" >NUL && (SET LP3D_MASTER=0)
+IF %LP3D_MASTER% EQU 1 (SET "LP3D_DIST_PREFIX=LPub3D-UpdateMaster_")
+SET versionInsert=%PKG_UPDATE_DIR%\versionInsert_%1.txt
 SET genVersionInsert=%versionInsert% ECHO
 SETLOCAL ENABLEDELAYEDEXPANSION
-REM 2.4.9,2.3.6,2.0.20,1.3.5,1.2.3,1.0.0
+REM Alternate versions <current version>,2.3.6,2.0.20
+SET /A LP3D_ALTERNATE_SIZE=0
+SET /A LP3D_ALTERNATE_COUNT=0
+FOR %%C IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (SET /A LP3D_ALTERNATE_SIZE+=1)
 FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
+  SET /A LP3D_ALTERNATE_COUNT+=1
+  REM Strip dots from version and add trailing zeros to 4 numbers
+  SET "L=0"
   SET "I=%%V"
   SET "I=!I:.=!"
-  IF "!I!" LEQ "2020" (
-    REM 2.0.20,1.3.5,1.2.3,1.0.0
-    >>%genVersionInsert% "alternate-version-%%V-%LP3D_EXT%": {
-    >>%genVersionInsert%   "open-url": "%LP3D_SOURCEFORGE_OPEN_BASE%/projects/lpub3d/files/%%V/",
+  CALL :VERSIONLENGTH I L
+  SET "Z=0000"
+  SET "P=!I!!Z!"
+  SET "I=!P:~0,4!"
+  >>%genVersionInsert% "alternate-version-%%V-%1": {
+  IF !I! LEQ 2020 (
+    REM Extension format for version 2.0.20 or earlier using SourceForge
+    SET "pkg=.645_%LP3D_X64_ARCH%.pkg.tar.xz"
+    SET "amd_pkg=!pkg!"
+    SET "deb=_0ubuntu1_%LP3D_AMD_ARCH%.deb"
+    SET "amd_deb=!deb!"
+    SET "rpm=_1fedora.%LP3D_X64_ARCH%.rpm"
+    SET "amd_rpm=!rpm!"
+    SET "dmg=_osx.dmg"
+    SET "amd_dmg=!dmg!"
+    REM LP3D_EXT expands to the file extension - if %1 is 'api', %LP3D_EXT% is '-api.AppImage'
+    CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
+    SET LP3D_ALT_VERSION_LONG=%%V
+    IF !I! LSS 2020 (
+      >>%genVersionInsert%   "open-url": "https://trevorsandy.github.io/lpub3d/",
+    ) ELSE (
+      >>%genVersionInsert%   "open-url": "%LP3D_GITHUB_BASE%/releases/tag/v%%V/",
+    )
     >>%genVersionInsert%   "latest-version": "%%V",
-    >>%genVersionInsert%   "download-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/%LP3D_DIST_PREFIX%%%V%LP3D_DIST_SUFFIX%",
-    IF "!I!" EQU "2020" (
-      IF "%1" EQU "exe" (
-        SET LP3D_ALT_VERSION_LONG=2.0.20.0.645_20170208
+    >>%genVersionInsert%   "download-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/%LP3D_DIST_PREFIX%!LP3D_ALT_VERSION_LONG!!LP3D_DIST_SUFFIX!",
+    IF !I! EQU 2020 (
+      ECHO.%1 | FINDSTR /I /R /C:"^exe" /C:"amd_exe" >NUL && (
+        SET LP3D_ALT_VERSION_LONG=%%V.0.645_20170208
         >>%genVersionInsert%   "x86-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_x86-!LP3D_ALT_VERSION_LONG!.zip",
-        >>%genVersionInsert%   "%LP3D_X86_ARCH%-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_%LP3D_X86_ARCH%-!LP3D_ALT_VERSION_LONG!.zip",
+        >>%genVersionInsert%   "%LP3D_X64_ARCH%-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_%LP3D_X64_ARCH%-!LP3D_ALT_VERSION_LONG!.zip",
       )
     )
     >>%genVersionInsert%   "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/change_log_%%V.txt"
-    >>%genVersionInsert% },
+    IF !LP3D_ALTERNATE_COUNT! EQU %LP3D_ALTERNATE_SIZE% (
+      >>%genVersionInsert% }
+    ) ELSE (
+      >>%genVersionInsert% },
+    )
   ) ELSE (
-    IF "!I!" EQU "236" (
-      REM 2.3.6 or greater
-      IF "%1" EQU "amd_msys_exe" (
-        SET LP3D_ALT_VERSION_LONG=2.3.6.1101
-      ) ELSE (
-        SET LP3D_ALT_VERSION_LONG=2.3.6.0.1101_20181218
-      )
-	)
-    IF "%1" EQU "amd_exe" (
-      SET LP3D_DIST_SUFFIX=.exe
-    )
-    IF "%1" EQU "arm_exe" (
-      SET LP3D_DIST_SUFFIX=.exe
-    )
-    IF "%1" EQU "amd_con_exe" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%.tar.bz2
-    )
-    IF "%1" EQU "amd_msys_exe" (
-      SET LP3D_DIST_SUFFIX=-any.pkg.tar.zst
-    )
-    IF "%1" EQU "exe" (
-      SET LP3D_DIST_SUFFIX=.exe
-    )
-    IF "%1" EQU "arm_dmg" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_ARM_ARCH%-macos.dmg
-    )
-    IF "%1" EQU "amd_dmg" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%-macos.dmg
-    )
-    IF "%1" EQU "dmg" (
-      SET LP3D_DIST_SUFFIX=-macos.dmg
-    )
-    IF "%1" EQU "amd_deb" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_DEB%-%LP3D_AMD_ARCH%.deb
-    )
-    IF "%1" EQU "arm_deb" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_DEB%-%LP3D_ARM_ARCH%.deb
-    )
-    IF "%1" EQU "deb" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_DEB%-%LP3D_AMD_ARCH%.deb
-    )
-    IF "%1" EQU "amd_rpm" (
-      SET LP3D_DIST_SUFFIX=-1.%LP3D_FCV%.%LP3D_X86_ARCH%.rpm
-    )
-    IF "%1" EQU "rpm" (
-      SET LP3D_DIST_SUFFIX=-1.%LP3D_FCV%.%LP3D_X86_ARCH%.rpm
-    )
-    IF "%1" EQU "amd_pkg" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%.pkg.tar.zst
-    )
-    IF "%1" EQU "pkg" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%.pkg.tar.zst
-    )
-    IF "%1" EQU "amd_api" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%.AppImage
-    )
-    IF "%1" EQU "arm_api" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_AARCH64_ARCH%.AppImage
-    )
-    IF "%1" EQU "api" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%.AppImage
-    )
-    IF "%1" EQU "amd_snp" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%.snap
-    )
-    IF "%1" EQU "arm_snp" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_ARM_ARCH%.snap
-    )
-    IF "%1" EQU "snp" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%.snap
-    )
-    IF "%1" EQU "amd_flp" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%.flatpack
-    )
-    IF "%1" EQU "arm_flp" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_ARM_ARCH%.flatpack
-    )
-    IF "%1" EQU "flp" (
-      SET LP3D_DIST_SUFFIX=-%LP3D_X86_ARCH%.flatpack
-    )
-    >>%genVersionInsert% "alternate-version-%%V-%LP3D_EXT%": {
     >>%genVersionInsert%   "open-url": "%LP3D_GITHUB_BASE%/releases/tag/v%%V/",
     >>%genVersionInsert%   "latest-version": "%%V",
-    >>%genVersionInsert%   "download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D-!LP3D_ALT_VERSION_LONG!!LP3D_DIST_SUFFIX!",
-    IF "%1" EQU "arm_exe" (
-      >>%genVersionInsert%   "arm64-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_x86_64-!LP3D_ALT_VERSION_LONG!.zip",
+    REM Extension format from version 2.1.0 or greater
+    IF !I! EQU 2360 (
+      SET "deb=-xenial-%LP3D_AMD_ARCH%.deb"
+      SET "amd_deb=!deb!
+      SET "rpm=-1.fc26.%LP3D_X64_ARCH%.rpm"
+      SET "amd_rpm=!rpm!
+      SET "amd_dmg=%dmg%"
+      SET LP3D_ALT_VERSION_LONG=%%V
+    ) ELSE (
+      IF "%1" EQU "arm_exe" (
+        SET LP3D_ALT_VERSION_LONG=%LP3D_ARM_ARCH%-%LP3D_APP_VERSION_LONG%
+      ) ELSE (
+        IF "%1" EQU "amd_msys_exe" (
+          SET LP3D_ALT_VERSION_LONG=%LP3D_APP_VERSION%
+        ) ELSE (
+          SET LP3D_ALT_VERSION_LONG=%LP3D_APP_VERSION_LONG%
+        )
+      )
     )
-    IF "%1" EQU "amd_exe" (
-      >>%genVersionInsert%   "x86-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_x86-!LP3D_ALT_VERSION_LONG!.zip",
-      >>%genVersionInsert%   "x86_64-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_x86_64-!LP3D_ALT_VERSION_LONG!.zip",
+    IF !I! GEQ 2400 (
+      SET "LP3D_DOWNLOAD_BASE=%LP3D_GITHUB_BASE%/releases/download/v%%V"
+    ) ELSE (
+      SET "LP3D_DOWNLOAD_BASE=%LP3D_SOURCEFORGE_UPDATE_BASE%"
     )
-    IF "%1" EQU "exe" (
-      >>%genVersionInsert%   "x86-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_x86-!LP3D_ALT_VERSION_LONG!.zip",
-      >>%genVersionInsert%   "x86_64-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_x86_64-!LP3D_ALT_VERSION_LONG!.zip",
+    CALL SET "LP3D_DIST_SUFFIX=%%%LP3D_EXT%%%"
+    IF "%1" EQU "amd_msys_exe" (
+      >>%genVersionInsert%   "download-url": "!LP3D_DOWNLOAD_BASE!/mingw-w64-%LP3D_X64_ARCH%-lpub3d-!LP3D_ALT_VERSION_LONG!!LP3D_DIST_SUFFIX!",
+    ) ELSE (
+      >>%genVersionInsert%   "download-url": "!LP3D_DOWNLOAD_BASE!/!LP3D_DIST_PREFIX!!LP3D_ALT_VERSION_LONG!!LP3D_DIST_SUFFIX!",
+      IF "%1" EQU "arm_exe" (
+        >>%genVersionInsert%   "%LP3D_ARM_ARCH%-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_%LP3D_ARM_ARCH%-!LP3D_ALT_VERSION_LONG!.zip",
+      ) ELSE (
+        ECHO.%1 | FINDSTR /I /R /C:"^exe" /C:"amd_exe" >NUL && (
+          >>%genVersionInsert%   "x86-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_x86-!LP3D_ALT_VERSION_LONG!.zip",
+          >>%genVersionInsert%   "%LP3D_X64_ARCH%-win-portable-download-url": "%LP3D_GITHUB_BASE%/releases/download/v%%V/LPub3D_%LP3D_X64_ARCH%-!LP3D_ALT_VERSION_LONG!.zip",
+        )
+      )
     )
     >>%genVersionInsert%   "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%%V.html"
-    >>%genVersionInsert% },
+    IF !LP3D_ALTERNATE_COUNT! EQU %LP3D_ALTERNATE_SIZE% (
+      >>%genVersionInsert% }
+    ) ELSE (
+      >>%genVersionInsert% },
+    )
   )
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
 IF EXIST "%versionInsert%" (
-  ECHO   Generated %1 json version insert.
+  ECHO   Generated %2 %1 json version insert.
 ) ELSE (
-  ECHO   %1 json version insert [%versionInsert%] was not generated.
+  ECHO   %2 %1 json version insert [%versionInsert%] was not generated.
 )
+EXIT /b
+
+:VERSIONLENGTH
+REM %1 = input var, %2 = output var
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET "IN=!%~1!"
+SET "LEN=0"
+FOR %%A IN (!IN!) DO (
+  SET /A LEN+=1
+)
+:ENDLOOP
+( ENDLOCAL & SET "%~2=%LEN%" )
 EXIT /b
 
 :DOWNLOADOPENSSLLIBS
