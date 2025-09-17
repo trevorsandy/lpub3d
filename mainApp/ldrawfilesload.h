@@ -101,6 +101,7 @@ private:
     int igpc;
     int ispc;
     int ippc;
+    int esc;
     int esmc;
     int bidc;
     int bifc;

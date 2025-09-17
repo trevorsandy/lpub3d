@@ -99,6 +99,7 @@ LdrawFilesLoad::LdrawFilesLoad(const LoadStatus &loadStatus, bool menuAction, QW
     igpc = countItems(INLINE_GENERATED_PART_LOAD_MSG);
     ispc = countItems(INLINE_SUBPART_LOAD_MSG);
     ippc = countItems(INLINE_PRIMITIVE_LOAD_MSG);
+    esc  = countItems(EXTERNAL_SUBFILE_LOAD_MSG);
     esmc = countItems(EMPTY_SUBMODEL_LOAD_MSG);
     bidc = countItems(BAD_DATA_LOAD_MSG);
     bifc = countItems(BAD_INCLUDE_LOAD_MSG);
@@ -413,6 +414,8 @@ void LdrawFilesLoad::summary() const
         messages.append(QObject::tr("<br> - Inline subparts:        <b>%1</b>").arg(ispc));
     if (idc)
         messages.append(QObject::tr("<br> - Inline data:            <b>%1</b>").arg(idc));
+    if (esc)
+        messages.append(QObject::tr("<br> - External Subfile:       <b>%1</b>").arg(esc));
     /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
     if (ppc)
         messages.append(QObject::tr("<br> - Primitive parts:        <b>%1</b>").arg(ppc));
@@ -535,6 +538,7 @@ void LdrawFilesLoad::populate(bool groupItems)
         case INLINE_PRIMITIVE_LOAD_MSG:
         case INLINE_SUBPART_LOAD_MSG:
         case INLINE_DATA_LOAD_MSG:
+        case EXTERNAL_SUBFILE_LOAD_MSG:
         case MPD_SUBMODEL_LOAD_MSG:
         case LDR_SUBFILE_LOAD_MSG:
         case HELPER_PART_LOAD_MSG:
@@ -620,6 +624,9 @@ void LdrawFilesLoad::populate(bool groupItems)
 
     if (ippc)
         setRow(INLINE_PRIMITIVE_LOAD_MSG, tr("Inline Primitives (%1)").arg(ippc));
+
+    if (esc)
+        setRow(EXTERNAL_SUBFILE_LOAD_MSG, tr("External Subfile (%1)").arg(esc));
 
     if (esmc)
         setRow(EMPTY_SUBMODEL_LOAD_MSG,   tr("Warning - Empty Submodels (%1)").arg(esmc));

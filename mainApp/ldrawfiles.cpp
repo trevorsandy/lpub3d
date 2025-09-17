@@ -3872,7 +3872,13 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                                                               .arg(PRIMITIVE_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
                                     loadStatusEntry(PRIMITIVE_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is a PRIMITIVE"));
                                 }
-                            }*/
+                            }
+                            */
+                        } else
+                        if (QFileInfo(type).isFile()) {
+                            statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
+                                                      .arg(EXTERNAL_SUBFILE_LOAD_MSG).arg(type, description, top.modelName).arg(top.lineNumber);
+                            loadStatusEntry(EXTERNAL_SUBFILE_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 is an EXTERNAL PART"));
                         } else {
                             const QString message = QObject::tr("Part [%1] was not found!");
                             statusEntry = QObject::tr("%1|%2|Part not found! [%3] (file: %4, line: %5)")
