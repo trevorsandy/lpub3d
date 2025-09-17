@@ -3175,7 +3175,7 @@ void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
-            nativeExportIni = resourceFile.absoluteFilePath(); // populate Native Export file file
+            nativeExportIni = QDir::toNativeSeparators(resourceFile.absoluteFilePath()); // populate Native Export file file
             logInfo() << qUtf8Printable(QObject::tr("Native Export file : %1").arg(QDir::toNativeSeparators(nativeExportIni)));
             return;
         }
@@ -3338,7 +3338,7 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
-            ldviewPOVIni = resourceFile.absoluteFilePath(); // populate ldview POV ini file
+            ldviewPOVIni = QDir::toNativeSeparators(resourceFile.absoluteFilePath()); // populate ldview POV ini file
             logInfo() << qUtf8Printable(QObject::tr("LDViewPOV ini file : %1").arg(QDir::toNativeSeparators(ldviewPOVIni)));
             return;
         }
@@ -3421,7 +3421,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
-            povrayConf = resourceFile.absoluteFilePath();  // populate povray conf file
+            povrayConf = QDir::toNativeSeparators(resourceFile.absoluteFilePath());  // populate povray conf file
             logInfo() << qUtf8Printable(QObject::tr("POVRay conf file   : %1").arg(QDir::toNativeSeparators(povrayConf)));
             updatePOVRayConfigFiles();
             return;
