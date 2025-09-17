@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 14, 2025
+# Last Update September 17, 2025
 # Copyright (C) 2016 - 2025 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -15,8 +15,10 @@
 # _EXPORT_CONFIG_ONLY_ Do not update config files. Only export variables
 
 LP3D_ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+[ "${LP3D_ME}" != "update-config-files.sh" ] && SOURCED="true" || SOURCED="false"
+LP3D_ACTION="$([ "${SOURCED}" = "true" ] && echo Source update-config-files as $LP3D_ME || echo Start $LP3D_ME execution)"
 
-echo "   Start $LP3D_ME execution from $PWD ($([ -z "${_EXPORT_CONFIG_ONLY_}" ] && echo Update config files || echo Skip config files update))..."
+echo "   $LP3D_ACTION from $PWD ($([ -z "${_EXPORT_CONFIG_ONLY_}" ] && echo Update config files || echo Skip config files update))..."
 
 LP3D_CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 LP3D_CHANGE_DATE=`date +%a\ %b\ %d\ %Y`
@@ -29,8 +31,6 @@ LP3D_OS=`uname`
 LP3D_GIT_DEPTH=150000
 LP3D_CMD_COUNT=0
 LP3D_APP=${LPUB3D:-lpub3d}
-
-[ "${LP3D_ME}" != "update-config-files.sh" ] && SOURCED="true" || SOURCED="false"
 
 [ -n "$1" ] && LP3D_PWD=$1 || LP3D_PWD=${_PRO_FILE_PWD_}
 
@@ -77,7 +77,7 @@ LP3D_UTIL_DIR=$(realpath "$LP3D_PWD/../builds/utilities")
 if [ "$LP3D_PWD" = "" ] && [ "${_PRO_FILE_PWD_}" = "" ]
 then
     Info "Error: Did not receive required argument _PRO_FILE_PWD_"
-    Info "$LP3D_ME terminated!"
+    Info "$([ "${SOURCED}" = "true" ] && echo update-config-files || echo $LP3D_ME) terminated!"
     exit 1
 fi
 
