@@ -296,8 +296,10 @@ void LdrawFilesLoad::selectionChanged(const QItemSelection &selected, const QIte
 void LdrawFilesLoad::getButton(QAbstractButton *button)
 {
     QDialogButtonBox::ButtonRole role = ui->buttonBox->buttonRole(button);
-    if (role == QDialogButtonBox::DestructiveRole)
+    if (role == QDialogButtonBox::DestructiveRole) {
         dl = true;
+        QDialog::reject();
+    }
 }
 
 void LdrawFilesLoad::copy() const
