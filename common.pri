@@ -149,7 +149,7 @@ isEmpty(THIRD_PARTY_DIST_DIR_PATH) {
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
     THIRD_PARTY_DIST_DIR_PATH = $$clean_path( $$absolute_path( $${PWD}/../$${DIST_DIR} ) )
     exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        DIST_DIR_UNSPECIFIED_MSG = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
+        DIST_DIR_UNSPECIFIED_MSG = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING DEFAULT_3RD_PARTY_DIR"
         3RD_DIR_SOURCE = DEFAULT_3RD_PARTY_DIR    
     } else {
         DIST_DIR_UNSPECIFIED_MSG = "ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED!"
@@ -312,9 +312,9 @@ equals(TARGET, LPub3D) {
     LDRAWDIR                 = $$(LDRAWDIR)
     isEmpty(LDRAWDIR) {
         win32-arm64-msvc|win32-msvc*: \
-            LDRAWDIR         = $$(USERPROFILE)
+            LDRAWDIR         = $$(USERPROFILE)/ldraw
         else: \
-            LDRAWDIR         = $$(HOME)
+            LDRAWDIR         = $$(HOME)/ldraw
     }
     exists($${LDRAWDIR}/parts) {
         LDRAW_PATH           = $$shell_path($$absolute_path($${LDRAWDIR}))
@@ -322,22 +322,30 @@ equals(TARGET, LPub3D) {
         exists($${LDRAWDIR}/complete.zip) {
             LDRAW_ZIP_FOUND_MSG = LDRAW ARCHIVE PARTS LIBRARY complete.zip FOUND
         } else {
-            exists($${THIRD_PARTY_DIST_DIR_PATH}/complete.zip) {
+            LDRAW_ARCHIVE_PATH = $${THIRD_PARTY_DIST_DIR_PATH}
+            exists($${LDRAW_ARCHIVE_PATH}/complete.zip) {
+                LDRAW_ARCHIVE_PARTS = found
+            } else {
+                LDRAW_ARCHIVE_PATH = $${PWD}/mainApp/extras
+                exists($${LDRAW_ARCHIVE_PATH}/complete.zip): \
+                LDRAW_ARCHIVE_PARTS = found
+            }
+            contains(LDRAW_ARCHIVE_PARTS, found) {
                 if (mingw:ide_qtcreator)|win32-arm64-msvc|win32-msvc* {
-                    LDRAW_ZIP_COPY_CMD = copy /v /y $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip $${LDRAWDIR}
+                    LDRAW_ZIP_COPY_CMD = copy /v /y $${LDRAW_ARCHIVE_PATH}/complete.zip $${LDRAWDIR}
                 } else {
-                    LDRAW_ZIP_COPY_CMD = cp -f $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip $${LDRAWDIR}
+                    LDRAW_ZIP_COPY_CMD = cp -f $${LDRAW_ARCHIVE_PATH}/complete.zip $${LDRAWDIR}
                 }
                 QMAKE_POST_LINK += $$escape_expand(\n\t) \
                                    @$${LDRAW_ZIP_COPY_CMD}
                 exists($${LDRAWDIR}/complete.zip): \
                 LDRAW_ZIP_FOUND_MSG = LDRAW ARCHIVE PARTS LIBRARY COPIED TO LDRAW DIRECTORY
             } else {
-                LDRAW_ZIP_FOUND_MSG = ERROR - LDRAW ARCHIVE PARTS LIBRARY NOT FOUND
+                LDRAW_ZIP_FOUND_MSG = ERROR - LDRAW ARCHIVE PARTS LIBRARY NOT FOUND AT $${LDRAW_ARCHIVE_PATH}
             }
         }
     } else {
-        LDRAW_DIR_FOUND_MSG = ERROR - LDRAW PARTS LIBRARY NOT FOUND
+        LDRAW_DIR_FOUND_MSG = ERROR - LDRAW PARTS LIBRARY NOT FOUND AT $${LDRAWDIR}
     }
 
 #~~ Set OBS Macro ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
