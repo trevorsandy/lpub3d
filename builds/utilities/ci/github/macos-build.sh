@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 04, 2025
+# Last Update: September 12, 2025
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -170,6 +170,9 @@ export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
 if [[ "${publish}" == "yes" || "${LP3D_COMMIT_MSG}" =~ (RELEASE_BUILD) ]]; then
   export LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG} BUILD_ALL"
 fi
+if [[ "${publish}" == "yes" || "${LP3D_COMMIT_MSG}" =~ (PUBLISH_RENDERERS) ]]; then
+  export LP3D_PUBLISH_RENDERERS="true"
+fi
 if [[ "${GITHUB_EVENT_NAME}" == "push" && ! "${LP3D_COMMIT_MSG}" == *"BUILD_ALL"* ]]; then
   export BUILD_OPT="verify"
 fi
@@ -302,6 +305,7 @@ LP3D_3RD_DIST_DIR="${LP3D_3RD_DIST_DIR}" \
 LP3D_ARCH="${LP3D_ARCH}" \
 LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG}" \
 LP3D_CPU_CORES="${LP3D_CPU_CORES}" \
+LP3D_PUBLISH_RENDERERS="${LP3D_PUBLISH_RENDERERS}" \
 LP3D_DIST_DIR_PATH="${LP3D_DIST_DIR_PATH}" \
 LP3D_LDRAW_DIR="${LP3D_LDRAW_DIR}" \
 LP3D_LOG_PATH="${LP3D_LOG_PATH}" \

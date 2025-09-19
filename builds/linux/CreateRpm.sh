@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: August 17, 2025
+# Last Update: September 19, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -83,6 +83,7 @@ LDGLITE_BRANCH=${LDGLITE_BRANCH:-master}
 LDVIEW_BRANCH=${LDVIEW_BRANCH:-lpub3d-build}
 POVRAY_BRANCH=${POVRAY_BRANCH:-lpub3d/raytracer-cui}
 LP3D_3RD_EXE_PREFIX=${INSTALL_PREFIX:-/usr}/bin/lpub3d/3rdParty
+LP3D_PUBLISH_RENDERERS=${LP3D_PUBLISH_RENDERERS:-false}
 LP3D_GITHUB_URL="https://github.com/trevorsandy"
 LP3D_TARGET_ARCH=`uname -m`
 CMD_CNT=0
@@ -147,6 +148,8 @@ else
     echo "   LPUB3D BUILD TYPE........CI"
 fi
 echo "   PRESERVE BUILD REPO......$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+[ -n "${LP3D_PUBLISH_RENDERERS}" ] && \
+echo "   PUBLISH RENDERERS........${LP3D_PUBLISH_RENDERERS}" || :
 echo "   LOG PATH.................${LP3D_LOG_PATH}"
 
 echo "$((CMD_CNT+=1)). create working directories BUILD, RPMS, SRPMS, SOURCES, and SPECS in rpmbuild/..."
@@ -410,6 +413,7 @@ rpmbuild \
 --define "_lp3d_cpu_cores ${LP3D_CPU_CORES}" \
 --define "_lp3d_3rd_dist_dir ${LP3D_3RD_DIST_DIR}" \
 --define "_lp3d_3rd_exec_dir ${LP3D_3RD_EXE_PREFIX}" \
+--define "_lp3d_publish_renderers ${LP3D_PUBLISH_RENDERERS}" \
 --define 'debug_package %{nil}' \
 -vv -bb ${LPUB3D}.spec || exit 1
 

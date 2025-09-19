@@ -1,7 +1,7 @@
 #
 # spec file for LPub3D package
 #
-# Last Update: September 17, 2025
+# Last Update: September 19, 2025
 # Copyright © 2017 - 2025 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -133,7 +133,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.9.4509
+Version: 2.4.9.4510
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -766,11 +766,13 @@ export WD=$(readlink -e ../)
 %define _lp3d_cpu_cores %(echo `nproc`)
 %define _lp3d_log_path %(echo `pwd`)
 %define _lp3d_3rd_dist_dir %(echo lpub3d_linux_3rdparty)
+%define _lp3d_publish_renderers %(echo false)
 %endif
 export LP3D_LOG_PATH="%{_lp3d_log_path}"
 export LP3D_CPU_CORES="%{_lp3d_cpu_cores}"
 export LP3D_3RD_DIST_DIR="%{_lp3d_3rd_dist_dir}"
 export LP3D_DIST_DIR_PATH="${WD}/${LP3D_3RD_DIST_DIR}"
+export LP3D_PUBLISH_RENDERERS="%{_lp3d_publish_renderers}"
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # option flags and qmake settings
 %if 0%{?fedora_version}==23
@@ -862,7 +864,7 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Wed Sep 17 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4509
+* Fri Sep 19 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4510
 - LPub3D 2.4.9 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue Jan 07 2025 - trevor dot sandy at gmail dot com 2.4.9.4047

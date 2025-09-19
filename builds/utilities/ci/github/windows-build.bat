@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 04, 2025
+rem  Last Update: September 12, 2025
 rem  Copyright (C) 2021 - 2025 by Trevor SANDY
 rem --
 rem --
@@ -30,6 +30,7 @@ SET LP3D_VSVERSION=2022
 SET LP3D_QT32VCVERSION=2019
 SET LP3D_QT64VCVERSION=2022
 SET LP3D_CREATE_EXE_PKG=True
+SET LP3D_PUBLISH_RENDERERS=False
 SET LP3D_3RD_DIST_DIR=lpub3d_windows_3rdparty
 SET LP3D_DIST_DIR_PATH=%LP3D_3RD_PARTY_PATH%\windows
 SET LP3D_LDRAW_DIR_PATH=%LP3D_3RD_PARTY_PATH%\ldraw
@@ -68,9 +69,11 @@ IF "%LP3D_REMOTE%" NEQ "%LP3D_LOCAL%" (
 
 ECHO.%GITHUB_REF% | FIND /I "refs/tags/" >NUL && (
   IF "%GITHUB_REF_NAME:~0,1%" EQU "v" (
+    SET LP3D_PUBLISH_RENDERERS=True
     CALL :SET_BUILD_ALL
     ECHO.
     ECHO - New version tag %GITHUB_REF_NAME% confirmed.
+    ECHO - Publish Renderers.
   )
 )
 
@@ -171,6 +174,10 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_POVRAY" >NUL && (
   ECHO - 'Build POVRay' detected.
   IF EXIST "%LP3D_POVRAY%" ( DEL /S /Q "%LP3D_POVRAY%" >NUL 2>&1 )
   IF NOT EXIST "%LP3D_POVRAY%" ( ECHO - Cached %LP3D_POVRAY% deleted. )
+)
+ECHO.%LP3D_COMMIT_MSG% | FIND /I "PUBLISH_RENDERERS" >NUL && (
+  ECHO - 'Publish Renderers' detected.
+  SET LP3D_PUBLISH_RENDERERS=True
 )
 
 ECHO.%GITHUB_EVENT_NAME% | FIND /I "PUSH" >NUL && (

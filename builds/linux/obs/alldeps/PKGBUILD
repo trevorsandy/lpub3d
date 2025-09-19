@@ -1,8 +1,8 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: July 28, 2025
+#  Last Update: September 13, 2025
 #  Copyright (C) 2017 - 2025 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.4.9.4509
+pkgver=2.4.9.4510
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://trevorsandy.github.io/lpub3d"
@@ -80,7 +80,9 @@ prepare() {
 	# LLVM not needed for default Mesa 21.3.9 configuration
 	export llvm_not_used=1
 	# Until LDView converts to tinyxml2, build tinyxml from source 
-	export build_tinyxml=1	
+	export build_tinyxml=1
+	# set publish renderers flag
+	export LP3D_PUBLISH_RENDERERS=
 	# copy version.info to utilities
 	[ -f "../version.info" ] && export OBS=true; cp -f ../version.info builds/utilities/ || :
 	# build 3rd-party renderers

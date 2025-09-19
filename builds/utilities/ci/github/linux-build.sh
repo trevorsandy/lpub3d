@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 06, 2025
+# Last Update: September 12, 2025
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -159,6 +159,9 @@ case "${LP3D_BASE}" in
         if [[ "${publish}" == "yes" || "${LP3D_COMMIT_MSG}" =~ (RELEASE_BUILD) ]]; then
             LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG} BUILD_ALL"
         fi
+        if [[ "${publish}" == "yes" || "${LP3D_COMMIT_MSG}" =~ (PUBLISH_RENDERERS) ]]; then
+            export LP3D_PUBLISH_RENDERERS="true"
+        fi
         if [[ ! "${LP3D_COMMIT_MSG}" == *"BUILD_ALL"* ]]; then
             export BUILD_OPT="verify"
         fi
@@ -289,9 +292,8 @@ rm -rf "${ldview_path}" && echo "Cached ${ldview_path} deleted" || :
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_POVRAY"* ]] && \
 echo "'Build POV-Ray' detected." && [ -d "${povray_path}" ] && \
 rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
-
 [[ "${LP3D_COMMIT_MSG}" == *"PUBLISH_RENDERERS"* ]] && \
-export LP3D_PUBLISH_RENDERERS="true" || export LP3D_PUBLISH_RENDERERS="false"
+export LP3D_PUBLISH_RENDERERS="true" || :
 
 # set Dockerfile
 DockerFile="${out_path}/Dockerfile"

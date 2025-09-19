@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Last Update: September 17, 2025
+# Last Update: September 19, 2025
 # Copyright (C) 2017 - 2025 Trevor SANDY
 
 # output every command that modifies files on the build system.
@@ -107,6 +107,7 @@ override_dh_auto_configure:
     export WD=$$(readlink -e ../); \
     export LDRAWDIR=${HOME}/ldraw; \
     export LP3D_LOG_PATH=$${LP3D_LOG_PATH:-$${WD}}; \
+    export LP3D_PUBLISH_RENDERERS=$${LP3D_PUBLISH_RENDERERS}; \
     export LP3D_CPU_CORES=$${LP3D_CPU_CORES:-$$(nproc)}; \
     export LP3D_3RD_DIST_DIR=$${LP3D_3RD_DIST_DIR:-lpub3d_linux_3rdparty}; export build_tinyxml=1; \
     export build_osmesa=$$($$([ -n "$${LP3D_UCS_VER}" ] || [ -n "$${LP3D_DEBIAN_VER}" ]) && echo 1 || :); \

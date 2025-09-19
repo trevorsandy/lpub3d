@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: September 05, 2025
+# Last Update: September 17, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 #
 
@@ -680,6 +680,7 @@ function BuildPOVRay()
 # Package the renderers
 function PackageRenderers()
 {
+  Info
   if [[ "${OBS}" = "true" || -n "${SNAP}" || -n "${MSYS2}" ]]; then
     Info "Cannot create renderer package under OBS, SNAP or MSYS builds"
     return
@@ -693,43 +694,59 @@ function PackageRenderers()
   else
     LP3D_OUT_PATH=${WD}
   fi
+  RENDERERS=3
   declare -r p=Package
   LP3D_ARCH=${TARGET_CPU}
   LP3D_BASE=${platform_id}-${platform_ver}
   LP3D_RNDR_VERSION=${LP3D_VERSION}.${LP3D_VER_REVISION}.${LP3D_VER_BUILD}
   LP3D_RENDERER_ZIP=LPub3D-${LP3D_RNDR_VERSION}-renderers-${LP3D_BASE}-${LP3D_ARCH}.tar.gz
+  LP3D_LDVIEW_DEV=--exclude=${VER_LDVIEW}/resources/m6459.ldr
   if [ -f "${LP3D_LDGLITE}" ]; then
     Info "Packaging ${VER_LDGLITE} renderer assets."
-    LP3D_RENDERER_PACKAGES="${VER_LDGLITE}/"
+    LP3D_RENDERER_PACKAGES="${VER_LDGLITE}"
+  else
+    Info "WARNING - ${LP3D_LDGLITE} was not found."
+    (( RENDERERS-=1 ))
   fi
   if [ -f "${LP3D_POVRAY}" ]; then
     Info "Packaging ${VER_POVRAY} renderer assets."
-    LP3D_RENDERER_PACKAGES+=" ${VER_POVRAY}/"
+    LP3D_RENDERER_PACKAGES+=" ${VER_POVRAY}"
+  else
+    Info "WARNING - ${LP3D_POVRAY} was not found."
+    (( RENDERERS-=1 ))
   fi
   if [ -f "${LP3D_LDVIEW}" ]; then
     Info "Packaging ${VER_LDVIEW} renderer assets."
-    LP3D_RENDERER_PACKAGES+=" ${VER_LDVIEW}/"
+    LP3D_RENDERER_PACKAGES+=" ${VER_LDVIEW}"
     if [ "${LP3D_PACKAGE_LDVQT_DEV}" = "true" ]; then
       Info "Packaging ${VER_LDVIEW} LDVQt dev assets."
     else
       LP3D_LDVIEW_DEV="\
       --exclude=${VER_LDVIEW}/lib \
       --exclude=${VER_LDVIEW}/include \
-      --exclude=${VER_LDVIEW}/bin/*.exp \
-      --exclude=${VER_LDVIEW}/bin/*.lib \
-      --exclude=${VER_LDVIEW}/resources/*Messages.ini" || :
+      --exclude=${VER_LDVIEW}/resources/*Messages.ini"
+      if [ "${MSYS2}" = 1 ]; then
+        LP3D_LDVIEW_DEV+="\
+          --exclude=${VER_LDVIEW}/bin/${TARGET_CPU_QMAKE}/*.exp \
+          --exclude=${VER_LDVIEW}/bin/${TARGET_CPU_QMAKE}/*.lib"
+      fi
     fi
+  else
+    Info "WARNING - ${LP3D_LDVIEW} was not found."
+    (( RENDERERS-=1 ))
   fi
-  Info "DEBUG_LP3D_RENDERER_PACKAGES:  $LP3D_RENDERER_PACKAGES"
-  Info "DEBUG_LP3D_LDVIEW_DEV:  $LP3D_LDVIEW_DEV"
-  Info -n "Creating renderer package ${LP3D_OUT_PATH}/${LP3D_RENDERER_ZIP}..."
-  ( cd "${DIST_PKG_DIR}/" || return && \
-  tar -czf "${LP3D_RENDERER_ZIP}" "${LP3D_LDVIEW_DEV}" "$(echo ${LP3D_RENDERER_PACKAGES} | xargs)" && \
-  sha512sum "${LP3D_RENDERER_ZIP}" > "${LP3D_RENDERER_ZIP}.sha512" && \
-  mv -f "${LP3D_RENDERER_ZIP}" "${LP3D_RENDERER_ZIP}.sha512" \
-  "${LP3D_OUT_PATH}/" ) >$p.out 2>&1 && rm $p.out
-  [ -f $p.out ] && Info "ERROR" && tail -80 $p.out || Info "Ok"
-  Info
+  if [ "${RENDERERS}" -eq 0 ]; then
+    Info "ERROR - Cannot package renderers. No renderers were found."
+  else
+    Info -n "Creating renderer package ${LP3D_OUT_PATH}/${LP3D_RENDERER_ZIP}..."
+    ( cd ${DIST_PKG_DIR} || return && \
+    tar -czf ${LP3D_RENDERER_ZIP} ${LP3D_LDVIEW_DEV} $(echo ${LP3D_RENDERER_PACKAGES} | xargs) && \
+    sha512sum ${LP3D_RENDERER_ZIP} > ${LP3D_RENDERER_ZIP}.sha512 && \
+    mv -f ${LP3D_RENDERER_ZIP} ${LP3D_RENDERER_ZIP}.sha512 \
+    ${LP3D_OUT_PATH} ) >$p.out 2>&1 && rm $p.out
+    [ -f $p.out ] && Info "ERROR" && tail -80 $p.out || Info "Ok"
+    Info
+  fi
 }
 
 # =======================================
@@ -971,23 +988,21 @@ Info "No Build Cleanup.........[${LP3D_NO_CLEANUP:-false}]"
 Info "Working Directory (WD)...[$WD]"
 
 # Set log output path
-[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=${LP3D_LOG_PATH:-$WD} || :
+[ -z "${LP3D_LOG_PATH}" ] && \
+LP3D_LOG_PATH=${LP3D_LOG_PATH:-$WD} || :
 Info "Log Path.................[${LP3D_LOG_PATH}]"
 
-# Check GitHub commit for version tag to trigger create package renderers
-if [[ -n "${GITHUB}" && "$GITHUB_REF" == "refs/tags/"* ]] ; then
-  if [ "$(echo "$GITHUB_REF_NAME" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')" = "yes" ]; then
-    [ -z "${LP3D_PACKAGE_RENDERERS}" ] && LP3D_PACKAGE_RENDERERS=${LP3D_PACKAGE_RENDERERS:-true} || :
-    [ -z "${LP3D_PACKAGE_LDVQT_DEV}" ] && LP3D_PACKAGE_LDVQT_DEV=${LP3D_PACKAGE_LDVQT_DEV:-true} || :
-  fi
-else
-  [ -z "${LP3D_PACKAGE_RENDERERS}" ] && LP3D_PACKAGE_RENDERERS=${LP3D_PACKAGE_RENDERERS:-false} || :
-fi
+# Set package renderers flag
+[ -z "${LP3D_PUBLISH_RENDERERS}" ] && \
+LP3D_PACKAGE_RENDERERS=${LP3D_PUBLISH_RENDERERS:-false} || \
+LP3D_PACKAGE_RENDERERS=${LP3D_PUBLISH_RENDERERS}
 Info "Package Renderers........[${LP3D_PACKAGE_RENDERERS}]"
 
 # Include LDView libraries in packaged renderers
 if [ "${LP3D_PACKAGE_RENDERERS}" == "true" ]; then
-  [ -z "${LP3D_PACKAGE_LDVQT_DEV}" ] && LP3D_PACKAGE_LDVQT_DEV=${LP3D_PACKAGE_LDVQT_DEV:-false} || :
+  [ -z "${LP3D_PACKAGE_LDVQT_DEV}" ] && \
+  LP3D_PACKAGE_LDVQT_DEV=${LP3D_PACKAGE_LDVQT_DEV:-false} || \
+  LP3D_PACKAGE_LDVQT_DEV=${LP3D_PACKAGE_LDVQT_DEV}
   Info "Package LDVQt Dev Assets.[${LP3D_PACKAGE_LDVQT_DEV}]"
 fi
 
@@ -1012,7 +1027,7 @@ fi
 if [ -z "${LP3D_DIST_DIR_PATH}" ]; then
   DIST_PKG_DIR=${WD}/${DIST_DIR}
 else
-  DIST_PKG_DIR=${LP3D_DIST_DIR_PATH}/${DIST_DIR}
+  DIST_PKG_DIR=${LP3D_DIST_DIR_PATH}
 fi
 if [ ! -d "${DIST_PKG_DIR}" ]; then
   mkdir -p ${DIST_PKG_DIR}

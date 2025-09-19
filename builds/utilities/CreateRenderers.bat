@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 03, 2025
+rem  Last Update: September 15, 2025
 rem  Copyright (C) 2017 - 2025 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -37,10 +37,10 @@ rem Variables - change these as required by your build environments
 IF "%GITHUB%"=="True" SET BUILD_WORKER=True
 IF "%LP3D_CONDA_BUILD%"=="True" SET BUILD_WORKER=True
 
-IF "%LP3D_QT32VERSION%" == "" SET LP3D_QT32VERSION=5.15.2
-IF "%LP3D_QT64VERSION%" == "" SET LP3D_QT64VERSION=6.9.2
-IF "%LP3D_QT32VCVERSION%" == "" SET LP3D_QT32VCVERSION=2019
-IF "%LP3D_QT64VCVERSION%" == "" SET LP3D_QT64VCVERSION=2022
+IF "%LP3D_QT32VERSION%"=="" SET LP3D_QT32VERSION=5.15.2
+IF "%LP3D_QT64VERSION%"=="" SET LP3D_QT64VERSION=6.9.2
+IF "%LP3D_QT32VCVERSION%"=="" SET LP3D_QT32VCVERSION=2019
+IF "%LP3D_QT64VCVERSION%"=="" SET LP3D_QT64VCVERSION=2022
 
 IF "%BUILD_WORKER%"=="True" (
   SET BUILD_OUTPUT_PATH=%LP3D_BUILD_BASE%
@@ -55,11 +55,11 @@ IF "%APPVEYOR%"=="True" (
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
 )
 
-IF "%LP3D_VALID_TAR%" == "" SET LP3D_VALID_TAR=0
-IF "%LP3D_SYS_DIR%" == "" (
+IF "%LP3D_VALID_TAR%"=="" SET LP3D_VALID_TAR=0
+IF "%LP3D_SYS_DIR%"=="" (
   SET LP3D_SYS_DIR=%WINDIR%\System32
 )
-IF "%LP3D_WIN_TAR%" == "" (
+IF "%LP3D_WIN_TAR%"=="" (
   SET LP3D_WIN_TAR=%LP3D_SYS_DIR%\Tar.exe
 )
 IF NOT EXIST "%LP3D_WIN_TAR%" (
@@ -75,7 +75,7 @@ SET MAX_DOWNLOAD_ATTEMPTS=4
 SET VER_LDGLITE=LDGLite-1.3
 SET VER_LDVIEW=LDView-4.6
 SET VER_POVRAY=lpub3d_trace_cui-3.8
-SET CAN_PACKAGE=True
+SET CAN_PACKAGE=%LP3D_PUBLISH_RENDERERS%
 SET LP3D_GITHUB_URL=https://github.com/trevorsandy
 
 rem Check if invalid platform flag
@@ -93,15 +93,15 @@ IF NOT [%1]==[] (
 
 rem Setup library options and set ARM64 cross compilation
 IF /I "%1"=="arm64" (
-  IF /I "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
+  IF /I "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
     SET LP3D_AMD64_ARM64_CROSS=1
   )
   SET LP3D_QTARCH=ARM64
 ) ELSE (
   SET LP3D_QTARCH=64
 )
-IF "%BUILD_WORKER%" NEQ "True" (
-  IF "%APPVEYOR%" NEQ "True" (
+IF "%BUILD_WORKER%"=="True" (
+  IF "%APPVEYOR%"=="True" (
     IF [%DIST_DIR%] == [] (
       CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
       ECHO.
@@ -111,7 +111,7 @@ IF "%BUILD_WORKER%" NEQ "True" (
     )
     SET BUILD_OUTPUT_PATH=%ABS_WD%
     SET LDRAW_DIR=%USERPROFILE%\LDraw
-    IF "%LP3D_WIN_GIT%" == "" (
+    IF "%LP3D_WIN_GIT%"=="" (
       SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
     )
   )
@@ -126,11 +126,14 @@ ECHO   WORKING_DIRECTORY_RENDERERS....[%ABS_WD%]
 ECHO   DISTRIBUTION DIRECTORY.........[%DIST_DIR:/=\%]
 ECHO   LDRAW LIBRARY FOLDER...........[%LDRAW_DIR%]
 ECHO   LP3D_WIN_TAR...................[%LP3D_WIN_TAR_MSG%]
-IF /I "%PLATFORM_ARCH%" == "ARM64" (
+IF /I "%PLATFORM_ARCH%"=="ARM64" (
    ECHO   PROCESSOR_ARCH.................[%PROCESSOR_ARCHITECTURE%]
   IF %LP3D_AMD64_ARM64_CROSS% EQU 1 (
     ECHO   COMPILATION....................[Cross compile ARM64 build on AMD64 host]
   )
+)
+IF "%LP3D_PUBLISH_RENDERERS%"=="True" (
+  ECHO   PUBLISH_RENDERERS..............[%CAN_PACKAGE%]
 )
 
 rem List 'LP3D_*' environment variables
@@ -196,13 +199,22 @@ FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
 )
 
 IF "%CAN_PACKAGE%"=="True" (
-  IF "%BUILD_ARCH%"=="x86_64" (
-    IF NOT EXIST "%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe" ( GOTO :END )
-    IF NOT EXIST "%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe" ( GOTO :END )
-    IF NOT EXIST "%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe" ( GOTO :END )
+  IF "%BUILD_ARCH%"=="x86" (GOTO :END)
+  SETLOCAL ENABLEDELAYEDEXPANSION
+  SET RENDERERS=3
+  IF NOT EXIST "%DIST_DIR%\%VER_LDGLITE%\bin\%BUILD_ARCH%\LDGLite.exe" (
+    ECHO -WARNING: %LP3D_LDGLITE% was not found. & SET /A RENDERERS-=1)
+  IF NOT EXIST "%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\LDView64.exe" (
+    ECHO -WARNING: %LP3D_LDVIEW% was not found. & SET /A RENDERERS-=1)
+  IF NOT EXIST "%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe" (
+    ECHO -WARNING: %LP3D_POVRAY% was not found. & SET /A RENDERERS-=1)
+  IF !RENDERERS! EQU 0 (
+    ECHO -ERROR: Cannot package renderers. No renderers were found.
+  ) ELSE (
+    ECHO -Package renderers.
+    CALL :PACKAGE_RENDERERS
   )
-  ECHO -Package renderers for download disabled.
-  REM CALL :PACKAGE_RENDERERS
+  ENDLOCAL DISABLEDELAYEDEXPANSION
 )
 GOTO :END
 
@@ -445,21 +457,27 @@ IF "%CAN_PACKAGE%" NEQ "True" (
   EXIT /b
 )
 IF %LP3D_VALID_TAR% NEQ 1 (
-  ECHO -WARNING: Cannot archive %LP3D_RENDERERS%. 7zip not found.
+  ECHO -WARNING: Cannot archive %LP3D_RENDERERS%. Valid Tar program not found.
   EXIT /b
+)
+IF /I "%BUILD_ARCH%"=="arm64" (
+  SET LP3D_ARCH=%BUILD_ARCH%
+  SET LP3D_EXCLUDES=--exclude=%VER_POVRAY%/bin/x86_64 --exclude=%VER_LDGLITE%/bin/x86_64 --exclude=%VER_LDVIEW%/bin/x86_64 ^
+    --exclude=%VER_POVRAY%/bin/x86 --exclude=%VER_LDGLITE%/bin/x86 --exclude=%VER_LDVIEW%/bin/x86
+) ELSE (
+  SET LP3D_ARCH=X86ANY
+  SET LP3D_EXCLUDES=--exclude=%VER_POVRAY%/bin/ARM64 --exclude=%VER_LDGLITE%/bin/ARM64 --exclude=%VER_LDVIEW%/bin/ARM64
 )
 SET LP3D_BASE=win-%LP3D_VCTOOLSET:v=%
 SET LP3D_RNDR_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD%
-SET LP3D_RENDERERS=%PACKAGE%-%LP3D_RNDR_VERSION%-renderers-%LP3D_BASE%-%BUILD_ARCH%.zip
+SET LP3D_RENDERERS=%PACKAGE%-%LP3D_RNDR_VERSION%-renderers-%LP3D_BASE%-%LP3D_ARCH%.zip
 ECHO.
 ECHO -Create renderer package %LP3D_RENDERERS%...
 PUSHD %DIST_DIR%
 ECHO -Archiving %LP3D_RENDERERS%...
-SETLOCAL DISABLEDELAYEDEXPANSION
-"%LP3D_WIN_TAR%" a -tzip "%LP3D_RENDERERS%" "%VER_POVRAY%" "%VER_LDGLITE%" "%VER_LDVIEW%" ^
-    "-x!%VER_LDVIEW%\lib" "-xr!%VER_LDVIEW%\include" "-xr!%VER_LDVIEW%\bin\*.exp"  ^
-    "-xr!%VER_LDVIEW%\bin\*.lib" "-x!%VER_LDVIEW%\resources\*Messages.ini" >NUL 2>&1
-IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
+"%LP3D_WIN_TAR%" --exclude=%VER_LDVIEW%/lib --exclude=%VER_LDVIEW%/resources/*Messages.ini %LP3D_EXCLUDES% ^
+  -acf %LP3D_RENDERERS% %VER_POVRAY% %VER_LDGLITE% %VER_LDVIEW%
+IF "%LP3D_LOCAL_CI_BUILD%"=="1" (
   SET LP3D_RENDERERS_OUT=%LP3D_CALL_DIR%\%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERERS%
 ) ELSE (
   SET LP3D_RENDERERS_OUT=%LP3D_BUILDPKG_PATH%\Downloads\%LP3D_RENDERERS%
@@ -567,7 +585,7 @@ SET RETRIES=0
 EXIT /b
 
 :RETRY_DOWNLOAD
-SET /a RETRIES=%RETRIES%+1
+SET /a RETRIES+=1
 IF %RETRIES% EQU %MAX_RETRIES% (GOTO :DOWNLOAD_ERROR)
 IF %RETRIES% LSS %MAX_RETRIES% (
   ECHO.

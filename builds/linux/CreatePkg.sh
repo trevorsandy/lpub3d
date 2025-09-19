@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 14, 2025
+# Last Update: September 19, 2025
 # Copyright (C) 2017 - 2025 by Trevor SANDY
 # Build LPub3D Linux rpm distribution
 # To run:
@@ -82,6 +82,7 @@ LPUB3D_BRANCH=${LPUB3D_BRANCH:-master}
 LDGLITE_BRANCH=${LDGLITE_BRANCH:-master}
 LDVIEW_BRANCH=${LDVIEW_BRANCH:-lpub3d-build}
 POVRAY_BRANCH=${POVRAY_BRANCH:-lpub3d/raytracer-cui}
+LP3D_PUBLISH_RENDERERS=${LP3D_PUBLISH_RENDERERS:-false}
 LP3D_GITHUB_URL="https://github.com/trevorsandy"
 CMD_CNT=0
 
@@ -147,6 +148,8 @@ else
     echo "   LPUB3D BUILD TYPE........CI"
 fi
 echo "   PRESERVE BUILD REPO......$(if test "${PRESERVE}" = "true"; then echo YES; else echo NO; fi)"
+[ -n "${LP3D_PUBLISH_RENDERERS}" ] && \
+echo "   PUBLISH RENDERERS........${LP3D_PUBLISH_RENDERERS}" || :
 echo "   LOG PATH.................${LP3D_LOG_PATH}"
 
 echo "$((CMD_CNT+=1)). create PKG working directories in pkgbuild/"
@@ -290,6 +293,7 @@ echo -n "$((CMD_CNT+=1)). add LP3D_LOG_PATH to PKGBUILD..."
 sed -i -e "s;^	export LP3D_LOG_PATH=.*;	export LP3D_LOG_PATH=\"${LP3D_LOG_PATH}\";" \
        -e "s;^	export LP3D_CPU_CORES=.*;	export LP3D_CPU_CORES=\"${LP3D_CPU_CORES}\";" \
        -e "s;^	export LP3D_3RD_DIST_DIR=.*;	export LP3D_3RD_DIST_DIR=\"${LP3D_3RD_DIST_DIR}\";" \
+       -e "s;^	export LP3D_PUBLISH_RENDERERS=;	export LP3D_PUBLISH_RENDERERS=\"${LP3D_PUBLISH_RENDERERS}\";" \
        "PKGBUILD" || :) >$l.out 2>&1 && rm $l.out
 [ -f $l.out ] && echo "failed." && tail -80 $l.out || echo "ok."
 
