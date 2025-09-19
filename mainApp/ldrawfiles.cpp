@@ -3693,10 +3693,10 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
             // skip the header
             gui->skipHeader(top);
 
-            QString description = QFileInfo(top.modelName).baseName();
+            QString partDesc = QFileInfo(top.modelName).baseName();
             LoadMsgType msgType = _mpd ? MPD_SUBMODEL_LOAD_MSG : LDR_SUBFILE_LOAD_MSG;
             QString statusEntry = QObject::tr("%1|%2|Submodel: %3 with %4 lines (file: %5, line: %6)")
-                                              .arg(msgType).arg(top.modelName, description).arg(size(top.modelName)).arg(top.modelName).arg(top.lineNumber);
+                                              .arg(msgType).arg(top.modelName, partDesc).arg(size(top.modelName)).arg(top.modelName).arg(top.lineNumber);
             loadStatusEntry(msgType, statusEntry, top.modelName, QObject::tr("Model [%1] is a SUBMODEL"));
 
             // initialize valid line
@@ -3810,12 +3810,13 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                                 partFile.replace("S\\","S/");
                             PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
                             if (pieceInfo && pieceInfo->IsPartType()) {
-                                description = pieceInfo->m_strDescription;
+                                partDesc = pieceInfo->m_strDescription;
                             } else
                             if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())) {
                                 lcLibraryPrimitive* Primitive = lcGetPiecesLibrary()->FindPrimitive(partFile.toLatin1().constData());
-                                description = Primitive->mName;
-                            }
+                                partDesc = Primitive->mName;
+                            } else
+                                partDesc = description(type);
                             QString statusDesc;
                             bool inMissingItems = false;
                             switch(subFileType) {
@@ -3836,7 +3837,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                                                           : helperPart
                                                                 ? QObject::tr(" Helper Part")
                                                                 : " Part",
-                                                            description, top.modelName).arg(top.lineNumber);
+                                                            partDesc, top.modelName).arg(top.lineNumber);
                                 statusEntry = QObject::tr("%1|%2|%3")
                                                           .arg(subFileType == UNOFFICIAL_GENERATED_PART
                                                           ? INLINE_GENERATED_PART_LOAD_MSG
@@ -3860,21 +3861,21 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                             case UNOFFICIAL_SUBPART:
                                 inMissingItems = isMissingItem(type);
                                 statusEntry = QObject::tr("%1|%2|Unofficial Inline Subpart - %3 (file: %4, line: %5)")
-                                                          .arg(INLINE_SUBPART_LOAD_MSG).arg(type, description, top.modelName).arg(top.lineNumber);
+                                                          .arg(INLINE_SUBPART_LOAD_MSG).arg(type, partDesc, top.modelName).arg(top.lineNumber);
                                 loadStatusEntry(INLINE_SUBPART_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE SUBPART"));
                                 break;
                             /* Add these primitives into the load status dialogue because they are loaded in the LDrawFile.subfiles */
                             case UNOFFICIAL_PRIMITIVE:
                                 inMissingItems = isMissingItem(type);
                                 statusEntry = QObject::tr("%1|%2|Unofficial Inline Primitive - %3 (file: %4, line: %5)")
-                                                          .arg(INLINE_PRIMITIVE_LOAD_MSG).arg(type, description, top.modelName).arg(top.lineNumber);
+                                                          .arg(INLINE_PRIMITIVE_LOAD_MSG).arg(type, partDesc, top.modelName).arg(top.lineNumber);
                                 loadStatusEntry(INLINE_PRIMITIVE_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE PRIMITIVE"));
                                 break;
                             case UNOFFICIAL_DATA:
-                                description = QString("Base 64 data file");
+                                partDesc = QString("Base 64 data file");
                                 inMissingItems = isMissingItem(type);
                                 statusEntry = QObject::tr("%1|%2|Unofficial Inline Data - %3 (file: %4, line: %5)")
-                                                          .arg(INLINE_DATA_LOAD_MSG).arg(type, description, top.modelName).arg(top.lineNumber);
+                                                          .arg(INLINE_DATA_LOAD_MSG).arg(type, partDesc, top.modelName).arg(top.lineNumber);
                                 loadStatusEntry(INLINE_DATA_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is an INLINE DATA"));
                                 break;
                             default:
@@ -3911,14 +3912,14 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                             /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
                             lcLibraryPrimitive* Primitive = lcGetPiecesLibrary()->FindPrimitive(partFile.toLatin1().constData());
                             if (Primitive) {
-                                const QString description = Primitive->mName;
+                                const QString partDesc = Primitive->mName;
                                 if (Primitive->mSubFile) {
                                     statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
-                                                              .arg(SUBPART_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
+                                                              .arg(SUBPART_LOAD_MSG).arg(type).arg(partDesc).arg(top.modelName).arg(top.lineNumber);
                                     loadStatusEntry(SUBPART_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is a SUBPART"));
                                 } else {
                                     statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
-                                                              .arg(PRIMITIVE_LOAD_MSG).arg(type).arg(description).arg(top.modelName).arg(top.lineNumber);
+                                                              .arg(PRIMITIVE_LOAD_MSG).arg(type).arg(partDesc).arg(top.modelName).arg(top.lineNumber);
                                     loadStatusEntry(PRIMITIVE_LOAD_MSG, statusEntry, type, QObject::tr("Part [%1] is a PRIMITIVE"));
                                 }
                             }
@@ -3927,7 +3928,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                         if (QFileInfo(type).isFile()) {
                             // QString const sourceFilePath = getSubFilePath(type);
                             // external file in current directory
-                            description = QFileInfo(type).baseName();
+                            partDesc = QFileInfo(type).baseName();
                             QFile file(type);
                             if (file.open(QFile::ReadOnly | QFile::Text)) {
                                 QTextStream in(&file);
@@ -3936,7 +3937,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                                     if (line == "0" || line.isEmpty())
                                         continue;
                                     if (line.contains(_fileRegExp[DES_RX]) && ! isHeader(line)) {
-                                        description = _fileRegExp[DES_RX].match(line).captured(1);
+                                        partDesc = _fileRegExp[DES_RX].match(line).captured(1);
                                         break;
                                     }
                                     if (!line.startsWith("0"))
@@ -3947,11 +3948,11 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                                 emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read model file %1<br>%2")
                                                      .arg(type, file.errorString()));
                             }
-                            const QString externalDescription = QObject::tr("External Part - %1").arg(description);
+                            const QString externalPartDesc = QObject::tr("External Part - %1").arg(partDesc);
                             statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
-                                                      .arg(EXTERNAL_SUBFILE_LOAD_MSG).arg(type, externalDescription, top.modelName).arg(top.lineNumber);
+                                                      .arg(EXTERNAL_SUBFILE_LOAD_MSG).arg(type, externalPartDesc, top.modelName).arg(top.lineNumber);
                             loadStatusEntry(EXTERNAL_SUBFILE_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 is an EXTERNAL PART"));
-                            statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type, description);
+                            statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type, partDesc);
                             loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [External %2] validated."),true/*unique count*/);
                             _partCount++;
                         } else {
