@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: September 12, 2025
+# Last Update: September 16, 2025
 #
 # This script is called from .github/workflows/prod_ci_build.yml
 #
@@ -328,6 +328,11 @@ pbEOF
         ;;
     "archlinux")
         cp -f builds/linux/obs/alldeps/PKGBUILD .
+cat << pbEOF >>${DockerFile}
+RUN sed -i '/en_US.UTF-8/s/^#//' /etc/locale.gen \\
+    && locale-gen \\
+    && echo "LANG=en_US.UTF-8" >> /etc/locale.conf
+pbEOF
         ;;
     *)
         echo "Unknown distribution base: ${docker_base}"
