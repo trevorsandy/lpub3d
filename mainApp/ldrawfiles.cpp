@@ -1944,13 +1944,17 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
         if (smLine.isEmpty())
             continue;
+        else if (smLine == "0") {
+            contents << smLine;
+            continue;
+        }
 
         sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
-        if (!topFileNotFound && sof && !eof && !eosf && !eoef && !externalFile)
+        if (!topFileNotFound && !unofficialPart && sof && !eof && !eosf && !eoef && !externalFile)
             endStepMetaMissing = true;
         eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
 
-        smLineNum = (sof ? 0 : smLineNum++);
+        smLineNum = sof ? 0 : smLineNum + 1;
 
         if (externalFile) {
             if (!loadingExternalFile && !((lineIndx + 1) >= lineCount)) {
@@ -2198,7 +2202,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                                 const QString statusEntry = QString("%1|%2|%3").arg(BAD_DATA_LOAD_MSG).arg(subfileName, message);
                                 loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, subfileName, message);
                             }
-                            endStepMetaMissing = false;
                         }
                         insert(subfileName,
                                contents,
@@ -2225,7 +2228,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 subfileIndx = stagedSubfiles.indexOf(subfileName);
                 if (subfileIndx > NOT_FOUND)
                     stagedSubfiles.removeAt(subfileIndx);
-
+                endStepMetaMissing = false;
                 contents.clear();
             }
 
@@ -2237,7 +2240,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (sof || soef) {
                     hdrNameLine       = 0;
                     hdrAuthorLine     = 0;
-                    hdrDescLine       = 0;
                     hdrNameNotFound   = true;
                     hdrAuthorNotFound = true;
                     if (sof) {
@@ -2315,6 +2317,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
              * - add line to contents
              */
             contents << smLine;
+            endStepMetaMissing = false;
         }
     } // iterate stagedContents
 
