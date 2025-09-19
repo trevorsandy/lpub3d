@@ -344,7 +344,7 @@ equals(TARGET, LPub3D) {
     OBS = $$(OBS)
     equals(OBS, true) {
         DEFINES += OBS
-        OBS_BUILD_MSG = BUILDING ON OPEN BUILD SERVICE
+        OBS_BUILD_MSG = BUILDING ON OPEN BUILD SERVICE [OBS]
     }
 }
 

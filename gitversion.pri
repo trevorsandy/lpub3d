@@ -14,7 +14,6 @@ exists($$GIT_DIR/*) {
     message("~~~ $${LPUB3D} GIT_DIR FOUND AT $$GIT_DIR ~~~")
 } else {
     GIT_DIR = undefined
-    message("~~~ $${LPUB3D} GIT_DIR UNDEFINED AT $$PWD ~~~")
 }
 
 # enable to Test
@@ -37,6 +36,8 @@ equals(GIT_DIR, undefined) {
     } else {
         GIT_DIR_ENV = UNDEFINED
     }
+    !contains(GIT_DIR_ENV, OBS): \
+    message("~~~ $${LPUB3D} GIT_DIR UNDEFINED AT $$PWD ~~~")
 
     !isEmpty(UPDATE_CONFIG) {
         GIT_BASE_COMMAND = git -C $$PWD/.git
@@ -61,7 +62,7 @@ equals(GIT_DIR, undefined) {
 
     # Check if we do not have a valid version number (i.e. no version tag found)
     isEmpty(GIT_VERSION) {
-        GIT_REVISION = 465
+        GIT_REVISION = 466
         GIT_SHA      = $$system($$GIT_BASE_COMMAND rev-parse --short HEAD 2> $$NULL_DEVICE)
         GIT_COMMIT   = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         GIT_VERSION  = v$${VERSION}-$${GIT_REVISION}-$${GIT_SHA}
@@ -90,7 +91,7 @@ equals(GIT_DIR, undefined) {
         # Get commit count
         GIT_COMMIT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         isEmpty(GIT_COMMIT) {
-            GIT_COMMIT = 4512
+            GIT_COMMIT = 4513
             message("~~~ ERROR LPUB3D! GIT_COMMIT NOT DEFINED, USING $$GIT_COMMIT ~~~")
         }
 
@@ -134,12 +135,12 @@ if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
         GIT_VER_FILE = $$PWD/builds/utilities/version.info
 
         exists($$GIT_VER_FILE) {
-            message("~~~ $${LPUB3D} GIT_DIR [$$GIT_DIR_ENV, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
+            message("~~~ $${LPUB3D} $$GIT_DIR_ENV, USING VERSION_INFO FILE $$GIT_VER_FILE ~~~")
             GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
         } else {
             message("~~~ ERROR LPUB3D! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-            GIT_VERSION = $${VERSION}.465.4512.aec476598
-            message("~~~ $${LPUB3D} GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
+            GIT_VERSION = $${VERSION}.466.4513.efb8f0ef3
+            message("~~~ $${LPUB3D} $$GIT_DIR_ENV, USING VERSION $$GIT_VERSION ~~~")
             GIT_VERSION ~= s/\./" "
         }
     } else: equals(USE_VERSION_INFO_VAR, true) {
