@@ -1923,7 +1923,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
     int lineCount = stagedContents.size();
 
-    if (topLevelModel)
+    if (topLevelModel || externalFile)
         emit gui->progressPermInitSig();
     else
         gui->progressBarPermReset();
@@ -1965,7 +1965,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                         if (getUnofficialFileType(line) > UNOFFICIAL_SUBMODEL) // external file is a part so exit
                             return;
                     }
-                    hdrDescLine = smLineNum;
+                    hdrDescLine = lineIndx;
                 }
                 loadingExternalFile = true;
             } else {
@@ -3928,8 +3928,28 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                             // QString const sourceFilePath = getSubFilePath(type);
                             // external file in current directory
                             description = QFileInfo(type).baseName();
+                            QFile file(type);
+                            if (file.open(QFile::ReadOnly | QFile::Text)) {
+                                QTextStream in(&file);
+                                while ( ! in.atEnd()) {
+                                    const QString line = in.readLine(0).trimmed();
+                                    if (line == "0" || line.isEmpty())
+                                        continue;
+                                    if (line.contains(_fileRegExp[DES_RX]) && ! isHeader(line)) {
+                                        description = _fileRegExp[DES_RX].match(line).captured(1);
+                                        break;
+                                    }
+                                    if (!line.startsWith("0"))
+                                        break;
+                                }
+                                file.close();
+                            } else {
+                                emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read model file %1<br>%2")
+                                                     .arg(type, file.errorString()));
+                            }
+                            const QString externalDescription = QObject::tr("External Part - %1").arg(description);
                             statusEntry = QObject::tr("%1|%2|%3 (file: %4, line: %5)")
-                                                      .arg(EXTERNAL_SUBFILE_LOAD_MSG).arg(type, description, top.modelName).arg(top.lineNumber);
+                                                      .arg(EXTERNAL_SUBFILE_LOAD_MSG).arg(type, externalDescription, top.modelName).arg(top.lineNumber);
                             loadStatusEntry(EXTERNAL_SUBFILE_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 is an EXTERNAL PART"));
                             statusEntry = QObject::tr("%1|%2|%3").arg(VALID_LOAD_MSG).arg(type, description);
                             loadStatusEntry(VALID_LOAD_MSG, statusEntry, type, QObject::tr("Part %1 [External %2] validated."),true/*unique count*/);
