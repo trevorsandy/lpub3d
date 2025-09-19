@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 16, 2025
+# Last Update September 19, 2025
 # Copyright (C) 2022 - 2025 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -211,16 +211,18 @@ if [[ "${LP3D_APPIMAGE}" != "true" ]]; then
   done
 
   # Link lpub3d_linux_3rdparty to package build source path
-  LP3D_TD=${WD}/${pkgblddir}/${LP3D_3RD_DIST_DIR}
-  if [ ! -d "${LP3D_TD}" ]; then
-    (cd ${WD}/${pkgblddir} && ln -sf "${LP3D_DIST_DIR_PATH}" "${LP3D_3RD_DIST_DIR}")
-    if [ -d "${LP3D_TD}" ]; then
-      Info "${LP3D_DIST_DIR_PATH} linked to ${LP3D_TD}"
+  if [ "${LP3D_BASE}" != "fedora" ]; then
+    LP3D_TD=${WD}/${pkgblddir}/${LP3D_3RD_DIST_DIR}
+    if [ ! -d "${LP3D_TD}" ]; then
+      (cd ${WD}/${pkgblddir} && ln -sf "${LP3D_DIST_DIR_PATH}" "${LP3D_3RD_DIST_DIR}")
+      if [ -d "${LP3D_TD}" ]; then
+        Info "${LP3D_DIST_DIR_PATH} linked to ${LP3D_TD}"
+      else
+        Error "${LP3D_DIST_DIR_PATH} failed to link to ${LP3D_TD}"
+      fi
     else
-      Error "${LP3D_DIST_DIR_PATH} failed to link to ${LP3D_TD}"
+      Info "Using cached 3rd Party repository ${LP3D_TD}"
     fi
-  else
-    Info "Using cached 3rd Party repository ${LP3D_TD}"
   fi
 
   # Source package script

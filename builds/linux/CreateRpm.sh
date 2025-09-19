@@ -438,7 +438,7 @@ then
                 *)
                     LP3D_BUILD_ARCH="32bit_release" ;;
             esac
-            export LPUB3D_EXE="${BUILD_DIR}/BUILD/${WORK_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+            export LPUB3D_EXE="${BUILD_DIR}/BUILD/${LPUB3D}-${LP3D_APP_VERSION}-build/${WORK_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
             cd ${SOURCE_DIR} && source builds/check/build_checks.sh
         else
             echo "$((CMD_CNT+=1)). Build check ${DISTRO_FILE}"

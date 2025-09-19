@@ -133,7 +133,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.9.4510
+Version: 2.4.9.4511
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -773,6 +773,12 @@ export LP3D_CPU_CORES="%{_lp3d_cpu_cores}"
 export LP3D_3RD_DIST_DIR="%{_lp3d_3rd_dist_dir}"
 export LP3D_DIST_DIR_PATH="${WD}/${LP3D_3RD_DIST_DIR}"
 export LP3D_PUBLISH_RENDERERS="%{_lp3d_publish_renderers}"
+%if 0%{?buildservice}!=1
+pushd ${WD}
+if test -d /dist/fedora_amd64; then ln -sf /dist/fedora_amd64 ${LP3D_3RD_DIST_DIR}; fi
+popd
+if test -d ${LP3D_DIST_DIR_PATH}; then echo /dist/fedora_amd64 linked to ${LP3D_DIST_DIR_PATH}; fi
+%endif
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 # option flags and qmake settings
 %if 0%{?fedora_version}==23
@@ -864,7 +870,7 @@ update-desktop-database || true
 %endif
 
 %changelog
-* Fri Sep 19 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4510
+* Fri Sep 19 2025 - trevor.dot.sandy.at.gmail.dot.com 2.4.9.4511
 - LPub3D 2.4.9 enhancements and fixes - see RELEASE_NOTES for details
 
 * Tue Jan 07 2025 - trevor dot sandy at gmail dot com 2.4.9.4047
