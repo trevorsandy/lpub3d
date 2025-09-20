@@ -1950,7 +1950,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         }
 
         sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
-        if (!topFileNotFound && !unofficialPart && sof && !eof && !eosf && !eoef && !externalFile)
+        if (!topFileNotFound && sof && !eof && !eosf && !eoef && !externalFile)
             endStepMetaMissing = true;
         eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
 
@@ -2196,9 +2196,15 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                         loadStatusEntry(EMPTY_SUBMODEL_LOAD_MSG, statusEntry, subfileName, message);
                     } else {
                         if (endStepMetaMissing) {
-                            if ((eof = setEndStepMeta(contents))) {
-                                const QString message = QObject::tr("MPD %1 '%2' end STEP was added by %3 (file: %4, line: %5).")
-                                                                    .arg(fileType(), subfileName, VER_PRODUCTNAME_STR, fileInfo.fileName()).arg(lineIndx + 1);
+                            QString message;
+                            if (unofficialPart > UNOFFICIAL_SUBMODEL) {
+                                message = QObject::tr("MPD %1 '%2' end meta NOFILE missing (file: %3, line: %4).")
+                                                      .arg(fileType(true), subfileName, fileInfo.fileName()).arg(lineIndx + 1);
+                            } else if ((eof = setEndStepMeta(contents))) {
+                                message = QObject::tr("MPD %1 '%2' end STEP was added by %3 (file: %4, line: %5).")
+                                                      .arg(fileType(true), subfileName, VER_PRODUCTNAME_STR, fileInfo.fileName()).arg(lineIndx + 1);
+                            }
+                            if (!message.isEmpty()) {
                                 const QString statusEntry = QString("%1|%2|%3").arg(BAD_DATA_LOAD_MSG).arg(subfileName, message);
                                 loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, subfileName, message);
                             }
@@ -2337,9 +2343,15 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 loadStatusEntry(EMPTY_SUBMODEL_LOAD_MSG, statusEntry, subfileName, message);
             } else {
                 if (!eof && !eosf) {
-                    if (setEndStepMeta(contents)) {
-                        const QString message = QObject::tr("MPD %1 '%2' end STEP was added by %3 (file: %4, line: %5).")
-                                                            .arg(fileType(), subfileName, VER_PRODUCTNAME_STR, fileInfo.fileName()).arg(lineIndx + 1);
+                    QString message;
+                    if (unofficialPart > UNOFFICIAL_SUBMODEL) {
+                        message = QObject::tr("MPD %1 '%2' end meta NOFILE missing (file: %3, line: %4).")
+                                              .arg(fileType(true), subfileName, fileInfo.fileName()).arg(lineIndx + 1);
+                    } else if (setEndStepMeta(contents)) {
+                        message = QObject::tr("MPD %1 '%2' end STEP was added by %3 (file: %4, line: %5).")
+                                              .arg(fileType(true), subfileName, VER_PRODUCTNAME_STR, fileInfo.fileName()).arg(lineIndx + 1);
+                    }
+                    if (!message.isEmpty()) {
                         const QString statusEntry = QString("%1|%2|%3").arg(BAD_DATA_LOAD_MSG).arg(subfileName, message);
                         loadStatusEntry(BAD_DATA_LOAD_MSG, statusEntry, subfileName, message);
                     }
@@ -2358,7 +2370,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             if (contents.size()) {
                 if (!isDatafile && (headerMissing = MissingHeaderType(missingHeaders())))
                     normalizeHeader(subfileName, fileInfo.fileName(), headerMissing);
-                emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD [EOF] %1 '%2' with %3 lines loaded.")
+                emit gui->messageSig(LOG_NOTICE, QObject::tr("MPD %1 '%2' with %3 lines loaded.")
                                                              .arg(fileType(), subfileName, QString::number(size(subfileName))));
             }
         }
@@ -2833,7 +2845,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     unofficialPart = getUnofficialFileType(smLine);
                     if (unofficialPart) {
                         emit gui->messageSig(LOG_TRACE, QObject::tr("Inline file '%1' spcified as %2.")
-                                                                    .arg(subfileName, fileType()));
+                                                                    .arg(subfileName, fileType(true)));
                     }
                 }
             }
@@ -3926,8 +3938,7 @@ void LDrawFile::countParts(const QString &fileName, bool recount) {
                             */
                         } else
                         if (QFileInfo(type).isFile()) {
-                            // QString const sourceFilePath = getSubFilePath(type);
-                            // external file in current directory
+                            // external file in current/loaded model file directory
                             partDesc = QFileInfo(type).baseName();
                             QFile file(type);
                             if (file.open(QFile::ReadOnly | QFile::Text)) {
