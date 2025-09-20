@@ -3,7 +3,7 @@
 [![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url]      |[![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url]             |[![GitHub total downloads][gh-dl-badge]][gh-dl-url]
 [![GitHub issues closed][gh-issue-closed-badge]][gh-issue-closed-url]|[![GitHub issues][gh-issue-badge]][gh-issue-url]                           |[![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url]
 [![GitHub build status][gha-build-badge]][gh-actions-url]            |[![GitHub quality check][gha-quality-badge]][gh-actions-url]               |[![Maintained status][gh-maintained-badge]][gh-maintained-url]
-[![OBS build result][obs_result_badge]][obs_pakg_url]                |[![OBS build percent][obs_percent_badge]][obs_pakg_url]                    |
+[![OBS build result][obs_result_badge]][obs_pakg_url]                |[![OBS build percent][obs_qt5result_badge]][obs_qt5pakg_url]               |[![OBS build percent][obs_percent_badge]][obs_pakg_url]
 
 **LPub3D** is an Open Source WYSIWYG editing application for creating [LEGO®][lego-url] style digital building instructions.
 
@@ -48,14 +48,14 @@ LPub3D **Blender integration** uses the [LPub3D Blender LDraw Addon][blender-add
 ![Intel-Logo][intel-logo]|![AMD-Logo][amd-logo]|![APPLE-M1-Logo][apple-m1-logo]|![ARM-Logo][arm-logo]|![RaspberryPi-Logo][raspberrypi-logo]
 
 LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.
-LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-site-url] and [Snap][snapcraft-site-url] or [Flatpak][flathub-site-url] 'sandbox' deployment. Builds are available for both x86 instruction set (32-bit and 64-bit) and Advanced RISC Machines (ARM) micorprocessors.
+LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-site-url] and [Snap][snapcraft-site-url] or [Flatpak][flathub-site-url] 'sandbox' deployment. Builds are available for both Intel x86 instruction set (32-bit and 64-bit) and Advanced RISC Machines (ARM) micorprocessors.
 
 ### Downloads
 
 :---------------------------------------------|:-------------------------------
-[![GitHub-Logo][github-logo]][github_releases]|[GitHub Releases][github_releases] - Linux, macOS and Windows Distributions
-[![SF-Logo][sf-logo]][sf_file_releases]            |[Sourceforge Releases][sf_releases] - Linux, macOS and Windows Distributions
-[![OBS-Logo][obs-logo]][obs_releases]         |[Open Build Service Releases][obs_pkg_releases] - Linux distributions
+[![GitHub-Logo][github-logo]][github_releases]|[GitHub][github_releases] Releases - Linux, macOS and Windows Distributions
+[![SF-Logo][sf-logo]][sf_file_releases]       |[Sourceforge][sf_releases] Releases - Linux, macOS and Windows Distributions
+[![OBS-Logo][obs-logo]][obs_home_releases]    |[Open Build Service][obs_home_releases] [Qt6][obs_pkg_releases] and [Qt5][obs_qt5pkg_releases] Releases - Linux distributions
 
 ### Distributions
 
@@ -68,17 +68,18 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 
  - Click icon above to download and/or install distribution release.
  - **ARM** builds are available for the following distributions:
-	- [macOS 14 (arm64)](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.86.4133_20250319-arm64-macos.dmg)
-	- [AppImage Ubuntu 18.04 (aarch64)](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.86.4133_20250319-aarch64.AppImage)
-	- [AlmaLinux 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/AlmaLinux_9/aarch64/lpub3d-2.4.9.4133-1.el9.aarch64.rpm)
-	- [CentOS 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_9_Stream/aarch64/lpub3d-2.4.9.4133-1.el9.aarch64.rpm)
-	- [Debian 12 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/Debian_12/arm64/lpub3d_2.4.9.4133-1_arm64.deb)
-	- [Fedora 41 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/Fedora_41/aarch64/lpub3d-2.4.9.4133-1.fc41.aarch64.rpm)
-	- [Raspbian 12 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/Raspbian_12/arm64/lpub3d_2.4.9.4133-1_arm64.deb)
-	- [openEuler 21.03 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/openEuler_21.03/aarch64/lpub3d-2.4.9.4133-1.aarch64.rpm)
-	- [openSUSE Leap 15.2 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/openSUSE_Leap_15.2_ARM/aarch64/lpub3d-2.4.9.4133-1.openSUSELeap15020.aarch64.rpm)
-	- [Ubuntu 24.04 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_24.04/arm64/lpub3d_2.4.9.4133-1_arm64.deb)
-	
+    - [Windows 11 (arm64)](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.86.4133_20250319.exe)
+    - [macOS 14 (arm64)](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.86.4133_20250319-arm64-macos.dmg)
+    - [AppImage Ubuntu 20.04 (aarch64)](https://github.com/trevorsandy/lpub3d/releases/download/continuous/LPub3D-2.4.9.86.4133_20250319-aarch64.AppImage)
+    - [AlmaLinux 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/AlmaLinux_9/aarch64/lpub3d-2.4.9.4133-1.el9.aarch64.rpm)
+    - [CentOS 9 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_9_Stream/aarch64/lpub3d-2.4.9.4133-1.el9.aarch64.rpm)
+    - [Debian 12 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/Debian_12/arm64/lpub3d_2.4.9.4133-1_arm64.deb)
+    - [Fedora 41 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/Fedora_41/aarch64/lpub3d-2.4.9.4133-1.fc41.aarch64.rpm)
+    - [Raspbian 12 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/Raspbian_12/arm64/lpub3d_2.4.9.4133-1_arm64.deb)
+    - [openEuler 21.03 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/openEuler_21.03/aarch64/lpub3d-2.4.9.4133-1.aarch64.rpm)
+    - [openSUSE Leap 15.2 (aarch64)](https://download.opensuse.org/repositories/home:/trevorsandy/openSUSE_Leap_15.2_ARM/aarch64/lpub3d-2.4.9.4133-1.openSUSELeap15020.aarch64.rpm)
+    - [Ubuntu 24.04 (arm64)](https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_24.04/arm64/lpub3d_2.4.9.4133-1_arm64.deb)
+
 ### Verify Windows Distribution Hash using PowerShell
 The following steps are using LPub3D Windows release hosted on [GitHub][github_releases].
 These steps can be applied to any LPub3D release where a GPG signature file is available.
@@ -141,7 +142,8 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - [LPub3D meta commands UDL for Notepad++ (zip download)][resources-lpub3d-npp-udl]
 
 ### Features and Enhancements
-<div class="feature-list" markdown="1">                 
+<div class="feature-list" markdown="1">
+ - Upgrade to Qt 6.9.2 [#820](https://github.com/trevorsandy/lpub3d/issues/820) <span style="color:red">(NEW!)</span>
  - Automatic restart [#790](https://github.com/trevorsandy/lpub3d/issues/790) <span style="color:red">(NEW!)</span>
  - Load last opened page on load last opened file [#795](https://github.com/trevorsandy/lpub3d/issues/795) <span style="color:red">(NEW!)</span>
  - Expanded command editor toolbar [#800](https://github.com/trevorsandy/lpub3d/issues/800) <span style="color:red">(NEW!)</span>
@@ -231,7 +233,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Ubuntu][dockerubuntu] and [Fedora][dockerfedora] Linux distros
 
 </div><br />
- 
+
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2025 Leonardo Zide, LDView© 2025 Travis Cobbs & Peter Bartfai and additional third party components. See [Credits][docs-lpub3d-credits] for full details on contributing content.
 
  [![Built-With-Qt-Logo][builtwithqt-logo]][qt-url]
@@ -323,7 +325,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [mageia-icon]:         {{ '/assets/images/mageia.png' | relative_url }} "Mageia 9"
 [opensuse-icon]:       {{ '/assets/images/opensuse.png' | relative_url }} "openSUSE Leap 15.6"
 [openeuler-icon]:      {{ '/assets/images/openeuler_logo.png' | relative_url }} "openEuler 21.03"
-[raspbian-icon]:       {{ '/assets/images/raspberrypi_logo.png' | relative_url }} "Raspbian 12 Bookworm" 
+[raspbian-icon]:       {{ '/assets/images/raspberrypi_logo.png' | relative_url }} "Raspbian 12 Bookworm"
 [rhel-icon]:           {{ '/assets/images/rhel.png' | relative_url }} "Red Hat Enterprise Linux 8"
 [sl-icon]:             {{ '/assets/images/sl.png' | relative_url }} "Scientific Linux 7"
 [sle-icon]:            {{ '/assets/images/sle.png' | relative_url }} "SUSE Enterprise Linux 15 SP4"
@@ -376,11 +378,14 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [sf_releases]:         https://sourceforge.net/projects/lpub3d/files/Continuous
 [sf_file_releases]:    https://sourceforge.net/projects/lpub3d/files
 [obs_pkg_releases]:    https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d
-[obs_releases]:        https://download.opensuse.org/repositories/home:/trevorsandy
+[obs_qt5pkg_releases]: https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d-qt5
+[obs_home_releases]:   https://download.opensuse.org/repositories/home:/trevorsandy
 
 [obs_pakg_url]:        https://build.opensuse.org/package/show/home:trevorsandy/lpub3d
+[obs_qt5pakg_url]:     https://build.opensuse.org/package/show/home:trevorsandy/lpub3d-qt5
 [obs_result_badge]:    https://build.opensuse.org/projects/home:trevorsandy/packages/lpub3d/badge.svg?type=default
-[obs_percent_badge]:   https://build.opensuse.org/projects/home:trevorsandy/packages/lpub3d/badge.svg?type=percent           
+[obs_qt5result_badge]: https://build.opensuse.org/projects/home:trevorsandy/packages/lpub3d-qt5/badge.svg?type=default
+[obs_percent_badge]:   https://build.opensuse.org/projects/home:trevorsandy/packages/lpub3d/badge.svg?type=percent
 
 [gha-build-badge]:     https://github.com/trevorsandy/lpub3d/actions/workflows/prod_ci_build.yml/badge.svg?event=push
 [gha-quality-badge]:   https://github.com/trevorsandy/lpub3d/actions/workflows/codeql.yml/badge.svg?event=push
