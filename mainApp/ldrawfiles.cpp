@@ -1990,19 +1990,23 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         split(smLine,tokens);
 
         // indicate submodel in display model step or substitute type
-        if (tokens.size() && tokens.at(0) == "0") {
-            if (displayModel)
-                displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
-            else
-                displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
-
-            if (isSubstitute(smLine,subFile))
-                subfileFound = !subFile.isEmpty();
-        }
-        // part type 1-5 check
-        else if ((subfileFound = tokens.size() == 15)) {
-            modelHeaderFinished = partHeaderFinished = true;
-            subFile = tokens.at(14);
+        bool type0 = false;
+        if (tokens.size()) {
+            if ((type0 = tokens.at(0) == "0")) {
+                if (displayModel)
+                    displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
+                else
+                    displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
+    
+                if (isSubstitute(smLine,subFile))
+                    subfileFound = !subFile.isEmpty();
+            }
+            // part type 1-5 check
+            else {
+                modelHeaderFinished = partHeaderFinished = true;
+                if ((subfileFound = tokens.size() == 15))
+                    subFile = tokens.at(14);
+            }
         }
 
         // subfile, helper and lsynth part check
@@ -2698,19 +2702,23 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             split(smLine,tokens);
 
             // indicate submodel in display model step or substitute type
-            if (tokens.size() && tokens.at(0) == "0") {
-                if (displayModel)
-                    displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
-                else
-                    displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
+            bool type0 = false;
+            if (tokens.size()) {
+                if ((type0 = tokens.at(0) == "0")) {
+                    if (displayModel)
+                        displayModel = !smLine.contains(_fileRegExp[LDS_RX]); // LDraw Step Boundry
+                    else
+                        displayModel = smLine.contains(_fileRegExp[DMS_RX]);  // Display Model Step
 
-                if (isSubstitute(smLine,subFile))
-                    subfileFound = !subFile.isEmpty();
-            }
-            // part type 1-5 check
-            else if ((subfileFound = tokens.size() == 15)) {
-                topHeaderFinished = partHeaderFinished = true;
-                subFile = tokens.at(14);
+                    if (isSubstitute(smLine,subFile))
+                        subfileFound = !subFile.isEmpty();
+                }
+                // part type 1-5 check
+                else {
+                    topHeaderFinished = partHeaderFinished = true;
+                    if ((subfileFound = tokens.size() == 15))
+                        subFile = tokens.at(14);
+                }
             }
 
             // subfile, helper and lsynth part check

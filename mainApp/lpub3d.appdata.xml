@@ -86,9 +86,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.9.4519" date="2025-09-20">
+            <release version="2.4.9.4520" date="2025-09-20">
                 <description>
-                    <p>LPub3D 20.09.2025 v2.4.9 r472 Continuous Build.
+                    <p>LPub3D 20.09.2025 v2.4.9 r473 Continuous Build.
                         - Feature - Upgrade development platform to Qt 6.9 #820
                         - Enhancement - Inconsistency with parts list shape inputs #805
                         - Enhancement - Set annotation style attributes from context menu action #812
