@@ -84,6 +84,9 @@ LdrawFilesLoad::LdrawFilesLoad(const LoadStatus &loadStatus, bool menuAction, QW
     includeColor = QColor(0,153,255);
     includeBrush.setColor(includeColor);
 
+    pictureColor = QColor(3,206,252);
+    pictureBrush.setColor(pictureColor);
+
     warningColor = QColor(Qt::darkYellow);
     warningBrush.setColor(warningColor);
 
@@ -104,6 +107,7 @@ LdrawFilesLoad::LdrawFilesLoad(const LoadStatus &loadStatus, bool menuAction, QW
     bidc = countItems(BAD_DATA_LOAD_MSG);
     bifc = countItems(BAD_INCLUDE_LOAD_MSG);
     ifc  = countItems(INCLUDE_FILE_LOAD_MSG);
+    pic  = countItems(PICTURE_FILE_LOAD_MSG);
     hpc  = helperPartCount;
     /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
     ppc  = countItems(PRIMITIVE_LOAD_MSG);
@@ -416,6 +420,8 @@ void LdrawFilesLoad::summary() const
         messages.append(QObject::tr("<br> - Inline subparts:        <b>%1</b>").arg(ispc));
     if (idc)
         messages.append(QObject::tr("<br> - Inline data:            <b>%1</b>").arg(idc));
+    if (pic)
+        messages.append(QObject::tr("<br> - Picture image files:    <b>%1</b>").arg(pic));
     if (esc)
         messages.append(QObject::tr("<br> - External Subfile:       <b>%1</b>").arg(esc));
     /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
@@ -500,6 +506,14 @@ void LdrawFilesLoad::populate(bool groupItems)
                         rowDesc->setForeground(includeBrush);
                     }
                     break;
+                    case PICTURE_FILE_LOAD_MSG:
+                    {
+                        QStandardItem *rowItem = childRow.at(0);
+                        rowItem->setForeground(pictureBrush);
+                        QStandardItem *rowDesc = childRow.at(1);
+                        rowDesc->setForeground(pictureBrush);
+                    }
+                    break;
                     case MISSING_PART_LOAD_MSG:
                     {
                         QStandardItem *rowItem = childRow.at(0);
@@ -563,6 +577,16 @@ void LdrawFilesLoad::populate(bool groupItems)
             setChildItems(msgType, includeRow);
         }
             break;
+        case PICTURE_FILE_LOAD_MSG:
+        {
+            QList<QStandardItem *>pictureRow = prepareRow(item,"");
+            QStandardItem *rowItem = pictureRow.at(0);
+            rowItem->setData(msgType);
+            rowItem->setForeground(pictureBrush);
+            rn->appendRow(pictureRow);
+            setChildItems(msgType, pictureRow);
+        }
+            break;
         case EMPTY_SUBMODEL_LOAD_MSG:
         case BAD_INCLUDE_LOAD_MSG:
         case BAD_DATA_LOAD_MSG:
@@ -611,6 +635,9 @@ void LdrawFilesLoad::populate(bool groupItems)
 
     if (ifc)
         setRow(INCLUDE_FILE_LOAD_MSG,     tr("Include Files (%1)").arg(ifc));
+
+    if (pic)
+        setRow(PICTURE_FILE_LOAD_MSG,     tr("Picture Image Files (%1)").arg(pic));
 
     if (ipc)
         setRow(INLINE_PART_LOAD_MSG,      tr("Inline Parts (%1)").arg(ipc));

@@ -2142,6 +2142,23 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 stagedSubfiles.removeAt(subfileIndx);
         }
 
+        // Check for picture image file
+        if (type0 && smLine.contains(_fileRegExp[PIC_RX])) {
+            QFileInfo inclPicInfo(_fileRegExp[PIC_RX].match(smLine).captured(1));
+            QImage Image(QPixmap(LPub::getFilePath(inclPicInfo.filePath())).toImage());
+            if (!Image.isNull()) {
+                const QString statusEntry = QObject::tr("%1|%2|MPD Picture image file %2 (file: %3, line: %4)")
+                                                        .arg(PICTURE_FILE_LOAD_MSG).arg(inclPicInfo.fileName(), subfileName).arg(lineIndx + 1);
+                loadStatusEntry(PICTURE_FILE_LOAD_MSG, statusEntry, inclPicInfo.fileName(), QObject::tr("File [%1] is a MPD Picture image file"));
+            } else {
+                const QString message = QObject::tr("MPD Picture image file '%1' was not found (file: %2, line: %3).")
+                                                    .arg(inclPicInfo.fileName(), fileInfo.fileName()).arg(lineIndx + 1);
+                const QString statusEntry = QObject::tr("%1|%2|MPD Picture image file '%2' was not found (subfile: %3, line: %4).")
+                                                        .arg(BAD_INCLUDE_LOAD_MSG).arg(inclPicInfo.fileName(), subfileName).arg(lineIndx + 1);
+                loadStatusEntry(BAD_INCLUDE_LOAD_MSG, statusEntry, inclPicInfo.fileName(), message);
+            }
+        }
+
         // processing inlined parts or base 64 data
         if (!sof && hdrFILENotFound) {
             if (subfileName.isEmpty() && hdrNameNotFound) {
@@ -2841,6 +2858,23 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 subfileIndx = stagedSubfiles.indexOf(subfileName);
                 if (subfileIndx > NOT_FOUND)
                     stagedSubfiles.removeAt(subfileIndx);
+            }
+
+            // Check for picture image file
+            if (type0 && smLine.contains(_fileRegExp[PIC_RX])) {
+                QFileInfo inclPicInfo(_fileRegExp[PIC_RX].match(smLine).captured(1));
+                QImage Image(QPixmap(LPub::getFilePath(inclPicInfo.filePath())).toImage());
+                if (!Image.isNull()) {
+                    const QString statusEntry = QObject::tr("%1|%2|LDR Picture image file %2 (file: %3, line: %4)")
+                                                            .arg(PICTURE_FILE_LOAD_MSG).arg(inclPicInfo.fileName(), subfileName).arg(lineIndx + 1);
+                    loadStatusEntry(PICTURE_FILE_LOAD_MSG, statusEntry, inclPicInfo.fileName(), QObject::tr("File [%1] is a LDR Picture image file"));
+                } else {
+                    const QString message = QObject::tr("LDR Picture image file '%1' was not found (file: %2, line: %3).")
+                                                        .arg(inclPicInfo.fileName(), fileInfo.fileName()).arg(lineIndx + 1);
+                    const QString statusEntry = QObject::tr("%1|%2|LDR Picture image file '%2' was not found (subfile: %3, line: %4).")
+                                                            .arg(BAD_INCLUDE_LOAD_MSG).arg(inclPicInfo.fileName(), subfileName).arg(lineIndx + 1);
+                    loadStatusEntry(BAD_INCLUDE_LOAD_MSG, statusEntry, inclPicInfo.fileName(), message);
+                }
             }
 
             // processing inlined parts
@@ -6329,10 +6363,11 @@ LDrawFile::LDrawFile()
         << QRegularExpression("^0\\s+AUTHOR:\\s+(.*)$", QRegularExpression::CaseInsensitiveOption)    // AUT_RX - Author Header
         << QRegularExpression("^0\\s+AUTHOR:\\s*$", QRegularExpression::CaseInsensitiveOption)        // AUK_RX - Author Header Key
         << QRegularExpression("^0\\s+!?CATEGORY\\s+(.*)$", QRegularExpression::CaseInsensitiveOption) // CAT_RX - Category Header
-        << QRegularExpression("^0\\s+!?LPUB\\s+INCLUDE\\s+[\"']?([^\"']*)[\"']?$", QRegularExpression::CaseInsensitiveOption)                              // INC_RX - Include File
-        << QRegularExpression("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$", QRegularExpression::CaseInsensitiveOption) // LDG_RX - LDCad Group
-        << QRegularExpression("^0\\s+!?LDCAD\\s+(CONTENT|PATH_POINT|PATH_SKIN|GENERATED)[^\n]*")                                                           // LDC_RX - LDCad Generated Content
-        << QRegularExpression("^[0-5]\\s+!?(?:LPUB)*\\s?(?:STEP|ROTSTEP|MULTI_STEP BEGIN|CALLOUT BEGIN|BUILD_MOD BEGIN|ROTATION|\\d)[^\n]*")               // EOH_RX - End of Header
+        << QRegularExpression("^0\\s+!?LPUB\\s+INCLUDE\\s+[\"']?([^\"']*)[\"']?$")                    // INC_RX - Include File
+        << QRegularExpression("^0\\s+!?LPUB\\s+.*\\s+PICTURE\\s+[\"']?([^\"']*)[\"']?.*$")            // PIC_RX - Picture Image File
+        << QRegularExpression("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$")       // LDG_RX - LDCad Group
+        << QRegularExpression("^0\\s+!?LDCAD\\s+(CONTENT|PATH_POINT|PATH_SKIN|GENERATED)[^\n]*")                                             // LDC_RX - LDCad Generated Content
+        << QRegularExpression("^[0-5]\\s+!?(?:LPUB)*\\s?(?:STEP|ROTSTEP|MULTI_STEP BEGIN|CALLOUT BEGIN|BUILD_MOD BEGIN|ROTATION|\\d)[^\n]*") // EOH_RX - End of Header
         << QRegularExpression("^0\\s+!?(?:LPUB)*\\s?(INSERT DISPLAY_MODEL)[^\n]*")                                              // DMS_RX - Display Model Step
         << QRegularExpression("^0\\s+(STEP|ROTSTEP|NOSTEP|NOFILE)[^\n]*")                                                       // LDS_RX - LDraw Step boundry
         << QRegularExpression("(?:FADE_STEPS|HIGHLIGHT_STEP)\\s+(SETUP|ENABLED)\\s*(GLOBAL|LOCAL)?\\s*TRUE[^\n]*")              // FHE_RX - Fade or Highlight Enabled (or Setup)
@@ -6342,7 +6377,7 @@ LDrawFile::LDrawFile()
 
   {
     LDrawHeaderRegExp
-        << QRegularExpression("^0\\s+FILE\\s+(.+)$", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+FILE\\s+(.+)$")
         << QRegularExpression("^0\\s+AUTHOR:?[^\n]*", QRegularExpression::CaseInsensitiveOption)
         << QRegularExpression("^0\\s+BFC[^\n]*", QRegularExpression::CaseInsensitiveOption)
         << QRegularExpression("^0\\s+!?CATEGORY[^\n]*", QRegularExpression::CaseInsensitiveOption)
@@ -6365,7 +6400,7 @@ LDrawFile::LDrawFile()
         << QRegularExpression("^0\\s+UN-OFFICIAL[^\n]*", QRegularExpression::CaseInsensitiveOption)
         << QRegularExpression("^0\\s+WRITE[^\n]*", QRegularExpression::CaseInsensitiveOption)
         << QRegularExpression("^0\\s+~MOVED\\s+TO[^\n]*", QRegularExpression::CaseInsensitiveOption)
-        << QRegularExpression("^0\\s+NOFILE\\s*$", QRegularExpression::CaseInsensitiveOption)
+        << QRegularExpression("^0\\s+NOFILE\\s*$")
            ;
   }
 

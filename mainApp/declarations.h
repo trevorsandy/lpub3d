@@ -151,6 +151,7 @@ enum LDrawFileRegExpType {
     AUK_RX,  // Author Header Key
     CAT_RX,  // Category Header
     INC_RX,  // Include File
+    PIC_RX,  // Picture Image File
     LDG_RX,  // LDCad Group
     LDC_RX,  // LDCad Generated Content
     EOH_RX,  // End of Header
@@ -213,6 +214,7 @@ enum LoadMsgType { VALID_LOAD_MSG,
                    BAD_DATA_LOAD_MSG,
                    BAD_INCLUDE_LOAD_MSG,
                    INCLUDE_FILE_LOAD_MSG,
+                   PICTURE_FILE_LOAD_MSG,
                    ALL_LOAD_MSG
 };
 enum ActionModuleType { NO_ACTION,                 //  0

@@ -106,6 +106,7 @@ private:
     int bidc;
     int bifc;
     int ifc;
+    int pic;
     /* Do not add these into the load status dialogue because they are not loaded in the LDrawFile.subfiles
     int ppc;
     int spc;
@@ -113,6 +114,8 @@ private:
 
     QColor includeColor;
     QBrush includeBrush;
+    QColor pictureColor;
+    QBrush pictureBrush;
     QColor warningColor;
     QBrush warningBrush;
     QColor errorColor;
