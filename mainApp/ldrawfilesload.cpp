@@ -446,11 +446,15 @@ void LdrawFilesLoad::summary() const
         QString const wereStr   = tr("%1").arg(mpc > 1 ? QObject::tr("were")       : QObject::tr("was"));
         QString const theseStr  = tr("%1").arg(mpc > 1 ? QObject::tr("these are")  : QObject::tr("this is"));
         QString const theirStr  = tr("%1").arg(mpc > 1 ? QObject::tr("their")      : QObject::tr("its"));
+        QString const colorStr  = QLatin1String("#DC6464");
         messages.append(QObject::tr("<br><br>%1 %2 not found. The following locations were searched;<br>"
-                                    "model file, LDraw search paths, %3 and %4 library archives.<br>"
-                                    "If %5 custom %6, be sure %7 location is in the LDraw search directory list.<br>"
-                                    "If %5 new unofficial %6, be sure the unofficial archive library is up to date.")
-                                    .arg(parts1Str,wereStr,VER_LPUB3D_UNOFFICIAL_ARCHIVE,VER_LDRAW_OFFICIAL_ARCHIVE,theseStr,parts2Str,theirStr));
+                                    "<span style=\"color: %8\"><b>model file</b></span>, "
+                                    "<span style=\"color: %8\"><b>LDraw search paths</b></span>, "
+                                    "<span style=\"color: %8\"><b>%3</b></span> and "
+                                    "<span style=\"color: %8\"><b>%4</b></span> library archives.<br>If %5 "
+                                    "<span style=\"color: %8\"><b>external %6</b></span>, be sure %7 location is in the LDraw search directory list.<br>If %5 new "
+                                    "<span style=\"color: %8\"><b>unofficial %6</b></span>, be sure archive library %3 is up to date.")
+                                    .arg(parts1Str,wereStr,VER_LPUB3D_UNOFFICIAL_ARCHIVE,VER_LDRAW_OFFICIAL_ARCHIVE,theseStr,parts2Str,theirStr,colorStr));
     }
     if (esmc) {
         QString const subModStr = tr("%1").arg(esmc > 1 ? QObject::tr("submodels") : QObject::tr("submodel"));

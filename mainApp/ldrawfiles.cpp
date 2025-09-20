@@ -63,14 +63,14 @@ QList<QRegularExpression> LDrawUnofficialPrimitiveRegExp;
 QList<QRegularExpression> LDrawUnofficialShortcutRegExp;
 const QString LDrawUnofficialType[UNOFFICIAL_NUM] =
 {
-    QLatin1String("Unofficial Submodel"),      // UNOFFICIAL_SUBMODEL
-    QLatin1String("Unofficial Part"),          // UNOFFICIAL_PART
-    QLatin1String("Unofficial Generated Part"),// UNOFFICIAL_GENERATED_PART
-    QLatin1String("Unofficial Subpart"),       // UNOFFICIAL_SUBPART
-    QLatin1String("Unofficial Primitive"),     // UNOFFICIAL_PRIMITIVE
-    QLatin1String("Unofficial Shortcut"),      // UNOFFICIAL_SHORTUCT
-    QLatin1String("Unofficial Data File"),     // UNOFFICIAL_DATA
-    QLatin1String("Unofficial Other File")     // UNOFFICIAL_OTHER
+    QLatin1String("Unofficial Submodel"),      // 0 UNOFFICIAL_SUBMODEL
+    QLatin1String("Unofficial Part"),          // 1 UNOFFICIAL_PART
+    QLatin1String("Unofficial Generated Part"),// 2 UNOFFICIAL_GENERATED_PART
+    QLatin1String("Unofficial Subpart"),       // 3 UNOFFICIAL_SUBPART
+    QLatin1String("Unofficial Primitive"),     // 4 UNOFFICIAL_PRIMITIVE
+    QLatin1String("Unofficial Shortcut"),      // 5 UNOFFICIAL_SHORTUCT
+    QLatin1String("Unofficial Data File"),     // 6 UNOFFICIAL_DATA
+    QLatin1String("Unofficial Other File")     // 7 UNOFFICIAL_OTHER
 };
 
 /********************************************
